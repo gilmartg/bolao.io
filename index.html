@@ -57,7 +57,6 @@
 
   @keyframes tremer { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
 
-  /* BOTÕES */
   .btn-principal { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 1.3rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
   .btn-principal:hover { background: var(--primary-hover); }
   
@@ -67,7 +66,6 @@
   .pix-box img { max-width: 100%; height: auto; margin-bottom: 10px; border: 2px solid #ccc; border-radius: 8px; }
   .pix-code { background: #fff; border: 2px dashed var(--primary); padding: 12px; font-size: 0.85rem; word-break: break-all; color: #000; border-radius: 4px; cursor: pointer; margin-bottom: 10px; font-weight: bold; }
 
-  /* ESTILOS DA REVISÃO DOS JOGOS */
   .revisao-bloco { display: none; margin-bottom: 15px; }
   .revisao-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border: 1px solid var(--border-light); padding: 10px; border-radius: 8px; margin-bottom: 8px; }
   .bolinhas-revisao { display: flex; gap: 4px; flex-wrap: wrap; }
@@ -133,22 +131,24 @@
   <div class="card-pub">
     <h2>Faça sua fé!</h2>
     
-    <div class="card-regras">
-      <h3>📋 Regras e Valores</h3>
-      <p><strong>Valor Total: R$ 20,00</strong></p>
-      <p style="font-size: 0.85rem; margin-top: -5px; margin-bottom: 10px;">(3 jogos de R$ 6,00 + R$ 2,00 de taxa de administração)</p>
-      <ul>
-        <li>Cada jogo deve ter <strong>6 números</strong>.</li>
-        <li>Os números devem ser de <strong>01 a 60</strong> (Proibido o 00).</li>
-        <li><strong>Não repita</strong> o mesmo número no mesmo jogo.</li>
-      </ul>
+    <!-- ÁREA INICIAL: REGRAS + NOME + BOTÃO CADASTRAR -->
+    <div id="areaInicial">
+      <div class="card-regras">
+        <h3>📋 Regras e Valores</h3>
+        <p><strong>Valor Total: R$ 20,00</strong></p>
+        <p style="font-size: 0.85rem; margin-top: -5px; margin-bottom: 10px;">(3 jogos de R$ 6,00 + R$ 2,00 de taxa de administração)</p>
+        <ul>
+          <li>Cada jogo deve ter <strong>6 números</strong>.</li>
+          <li>Os números devem ser de <strong>01 a 60</strong> (Proibido o 00).</li>
+          <li><strong>Não repita</strong> o mesmo número no mesmo jogo.</li>
+        </ul>
+      </div>
+
+      <label>Seu Nome Completo:</label>
+      <input type="text" id="pubNome" class="input-nome" placeholder="Ex: João da Silva" />
+
+      <button class="btn-principal" onclick="APP.publico.abrirJogos()">Cadastrar Jogos</button>
     </div>
-
-    <label>Seu Nome Completo:</label>
-    <input type="text" id="pubNome" class="input-nome" placeholder="Ex: João da Silva" />
-
-    <!-- BOTÃO INICIAL -->
-    <button class="btn-principal" id="btnAbrirJogos" style="display:block;" onclick="APP.publico.abrirJogos()">Cadastrar Jogos</button>
 
     <!-- ÁREA DE PREENCHIMENTO DOS JOGOS -->
     <div id="areaJogos" style="display:none;">
@@ -190,7 +190,6 @@
         </div>
       </div>
 
-      <!-- BOTÃO DE CONFIRMAR JOGOS -->
       <button class="btn-confirmar-jogos" onclick="APP.publico.confirmarJogos()">Confirmar Jogos</button>
     </div>
 
@@ -227,6 +226,9 @@
 
     <!-- ÁREA DO PIX -->
     <div id="pixArea" class="pix-box">
+      <div id="mensagemSucesso" style="display:none; margin-bottom: 15px; background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; font-weight: bold; border: 1px solid #86efac;">
+        ✅ Jogos registrados com sucesso!
+      </div>
       <p style="font-weight:bold; color:var(--primary); margin-bottom:10px; font-size:1.1rem;">Pague com PIX:</p>
       <img src="images/QRCODE_Mercado Pago.jpg" alt="QR Code PIX" onerror="this.style.display='none'">
       <p style="font-size:0.9rem; color:#333; font-weight:bold; margin-bottom:10px;">Ou copie o código abaixo:</p>
@@ -427,7 +429,8 @@
         const nome = document.getElementById('pubNome').value.trim();
         if(!nome) return alert("Por favor, digite seu nome primeiro.");
         
-        document.getElementById('btnAbrirJogos').style.display = 'none';
+        // Esconde a área inicial e mostra os jogos
+        document.getElementById('areaInicial').style.display = 'none';
         document.getElementById('areaJogos').style.display = 'block';
       },
 
@@ -450,11 +453,9 @@
           jogosTemporarios[i] = nums;
         }
 
-        // Transição visual
         document.getElementById('areaJogos').style.display = 'none';
         document.getElementById('areaRevisao').style.display = 'block';
 
-        // Renderizar bolinhas
         for(let i=1; i<=3; i++) {
           const container = document.getElementById(`bolinhas-${i}`);
           container.innerHTML = jogosTemporarios[i].map(n => `<div class="bolinha">${n}</div>`).join('');
@@ -471,6 +472,7 @@
 
       gerarPix: function() {
         const nome = document.getElementById('pubNome').value.trim();
+        const primeiroNome = nome.split(' ')[0];
         
         const jogosFinais = [
           jogosTemporarios[1].join(' - '),
@@ -478,8 +480,11 @@
           jogosTemporarios[3].join(' - ')
         ];
 
+        // Limpa a tela e mostra só o PIX e a mensagem de sucesso
         document.getElementById('areaRevisao').style.display = 'none';
         document.getElementById('pixArea').style.display = 'block';
+        document.getElementById('mensagemSucesso').style.display = 'block';
+        document.getElementById('mensagemSucesso').innerHTML = `✅ Jogos de <b>${primeiroNome}</b> registrados!`;
 
         estado.participantes.push({
           id: APP.utils.uid(),
