@@ -57,9 +57,11 @@
 
   @keyframes tremer { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
 
-  .btn-pix { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 1.3rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); display: none; }
-  .btn-pix:hover { background: var(--primary-hover); }
-  .btn-confirmar { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; display: none; }
+  /* BOTÕES */
+  .btn-principal { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 1.3rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+  .btn-principal:hover { background: var(--primary-hover); }
+  
+  .btn-confirmar-jogos { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
   
   .pix-box { display: none; text-align: center; margin-top: 20px; background: #f3f4f6; padding: 15px; border-radius: 8px; border: 2px solid var(--primary); }
   .pix-box img { max-width: 100%; height: auto; margin-bottom: 10px; border: 2px solid #ccc; border-radius: 8px; }
@@ -146,7 +148,7 @@
     <input type="text" id="pubNome" class="input-nome" placeholder="Ex: João da Silva" />
 
     <!-- BOTÃO INICIAL -->
-    <button class="btn-confirmar" id="btnAbrirJogos" style="display:block;" onclick="APP.publico.abrirJogos()">Cadastrar Jogos</button>
+    <button class="btn-principal" id="btnAbrirJogos" style="display:block;" onclick="APP.publico.abrirJogos()">Cadastrar Jogos</button>
 
     <!-- ÁREA DE PREENCHIMENTO DOS JOGOS -->
     <div id="areaJogos" style="display:none;">
@@ -188,7 +190,8 @@
         </div>
       </div>
 
-      <button class="btn-confirmar" onclick="APP.publico.confirmarJogos()">Confirmar Jogos</button>
+      <!-- BOTÃO DE CONFIRMAR JOGOS -->
+      <button class="btn-confirmar-jogos" onclick="APP.publico.confirmarJogos()">Confirmar Jogos</button>
     </div>
 
     <!-- ÁREA DE REVISÃO (APARECE APÓS CONFIRMAR) -->
@@ -219,7 +222,7 @@
         <button class="btn-editar" onclick="APP.publico.editarJogo(3)">✏️ Editar</button>
       </div>
 
-      <button class="btn-confirmar" style="background: var(--primary); color: white; margin-top: 15px;" onclick="APP.publico.gerarPix()">Confirmar e Gerar PIX</button>
+      <button class="btn-principal" style="margin-top: 15px;" onclick="APP.publico.gerarPix()">Confirmar e Gerar PIX</button>
     </div>
 
     <!-- ÁREA DO PIX -->
@@ -385,7 +388,7 @@
     },
     pixCopiaCola: "00020126360014br.gov.bcb.pix0114+5511953326997520400005303986540520.005802BR5921GILMAR TORQUATO GOMES6009Sao Paulo62210517daqr735456801956963042671",
     valorCota: 20.00,
-    senhaAdmin: "admin123"
+    senhaAdmin: "admin123" // ⚠️ MUDE SUA SENHA AQUI
   };
 
   let estado = { participantes: [], caixa: [], custoJogos: 0 };
@@ -462,7 +465,6 @@
         document.getElementById('areaRevisao').style.display = 'none';
         document.getElementById('areaJogos').style.display = 'block';
         
-        // Foca no primeiro input do jogo que quer editar
         const input = document.querySelector(`.num-input[data-jogo="${numJogo}"]`);
         if(input) input.focus();
       },
