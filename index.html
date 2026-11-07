@@ -33,10 +33,8 @@
   .num-input.erro { border-color: #dc2626; background: #fee2e2; color: #dc2626; animation: tremer 0.3s; }
 
   @keyframes tremer {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
+    0% { transform: translateX(0); } 25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); } 75% { transform: translateX(-5px); }
     100% { transform: translateX(0); }
   }
 
@@ -87,6 +85,7 @@
   /* Bolinhas no Admin */
   .jogo-exibicao { background: #1e293b; padding: 8px; border-radius: 6px; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
   .bola-num { background: #38bdf8; color: #0f172a; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
+  .bola-num.hit { background: #fbbf24; color: #000; }
 </style>
 </head>
 <body>
@@ -176,14 +175,14 @@
   <!-- TAB PAINEL -->
   <div class="tab active" id="tab-painel">
     <div class="card">
-      <h2>📊 Resumo do Caixa</h2>
+      <h2>📊 Resumo Financeiro Real</h2>
       <div class="kpi">
         <div><b id="kPart">0</b><span>Participantes</span></div>
-        <div><b id="kArrecad">R$ 0</b><span>Arrecadado</span></div>
-        <div><b id="kSaldo">R$ 0</b><span>Saldo caixa</span></div>
-        <div><b id="kPago">0/0</b><span>Pagaram</span></div>
+        <div><b id="kArrecad">R$ 0</b><span>Recebido (Pago)</span></div>
+        <div><b id="kFalta">R$ 0</b><span>A Receber (Pendente)</span></div>
+        <div><b id="kCusto">R$ 0</b><span>Custo dos Jogos</span></div>
       </div>
-      <div id="alertaSaldo"></div>
+      <div id="alertaSaldo" style="margin-top:10px;"></div>
     </div>
 
     <div class="card">
@@ -213,6 +212,22 @@
     </div>
   </div>
 
+  <!-- TAB CONFERÊNCIA -->
+  <div class="tab" id="tab-conf">
+    <div class="card">
+      <h2>🏆 Conferir sorteio</h2>
+      <input id="sorteio" placeholder="Ex: 01 05 12 23 34 45" style="font-size:1.1rem; padding:12px; text-align:center; font-weight:bold;" />
+      <button onclick="conferir()" style="background:#fbbf24; color:#000;">Conferir Jogos</button>
+      <div id="saidaConf" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>💰 Rateio de prêmio</h2>
+      <input id="premio" type="number" step="0.01" min="0" placeholder="Prêmio total recebido (R$)" oninput="ratear()" />
+      <div id="saidaRateio"></div>
+    </div>
+  </div>
+
   <!-- TAB FINANCEIRO -->
   <div class="tab" id="tab-fin">
     <div class="card">
@@ -222,11 +237,7 @@
     </div>
     
     <div class="card">
-      <h2>💵 Recebimentos</h2>
-      <div id="finPart"></div>
-    </div>
-    <div class="card">
-      <h2>🧾 Histórico de caixa</h2>
+      <h2>🧾 Histórico de Movimentações</h2>
       <div id="finHist"></div>
     </div>
   </div>
@@ -235,6 +246,7 @@
   <div class="tabbar">
     <button class="active" onclick="mostrarTab('painel', this)">📊<br>Painel</button>
     <button onclick="mostrarTab('part', this)">👥<br>Pessoas</button>
+    <button onclick="mostrarTab('conf', this)">🏆<br>Conferir</button>
     <button onclick="mostrarTab('fin', this)">💵<br>Caixa</button>
   </div>
 </div>
@@ -262,7 +274,7 @@
   const db = getDatabase(app);
   const dbRef = ref(db, 'bolao'); 
 
-  let estado = { participantes: [], caixa: [] };
+  let estado = { participantes: [], caixa: [], custoJogos: 0 };
   let isAdmin = false;
 
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
@@ -290,11 +302,9 @@
   // ==========================================
   window.mascaraNumero = function(input) {
     let val = input.value.replace(/\D/g, '');
-    
     if (val.length > 2) val = val.slice(0, 2);
     input.value = val;
 
-    // Valida o range assim que digita (se passar de 60, limpa)
     if (val.length > 0) {
       const num = parseInt(val);
       if (num > 60) {
@@ -304,31 +314,27 @@
       }
     }
 
-    // Pula para o próximo campo automaticamente quando chega em 2 dígitos
     if (val.length === 2) {
       const jogoAtual = input.getAttribute('data-jogo');
       const inputsDoJogo = Array.from(document.querySelectorAll(`.num-input[data-jogo="${jogoAtual}"]`));
       const index = inputsDoJogo.indexOf(input);
       
-      // Pequeno delay para o navegador registrar o valor antes de pular
       setTimeout(() => {
         if (index < inputsDoJogo.length - 1) {
           inputsDoJogo[index + 1].focus();
         } else {
-          input.blur(); // Se for o último, tira o foco
+          input.blur();
         }
       }, 50);
     }
   }
 
-  // Completa com 0 à esquerda quando o campo perde o foco (ex: 5 vira 05)
   window.completarZero = function(input) {
     let val = input.value.replace(/\D/g, '');
     if (val.length === 1) {
       input.value = '0' + val;
     }
     
-    // Agora que temos certeza que está formatado, checamos duplicidade
     const numFormatado = input.value;
     if (numFormatado.length === 2) {
       const jogoAtual = input.getAttribute('data-jogo');
@@ -362,9 +368,7 @@
       let temErro = false;
       
       inputs.forEach(inp => {
-        // Garante que o zero foi colocado antes de checar
         if(inp.value.length === 1) inp.value = '0' + inp.value;
-        
         if(!inp.value) temErro = true;
         else nums.push(inp.value);
       });
@@ -373,11 +377,9 @@
         return alert(`Por favor, preencha todos os 6 números do Jogo ${i}.`);
       }
 
-      // Valida duplicidade final por segurança
       if (new Set(nums).size !== nums.length) {
         return alert(`Atenção: O Jogo ${i} tem números repetidos. Corrija por favor.`);
       }
-
       jogos.push(nums.join(' - '));
     }
 
@@ -388,8 +390,6 @@
       id: uid(),
       nome: nome,
       jogos: jogos,
-      cotas: 1,
-      valorCota: VALOR_COTA,
       pago: 0,
       status: 'pendente'
     });
@@ -448,11 +448,11 @@
     const id = uid();
     
     estado.participantes.push({ 
-      id, nome, jogos: ["Cadastro Manual", "-", "-"], cotas: 1, valorCota: VALOR_COTA, pago, status 
+      id, nome, jogos: ["Cadastro Manual", "-", "-"], pago, status 
     });
 
     if (pago > 0) {
-      estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento inicial - ${nome}`, valor: pago, data: new Date().toISOString() });
+      estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Recebimento - ${nome}`, valor: pago, data: new Date().toISOString() });
     }
     if (status === 'pago' && VALOR_COTA > pago) {
       const falta = VALOR_COTA - pago;
@@ -469,8 +469,10 @@
   window.removePart = function(id) {
     const p = estado.participantes.find(x => x.id === id);
     if (!p || !confirm(`Remover ${p.nome}?`)) return;
+    
+    // Remove o participante e registra a saída, mas NÃO apaga o histórico antigo para não corromper
     if (p.pago > 0) {
-      estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno/remoção - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
+      estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno de cadastro - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
     }
     estado.participantes = estado.participantes.filter(x => x.id !== id);
     salvar();
@@ -480,10 +482,79 @@
     const p = estado.participantes.find(x => x.id === id);
     if (!p) return;
     const falta = +(VALOR_COTA - p.pago).toFixed(2);
-    if (falta <= 0) return alert('Já está totalmente pago.');
+    if (falta <= 0) return;
+    
     p.pago = VALOR_COTA; p.status = 'pago';
-    estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Quitação - ${p.nome}`, valor: falta, data: new Date().toISOString() });
+    estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Quitação PIX - ${p.nome}`, valor: falta, data: new Date().toISOString() });
     salvar();
+  }
+
+  window.desfazerPago = function(id) {
+    const p = estado.participantes.find(x => x.id === id);
+    if (!p || p.pago === 0) return;
+    if (!confirm(`Desfazer o pagamento de ${p.nome}?`)) return;
+    
+    const valorDevolvido = p.pago;
+    p.pago = 0; p.status = 'pendente';
+    estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno de pagamento - ${p.nome}`, valor: valorDevolvido, data: new Date().toISOString() });
+    salvar();
+  }
+
+  window.conferir = function() {
+    const raw = document.getElementById('sorteio').value.trim();
+    const sort = raw.split(/[\s,;]+/).map(n => n.replace(/\D/g,'')).filter(n => n.length === 2);
+    const out = document.getElementById('saidaConf');
+    
+    if (sort.length !== 6) {
+      out.innerHTML = '<div class="msg" style="color:#f87171">Digite exatamente 6 dezenas válidas.</div>'; return;
+    }
+    
+    if (!estado.participantes.length) { out.innerHTML = '<div class="msg">Nenhum participante.</div>'; return; }
+    
+    let html = '';
+    let acertosGerais = 0;
+
+    estado.participantes.forEach(p => {
+      if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
+        p.jogos.forEach((jogoStr, idx) => {
+          const nums = jogoStr.split(' - ');
+          const acertos = nums.filter(n => sort.includes(n));
+          
+          if (acertos.length > 0) {
+            acertosGerais++;
+            html += `<div class="item" style="border-color:#fbbf24; background:#2d2005;">
+              <div class="top"><strong>${esc(p.nome)} - Jogo ${idx+1}</strong><span class="badge" style="background:#fbbf24; color:#000;">${acertos.length} acerto(s)</span></div>
+              <div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:8px;">
+                ${nums.map(n => `<div class="bola-num ${sort.includes(n)?'hit':''}">${n}</div>`).join('')}
+              </div>
+            </div>`;
+          }
+        });
+      }
+    });
+
+    if (acertosGerais === 0) {
+      html = '<div class="msg">Nenhum participante acertou nada neste concurso.</div>';
+    } else {
+      html = `<div class="msg pos" style="margin-bottom:10px;">Tivemos acertos!</div>` + html;
+    }
+    out.innerHTML = html;
+  }
+
+  window.ratear = function() {
+    const premio = parseFloat(document.getElementById('premio').value) || 0;
+    const out = document.getElementById('saidaRateio');
+    const totalCotas = estado.participantes.length; 
+    if (!estado.participantes.length) { out.innerHTML = '<div class="msg">Sem participantes.</div>'; return; }
+    if (premio <= 0 || totalCotas === 0) { out.innerHTML = '<div class="msg">Informe o prêmio.</div>'; return; }
+    
+    const valorCota = premio / totalCotas;
+    let html = `<div class="flexline"><b>Valor por cota</b><b class="pos">${brl(valorCota)}</b></div>`;
+    html += `<div class="flexline"><span>Total de cotas</span><span>${totalCotas}</span></div>`;
+    estado.participantes.forEach(p => {
+      html += `<div class="flexline"><span>${esc(p.nome)}</span><b class="pos">${brl(valorCota)}</b></div>`;
+    });
+    out.innerHTML = html;
   }
 
   window.exportarExcel = function() {
@@ -512,28 +583,30 @@
     if(!isAdmin) return;
 
     const totalCotas = estado.participantes.length;
-    const totalDevido = totalCotas * VALOR_COTA;
+    
+    // A MÁGICA AQUI: Arrecadado e Pendente calculados DIRETO da lista de pessoas, sem risco de inflar
     const totalPago = estado.participantes.reduce((s,p) => s + p.pago, 0);
-    const arrecadado = estado.caixa.filter(c => c.tipo === 'entrada').reduce((s,c) => s + c.valor, 0);
-    const saidas = estado.caixa.filter(c => c.tipo === 'saida').reduce((s,c) => s + c.valor, 0);
-    const saldo = arrecadado - saidas;
+    const totalDevido = totalCotas * VALOR_COTA;
+    const faltaReceber = totalDevido - totalPago;
+    
+    const custoJogos = estado.custoJogos || 0;
     const pagos = estado.participantes.filter(p => p.pago >= VALOR_COTA).length;
 
     document.getElementById('kPart').textContent = totalCotas;
-    document.getElementById('kArrecad').textContent = brl(arrecadado);
-    document.getElementById('kSaldo').textContent = brl(saldo);
-    document.getElementById('kPago').textContent = `${pagos}/${totalCotas}`;
-    document.getElementById('kSaldo').className = saldo < 0 ? 'neg' : '';
-
+    document.getElementById('kArrecad').textContent = brl(totalPago);
+    document.getElementById('kFalta').textContent = brl(faltaReceber > 0 ? faltaReceber : 0);
+    document.getElementById('kCusto').textContent = brl(custoJogos);
+    
     const alerta = document.getElementById('alertaSaldo');
-    if (totalDevido > 0 && totalPago < totalDevido) {
-      alerta.innerHTML = `<div class="msg">Faltam receber <b>${brl(totalDevido - totalPago)}</b> dos participantes.</div>`;
+    if (faltaReceber > 0) {
+      alerta.innerHTML = `<div class="msg">Faltam receber <b>${brl(faltaReceber)}</b> (${totalCotas - pagos} pessoas).</div>`;
     } else if (totalDevido > 0) {
-      alerta.innerHTML = `<div class="msg pos">✅ Todos os valores devidos foram pagos.</div>`;
+      alerta.innerHTML = `<div class="msg pos">✅ Tudo pago! Caixa total: ${brl(totalPago)}.</div>`;
     } else {
       alerta.innerHTML = '';
     }
 
+    // Lista de resumo (Painel)
     const rp = document.getElementById('resumoPart');
     if (!estado.participantes.length) rp.innerHTML = '<div class="empty">Nenhum participante.</div>';
     else {
@@ -549,6 +622,7 @@
       }).join('');
     }
 
+    // Lista Completa (Pessoas)
     const lp = document.getElementById('listaPart');
     if (!estado.participantes.length) lp.innerHTML = '<div class="empty">Nenhum participante.</div>';
     else {
@@ -566,31 +640,23 @@
             </div>`;
           }).join('');
         } else {
-          jogosHtml = '<small style="color:#94a3b8; display:block; margin-top:4px;">Jogos preenchidos no papel.</small>';
+          jogosHtml = '<small style="color:#94a3b8; display:block; margin-top:4px;">Jogos no papel.</small>';
         }
 
         return `<div class="item">
           <div class="top"><strong>${esc(p.nome)}</strong><span class="badge ${ok?'ok':'no'}">${ok?'Quitado':'Falta '+brl(falta)}</span></div>
           ${jogosHtml}
           <div class="row" style="margin-top:8px">
-            ${!ok ? `<button class="sm" onclick="marcarPago('${p.id}')">✔ Quitar</button>` : ''}
+            ${!ok ? `<button class="sm" onclick="marcarPago('${p.id}')">✔ Quitar</button>` : `<button class="sm sec" onclick="desfazerPago('${p.id}')">↩ Estornar</button>`}
             <button class="sm danger" onclick="removePart('${p.id}')">✕ Excluir</button>
           </div>
         </div>`;
       }).join('');
     }
 
-    const fp = document.getElementById('finPart');
-    if (!estado.participantes.length) fp.innerHTML = '<div class="empty">Sem participantes.</div>';
-    else {
-      fp.innerHTML = estado.participantes.map(p => {
-        const falta = +(VALOR_COTA - p.pago).toFixed(2);
-        return `<div class="flexline"><span>${esc(p.nome)}</span><b class="${falta<=0?'pos':'neg'}">${falta<=0?'Quitado':brl(falta)+' a receber'}</b></div>`;
-      }).join('');
-    }
-
+    // Histórico Financeiro
     const fh = document.getElementById('finHist');
-    if (!estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhum movimento.</div>';
+    if (!estado.caixa || !estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhum movimento.</div>';
     else {
       fh.innerHTML = [...estado.caixa].reverse().map(c => `
         <div class="flexline">
