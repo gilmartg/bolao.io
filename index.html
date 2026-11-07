@@ -292,6 +292,20 @@
         <button onclick="APP.admin.salvarCusto()" style="width:40%">Salvar</button>
       </div>
     </div>
+    
+    <!-- NOVO BLOCO DE BACKUP ADICIONADO AQUI -->
+    <div class="card">
+      <h2>💾 Backup de Segurança</h2>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Salve ou restaure todos os dados do bolão (Participantes, Jogos e Caixa).</p>
+      <div class="row">
+        <button class="sec" onclick="APP.admin.exportarBackup()" style="background:#10b981; color:#fff;">📤 Exportar Backup</button>
+        <button class="sec" onclick="document.getElementById('fileInputBackup').click()">📥 Importar Backup</button>
+        <!-- Input invisível para ler o arquivo -->
+        <input type="file" id="fileInputBackup" style="display:none;" accept=".json" onchange="APP.admin.importarBackup(event)">
+      </div>
+    </div>
+    <!-- FIM DO BLOCO DE BACKUP -->
+
     <div class="card">
       <h2>📥 Exportar Relatório</h2>
       <button class="sec" onclick="APP.admin.exportarExcel()" style="background:#0ea5e9;">📊 Baixar Planilha (.CSV)</button>
@@ -451,7 +465,6 @@
         const primeiroNome = nome.split(' ')[0];
         const jogosFinais = [ jogosTemporarios[1].join(' - '), jogosTemporarios[2].join(' - '), jogosTemporarios[3].join(' - ') ];
 
-        // Validação extra antes de salvar
         for (const jogo of jogosFinais) {
           if (!APP.utils.validarJogoCompleto(jogo)) {
             return alert("Erro interno: Jogo inválido detectado. Tente novamente.");
@@ -545,7 +558,6 @@
         if (!p || p.pago >= CONFIG.valorCota) return;
         const falta = CONFIG.valorCota - p.pago;
         
-        // Transação atômica com update
         const updates = {};
         updates[`participantes/${id}/pago`] = CONFIG.valorCota;
         updates[`participantes/${id}/status`] = 'pago';
@@ -638,7 +650,7 @@
           if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
             let maxAcertos = 0;
             p.jogos.forEach(jStr => { 
-              const sort = []; // Pega o sorteio atual
+              const sort = []; 
               document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`).forEach(inp => { if(inp.value) sort.push(inp.value); });
               const hits = jStr.split(' - ').filter(n => sort.includes(n)).length; 
               if(hits > maxAcertos) maxAcertos = hits; 
