@@ -18,16 +18,13 @@
   .card-pub h2 { font-size: 1.3rem; color: #065f46; text-align: center; margin-bottom: 15px; }
   .card-pub label { font-weight: bold; font-size: 1.1rem; color: #111827; display: block; margin-bottom: 8px; }
   
-  /* Input do Nome */
   .input-nome { width: 100%; padding: 14px; border: 3px solid #9ca3af; border-radius: 8px; font-size: 1.2rem; margin-bottom: 20px; color: #000; font-weight: bold; background: #f3f4f6; }
   .input-nome:focus { outline: none; border-color: #16a34a; background: #fff; }
 
-  /* Bloco dos Jogos */
   .jogo-bloco { border: 2px solid #d1d5db; padding: 15px; border-radius: 10px; margin-bottom: 15px; background: #f9fafb; }
   .jogo-bloco h3 { font-size: 1.1rem; color: #065f46; margin-bottom: 10px; }
   .inputs-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
   
-  /* Quadradinhos dos números */
   .num-input { width: 100%; padding: 10px 0; text-align: center; font-size: 1.3rem; font-weight: bold; border: 2px solid #9ca3af; border-radius: 6px; color: #000; background: #fff; -webkit-appearance: none; margin: 0; }
   .num-input:focus { outline: none; border-color: #16a34a; box-shadow: 0 0 5px rgba(22, 163, 74, 0.5); }
   .num-input.erro { border-color: #dc2626; background: #fee2e2; color: #dc2626; animation: tremer 0.3s; }
@@ -178,9 +175,13 @@
       <h2>📊 Resumo Financeiro Real</h2>
       <div class="kpi">
         <div><b id="kPart">0</b><span>Participantes</span></div>
-        <div><b id="kArrecad">R$ 0</b><span>Recebido (Pago)</span></div>
-        <div><b id="kFalta">R$ 0</b><span>A Receber (Pendente)</span></div>
-        <div><b id="kCusto">R$ 0</b><span>Custo dos Jogos</span></div>
+        <div><b id="kArrecad">R$ 0</b><span>Arrecadado</span></div>
+        <div><b id="kFalta">R$ 0</b><span>A Receber</span></div>
+        <div><b id="kCusto">R$ 0</b><span>Custo Jogos</span></div>
+      </div>
+      <div style="margin-top:10px; text-align:center; border-top:1px dashed #334155; padding-top:10px;">
+        <span style="font-size:0.9rem; color:#94a3b8;">Saldo em Caixa:</span>
+        <b id="kSaldo" style="font-size:1.3rem; display:block; color:#4ade80;">R$ 0</b>
       </div>
       <div id="alertaSaldo" style="margin-top:10px;"></div>
     </div>
@@ -231,8 +232,16 @@
   <!-- TAB FINANCEIRO -->
   <div class="tab" id="tab-fin">
     <div class="card">
+      <h2>💵 Custo dos Jogos</h2>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Informe quanto você gastou na lotérica para abater do caixa.</p>
+      <div class="row">
+        <input id="inputCusto" type="number" step="0.01" min="0" placeholder="R$ 00,00" />
+        <button onclick="salvarCusto()" style="width:40%">Salvar Custo</button>
+      </div>
+    </div>
+
+    <div class="card">
       <h2>📥 Exportar Relatório</h2>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Baixe a planilha para abrir no Excel.</p>
       <button class="sec" onclick="exportarExcel()" style="background:#0ea5e9; color:#fff;">📊 Baixar Planilha (.CSV)</button>
     </div>
     
@@ -274,6 +283,7 @@
   const db = getDatabase(app);
   const dbRef = ref(db, 'bolao'); 
 
+  // Agora incluímos o custoJogos no estado global
   let estado = { participantes: [], caixa: [], custoJogos: 0 };
   let isAdmin = false;
 
@@ -286,6 +296,7 @@
     const data = snapshot.val();
     if (data) {
       estado = Object.assign(estado, data);
+      // Se a pessoa logou no admin, atualiza a tela
       if (isAdmin) renderAdmin();
     }
   });
@@ -451,8 +462,9 @@
       id, nome, jogos: ["Cadastro Manual", "-", "-"], pago, status 
     });
 
+    // Se já pagou na hora de cadastrar, joga pro histórico de movimentações
     if (pago > 0) {
-      estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Recebimento - ${nome}`, valor: pago, data: new Date().toISOString() });
+      estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento inicial - ${nome}`, valor: pago, data: new Date().toISOString() });
     }
     if (status === 'pago' && VALOR_COTA > pago) {
       const falta = VALOR_COTA - pago;
@@ -470,10 +482,12 @@
     const p = estado.participantes.find(x => x.id === id);
     if (!p || !confirm(`Remover ${p.nome}?`)) return;
     
-    // Remove o participante e registra a saída, mas NÃO apaga o histórico antigo para não corromper
+    // Registra saída se a pessoa havia pago
     if (p.pago > 0) {
-      estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno de cadastro - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
+      estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno exclusão - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
     }
+    
+    // Remove a pessoa da lista (o "Arrecadado" vai cair automaticamente pq ele calcula em cima dos que sobraram)
     estado.participantes = estado.participantes.filter(x => x.id !== id);
     salvar();
   }
@@ -498,6 +512,13 @@
     p.pago = 0; p.status = 'pendente';
     estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno de pagamento - ${p.nome}`, valor: valorDevolvido, data: new Date().toISOString() });
     salvar();
+  }
+
+  window.salvarCusto = function() {
+    const custo = parseFloat(document.getElementById('inputCusto').value) || 0;
+    estado.custoJogos = custo;
+    salvar();
+    alert("Custo salvo! O saldo do caixa foi recalculado.");
   }
 
   window.conferir = function() {
@@ -584,24 +605,31 @@
 
     const totalCotas = estado.participantes.length;
     
-    // A MÁGICA AQUI: Arrecadado e Pendente calculados DIRETO da lista de pessoas, sem risco de inflar
-    const totalPago = estado.participantes.reduce((s,p) => s + p.pago, 0);
+    // CÁLCULO MATEMÁTICO REAL E À PROVA DE FALHAS:
+    // Arrecadado = Soma do 'pago' de quem está na lista atualmente
+    const arrecadado = estado.participantes.reduce((s,p) => s + (p.pago || 0), 0);
     const totalDevido = totalCotas * VALOR_COTA;
-    const faltaReceber = totalDevido - totalPago;
-    
+    const faltaReceber = totalDevido - arrecadado;
     const custoJogos = estado.custoJogos || 0;
+    const saldoCaixa = arrecadado - custoJogos;
     const pagos = estado.participantes.filter(p => p.pago >= VALOR_COTA).length;
 
     document.getElementById('kPart').textContent = totalCotas;
-    document.getElementById('kArrecad').textContent = brl(totalPago);
+    document.getElementById('kArrecad').textContent = brl(arrecadado);
     document.getElementById('kFalta').textContent = brl(faltaReceber > 0 ? faltaReceber : 0);
     document.getElementById('kCusto').textContent = brl(custoJogos);
     
+    const elSaldo = document.getElementById('kSaldo');
+    elSaldo.textContent = brl(saldoCaixa);
+    elSaldo.className = saldoCaixa < 0 ? 'neg' : 'pos';
+    
     const alerta = document.getElementById('alertaSaldo');
-    if (faltaReceber > 0) {
-      alerta.innerHTML = `<div class="msg">Faltam receber <b>${brl(faltaReceber)}</b> (${totalCotas - pagos} pessoas).</div>`;
+    if (saldoCaixa < 0) {
+      alerta.innerHTML = `<div class="msg" style="color:#f87171;">⚠️ Atenção: Você gastou mais nos jogos do que arrecadou até agora.</div>`;
+    } else if (faltaReceber > 0) {
+      alerta.innerHTML = `<div class="msg">Ainda faltam receber <b>${brl(faltaReceber)}</b> (${totalCotas - pagos} pessoas).</div>`;
     } else if (totalDevido > 0) {
-      alerta.innerHTML = `<div class="msg pos">✅ Tudo pago! Caixa total: ${brl(totalPago)}.</div>`;
+      alerta.innerHTML = `<div class="msg pos">✅ Tudo pago! Caixa 100% positivo.</div>`;
     } else {
       alerta.innerHTML = '';
     }
@@ -656,7 +684,7 @@
 
     // Histórico Financeiro
     const fh = document.getElementById('finHist');
-    if (!estado.caixa || !estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhum movimento.</div>';
+    if (!estado.caixa || !estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhuma movimentação.</div>';
     else {
       fh.innerHTML = [...estado.caixa].reverse().map(c => `
         <div class="flexline">
