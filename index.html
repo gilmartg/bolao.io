@@ -47,6 +47,7 @@
   .pix-box { display: none; text-align: center; margin-top: 20px; background: #f3f4f6; padding: 15px; border-radius: 8px; border: 2px solid var(--primary); }
   .pix-box img { max-width: 100%; height: auto; margin-bottom: 10px; border: 2px solid #ccc; border-radius: 8px; }
   .pix-code { background: #fff; border: 2px dashed var(--primary); padding: 12px; font-size: 0.85rem; word-break: break-all; color: #000; border-radius: 4px; cursor: pointer; margin-bottom: 10px; font-weight: bold; }
+  
   .revisao-bloco { display: none; margin-bottom: 15px; }
   .revisao-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border: 1px solid var(--border-light); padding: 10px; border-radius: 8px; margin-bottom: 8px; }
   .bolinhas-revisao { display: flex; gap: 4px; flex-wrap: wrap; }
@@ -170,7 +171,14 @@
       <img src="QRCODE_Mercado Pago.jpg" alt="QR Code PIX" onerror="this.style.display='none'">
       <p style="font-size:0.9rem; color:#333; font-weight:bold; margin-bottom:10px;">Ou copie o código abaixo:</p>
       <div class="pix-code" onclick="APP.utils.copiarPix()">Clique para copiar o código PIX</div>
-      <p style="font-size:0.9rem; color:var(--bg-public); font-weight:bold;">Após pagar, envie o comprovante no grupo!</p>
+      
+      <!-- NOVO BOTÃO DE WHATSAPP AQUI -->
+      <p style="font-size:0.9rem; color:#666; margin-top:15px; margin-bottom:10px;">Após pagar, envie o comprovante no grupo:</p>
+      <a href="https://chat.whatsapp.com/GGkJKg4cr9w37ltOiF7UbK" target="_blank" style="display:flex; justify-content:center; align-items:center; gap:8px; background:#25D366; color:#fff; text-decoration:none; padding:14px; border-radius:8px; font-weight:bold; font-size:1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+        📲 Enviar Comprovante no Grupo
+      </a>
+      <!-- FIM DO BOTÃO -->
+      
     </div>
   </div>
 </div>
@@ -366,14 +374,12 @@
 
   window.APP = {
     utils: {
-      // Escape HTML seguro para renderização
       esc: (s) => {
         if (s === null || s === undefined) return '';
         return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/`/g, "&#x60;");
       },
       brl: (v) => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ','),
       
-      // Nova função para converter Moeda BR (ex: "R$ 1.234,56" -> 1234.56)
       parseMoedaBR: (str) => {
         if (typeof str === 'number') return str;
         if (!str) return 0;
@@ -390,18 +396,15 @@
         return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
       },
       
-      // CSV Escape com proteção contra CSV Injection
       csvEscape: (str) => {
         if (str === null || str === undefined) return '""';
         let s = String(str);
-        // Proteção contra injeção de fórmula (=, +, -, @)
         if (/^[=+\-@]/.test(s.trim())) {
           s = "'" + s;
         }
         return '"' + s.replace(/"/g, '""') + '"';
       },
       
-      // Validação estrita de jogos
       validarJogoCompleto: (jogoStr) => {
         if (!jogoStr || typeof jogoStr !== 'string') return false;
         const numeros = jogoStr.split(' - ').map(n => parseInt(n.trim(), 10));
@@ -494,7 +497,6 @@
 
         try {
           const novoPartRef = push(ref(db, 'bolao/participantes'));
-          // Salva o nome original, sem escape
           await set(novoPartRef, { nome: nome, jogos: jogosFinais, pago: 0, status: 'pendente', data: new Date().toISOString() });
 
           document.getElementById('areaRevisao').style.display = 'none';
@@ -559,7 +561,6 @@
         let jogosFinais = temJogo ? jogos : ["Cadastro Manual", "-", "-"];
 
         try {
-          // Criação atômica (tudo ou nada)
           const novoPartRef = push(ref(db, 'bolao/participantes'));
           const updates = {};
           
@@ -668,7 +669,6 @@
         Object.values(estado.participantes).forEach(p => {
           if (p.jogos && Array.isArray(p.jogos)) {
             p.jogos.forEach((jStr, idx) => {
-              // Ignora jogos vazios ou inválidos
               if (!jStr || jStr === '-' || jStr === 'Cadastro Manual' || !APP.utils.validarJogoCompleto(jStr)) return;
               
               totalJogosConferidos++;
@@ -793,10 +793,8 @@
           
           const numPart = Object.keys(data.participantes).length;
           
-          // 1. Gerar backup automático do estado ATUAL antes de apagar
           APP.admin.exportarBackup();
           
-          // 2. Pedir confirmação
           const confirmacao = prompt(`⚠️ ATENÇÃO: Você está prestes a RESTAURAR um backup com ${numPart} participantes.\n\nUm backup do estado atual foi baixado automaticamente.\n\nDigite "CONFIRMAR" para prosseguir:`);
           
           if (confirmacao !== "CONFIRMAR") {
