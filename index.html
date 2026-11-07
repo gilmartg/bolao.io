@@ -281,7 +281,6 @@
     </div>
     <div class="card">
       <h2>💰 Rateio de prêmio (Apenas Ganhadores)</h2>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">O rateio só divide entre quem acertou 4, 5 ou 6 números no sorteio acima.</p>
       <input id="premio" type="number" step="0.01" min="0" placeholder="Prêmio total (R$)" oninput="APP.admin.ratear()" />
       <div id="saidaRateio"></div>
     </div>
@@ -290,7 +289,6 @@
   <div class="tab" id="tab-fin">
     <div class="card">
       <h2>💵 Custo dos Jogos</h2>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Informe quanto você gastou na lotérica.</p>
       <div class="row">
         <input id="inputCusto" type="number" step="0.01" min="0" placeholder="R$ 00,00" />
         <button onclick="APP.admin.salvarCusto()" style="width:40%">Salvar</button>
@@ -330,8 +328,7 @@
     },
     pixCopiaCola: "00020126360014br.gov.bcb.pix0114+5511953326997520400005303986540520.005802BR5921GILMAR TORQUATO GOMES6009Sao Paulo62210517daqr735456801956963042671",
     valorCota: 20.00,
-    // Hash SHA-256 da senha "aquelaLA" (Seguro contra leitura visual no código)
-    senhaAdminHash: "9d47e73ab916edad9822d1b5bb196fdb1504d94915e54bd3e7d1611e44d01dd9" 
+    senhaAdminHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"
   };
 
   let estado = { participantes: {}, caixa: {}, custoJogos: 0 };
@@ -342,17 +339,20 @@
   const db = getDatabase(app);
   const dbRef = ref(db, 'bolao'); 
 
+  // OUVINTE EM TEMPO REAL
   onValue(dbRef, (snapshot) => {
     try {
       const data = snapshot.val();
       if (data) {
-        // Garante que as chaves sempre existam
         estado.participantes = data.participantes || {};
         estado.caixa = data.caixa || {};
         estado.custoJogos = data.custoJogos || 0;
         if (isAdmin) APP.admin.renderizar();
+      } else {
+        // Se o banco estiver vazio (primeira vez)
+        estado = { participantes: {}, caixa: {}, custoJogos: 0 };
       }
-    } catch (error) { console.error(error); }
+    } catch (error) { console.error("Erro ao ler dados:", error); }
   });
 
   window.APP = {
@@ -360,14 +360,12 @@
       esc: (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),
       brl: (v) => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ','),
       copiarPix: () => { navigator.clipboard.writeText(CONFIG.pixCopiaCola).then(() => alert("PIX copiado!")); },
-      // Função para calcular hash SHA-256
       hashSenha: async (senha) => {
         const msgBuffer = new TextEncoder().encode(senha);
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
       },
-      // Escapar campos para CSV
       csvEscape: (str) => {
         if (str === null || str === undefined) return '""';
         return '"' + String(str).replace(/"/g, '""') + '"';
@@ -402,47 +400,43 @@
 
         document.getElementById('areaJogos').style.display = 'none';
         document.getElementById('areaRevisao').style.display = 'block';
-
-        for(let i=1; i<=3; i++) {
-          document.getElementById(`bolinhas-${i}`).innerHTML = jogosTemporarios[i].map(n => `<div class="bolinha">${n}</div>`).join('');
-        }
+        for(let i=1; i<=3; i++) document.getElementById(`bolinhas-${i}`).innerHTML = jogosTemporarios[i].map(n => `<div class="bolinha">${n}</div>`).join('');
       },
 
       editarJogo: function(numJogo) {
         document.getElementById('areaRevisao').style.display = 'none';
         document.getElementById('areaJogos').style.display = 'block';
-        const input = document.querySelector(`.num-input[data-jogo="${numJogo}"]`);
-        if(input) input.focus();
+        document.querySelector(`.num-input[data-jogo="${numJogo}"]`).focus();
       },
 
       gerarPix: async function() {
         const nome = document.getElementById('pubNome').value.trim();
         const primeiroNome = nome.split(' ')[0];
-        
         const jogosFinais = [
           jogosTemporarios[1].join(' - '),
           jogosTemporarios[2].join(' - '),
           jogosTemporarios[3].join(' - ')
         ];
 
-        // Bloqueia botão para evitar duplo clique
         const btn = document.querySelector('#areaRevisao .btn-principal');
         const txtOriginal = btn.innerText;
-        btn.innerText = "Salvando...";
+        btn.innerText = "Salvando no servidor...";
         btn.disabled = true;
 
         try {
-          // Usa push() para gerar uma chave única e não sobrescrever ninguém
-          const novoParticipanteRef = push(ref(db, 'bolao/participantes'));
-          await set(novoParticipanteRef, {
+          // Cria uma chave única para o participante
+          const novoPartRef = push(ref(db, 'bolao/participantes'));
+          
+          // Salva e SÓ CONTINUA SE DER CERTO
+          await set(novoPartRef, {
             nome: nome,
-            jogos: jogosFinais,
+            jogos: jogosFim,
             pago: 0,
             status: 'pendente',
-            data: new Date().toISOString()
+            data: new Date().toISOString() // GRAVA A DATA AQUI
           });
 
-          // Se deu certo (await passou), mostra o PIX
+          // Se o código chegou aqui, gravou com sucesso.
           document.getElementById('areaRevisao').style.display = 'none';
           document.getElementById('pixArea').style.display = 'block';
           document.getElementById('mensagemSucesso').style.display = 'block';
@@ -450,7 +444,8 @@
           document.getElementById('pixArea').scrollIntoView({ behavior: 'smooth' });
 
         } catch (error) {
-          alert("Erro ao salvar no servidor. Verifique a internet e tente novamente.");
+          console.error(error);
+          alert("Erro de Conexão: Não foi possível registrar seus jogos. Verifique a internet ou as regras do Firebase e tente novamente.");
           btn.innerText = txtOriginal;
           btn.disabled = false;
         }
@@ -461,18 +456,14 @@
       login: async function() {
         const senha = prompt("Digite a senha:");
         if (senha === null) return;
-        
         const hashDigitado = await APP.utils.hashSenha(senha);
-        
         if (hashDigitado === CONFIG.senhaAdminHash) {
           isAdmin = true;
           document.getElementById('publicArea').style.display = 'none';
           document.getElementById('publicFooter').style.display = 'none';
           document.getElementById('adminArea').style.display = 'block';
           this.renderizar();
-        } else {
-          alert("Senha incorreta!");
-        }
+        } else { alert("Senha incorreta!"); }
       },
       logout: function() {
         isAdmin = false;
@@ -491,11 +482,9 @@
         const nome = document.getElementById('pNome').value.trim();
         const status = document.getElementById('pStatus').value;
         if (!nome) return alert('Informe o nome.');
-        
         const pago = status === 'pago' ? CONFIG.valorCota : 0;
         const jogos = [];
         let temJogo = false;
-        
         for(let i=1; i<=3; i++) {
           const inputs = document.querySelectorAll(`.num-input-admin[data-manual="${i}"]`);
           let nums = [];
@@ -510,12 +499,10 @@
         try {
           const novoPartRef = push(ref(db, 'bolao/participantes'));
           await set(novoPartRef, { nome, jogos: jogosFinais, pago, status, data: new Date().toISOString() });
-          
           if (pago > 0) {
             const novoCaixaRef = push(ref(db, 'bolao/caixa'));
             await set(novoCaixaRef, { tipo: 'entrada', desc: `Pagamento - ${nome}`, valor: pago, data: new Date().toISOString() });
           }
-          
           document.getElementById('pNome').value = '';
           document.getElementById('pStatus').value = 'pendente';
           document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
@@ -526,7 +513,6 @@
         const p = estado.participantes[id];
         if (!p || p.pago >= CONFIG.valorCota) return;
         const falta = CONFIG.valorCota - p.pago;
-        
         try {
           await update(ref(db, `bolao/participantes/${id}`), { pago: CONFIG.valorCota, status: 'pago' });
           const novoCaixaRef = push(ref(db, 'bolao/caixa'));
@@ -536,7 +522,6 @@
       estornar: async function(id) {
         const p = estado.participantes[id];
         if (!p || p.pago === 0 || !confirm(`Desfazer pagamento de ${p.nome}?`)) return;
-        
         try {
           await update(ref(db, `bolao/participantes/${id}`), { pago: 0, status: 'pendente' });
           const novoCaixaRef = push(ref(db, 'bolao/caixa'));
@@ -546,13 +531,12 @@
       excluir: async function(id) {
         const p = estado.participantes[id];
         if (!p || !confirm(`Remover ${p.nome}?`)) return;
-        
         try {
           if (p.pago > 0) {
             const novoCaixaRef = push(ref(db, 'bolao/caixa'));
             await set(novoCaixaRef, { tipo: 'saida', desc: `Estorno exclusão - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
           }
-          await set(ref(db, `bolao/participantes/${id}`), null); // Deleta
+          await set(ref(db, `bolao/participantes/${id}`), null);
         } catch(e) { alert("Erro ao excluir."); }
       },
       salvarCusto: async function() {
@@ -569,13 +553,12 @@
         const out = document.getElementById('saidaConf');
         if (sort.length !== 6) return out.innerHTML = '<div class="msg" style="color:var(--danger)">Preencha os 6 números.</div>';
         let html = '', acertos = 0;
-        
         Object.values(estado.participantes).forEach(p => {
           if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
             p.jogos.forEach((jStr, idx) => {
               const nums = jStr.split(' - ');
               const hits = nums.filter(n => sort.includes(n));
-              if (hits.length >= 4) { // Só mostra se acertou 4, 5 ou 6
+              if (hits.length >= 4) {
                 acertos++;
                 html += `<div class="item" style="border-color:var(--accent); background:#2d2005;">
                   <div class="top"><strong>${APP.utils.esc(p.nome)} - J${idx+1}</strong><span class="badge" style="background:var(--accent); color:#000;">${hits.length} acertos</span></div>
@@ -591,8 +574,6 @@
         const premio = parseFloat(document.getElementById('premio').value) || 0;
         const out = document.getElementById('saidaRateio');
         if (premio <= 0) return out.innerHTML = '<div class="msg">Informe o prêmio.</div>';
-
-        // Descobre quem acertou 4, 5 ou 6
         const sort = [];
         document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`).forEach(inp => { if(inp.value.length === 1) inp.value = '0' + inp.value; if(inp.value) sort.push(inp.value); });
         if(sort.length !== 6) return out.innerHTML = '<div class="msg" style="color:var(--danger)">Preencha o sorteio primeiro.</div>';
@@ -611,12 +592,9 @@
         });
 
         if(ganhadores.length === 0) return out.innerHTML = '<div class="msg">Ninguém acertou 4, 5 ou 6. Prêmio não distribuído.</div>';
-
         const vCota = premio / ganhadores.length;
         let html = `<div class="flexline"><b>Ganhadores</b><span>${ganhadores.length} pessoas</span></div>`;
-        ganhadores.forEach(g => {
-          html += `<div class="flexline"><span>${APP.utils.esc(g.nome)} (${g.acertos} acertos)</span><b class="pos">${APP.utils.brl(vCota)}</b></div>`;
-        });
+        ganhadores.forEach(g => { html += `<div class="flexline"><span>${APP.utils.esc(g.nome)} (${g.acertos} acertos)</span><b class="pos">${APP.utils.brl(vCota)}</b></div>`; });
         out.innerHTML = html;
       },
       exportarExcel: function() {
@@ -627,7 +605,13 @@
         Object.values(estado.participantes).forEach(p => {
           const status = p.pago >= CONFIG.valorCota ? "PAGO" : "PENDENTE";
           const j1 = p.jogos?.[0] || "", j2 = p.jogos?.[1] || "", j3 = p.jogos?.[2] || "";
-          const dataFormatada = p.data ? new Date(p.data).toLocaleDateString('pt-BR') : "";
+          
+          // CORREÇÃO DA DATA: Se a data existir, formata, se não, avisa.
+          let dataFormatada = "Sem data";
+          if (p.data) {
+            const d = new Date(p.data);
+            dataFormatada = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR');
+          }
           
           csv += `${escCsv(p.nome)};${escCsv(j1)};${escCsv(j2)};${escCsv(j3)};${escCsv(status)};${escCsv(p.pago.toFixed(2).replace('.', ','))};${escCsv(dataFormatada)}\n`;
         });
@@ -644,7 +628,6 @@
         const falta = dev - arr;
         const custo = estado.custoJogos || 0;
         const saldo = arr - custo;
-        const pagos = parts.filter(p => p.pago >= CONFIG.valorCota).length;
 
         document.getElementById('kPart').textContent = tot;
         document.getElementById('kArrecad').textContent = APP.utils.brl(arr);
