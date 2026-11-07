@@ -38,6 +38,19 @@
   .card-pub h2 { font-size: 1.3rem; color: var(--bg-public); text-align: center; margin-bottom: 15px; }
   .card-pub label { font-weight: bold; font-size: 1.1rem; color: var(--text-dark); display: block; margin-bottom: 8px; }
   
+  /* NOVO: ESTILO DO QUADRO DE REGRAS */
+  .card-regras {
+    background: #fffbeb;
+    border: 2px dashed #fcd34d;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  .card-regras h3 { font-size: 1.05rem; color: #b45309; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+  .card-regras p { font-size: 0.95rem; color: #78350f; margin-bottom: 8px; }
+  .card-regras ul { padding-left: 20px; font-size: 0.9rem; color: #78350f; line-height: 1.4; }
+  .card-regras li { margin-bottom: 4px; }
+
   .input-nome { width: 100%; padding: 14px; border: 3px solid #9ca3af; border-radius: 8px; font-size: 1.2rem; margin-bottom: 20px; color: #000; font-weight: bold; background: #f3f4f6; }
   .input-nome:focus { outline: none; border-color: var(--primary); background: #fff; }
 
@@ -130,8 +143,20 @@
 
   <div class="card-pub">
     <h2>Faça sua fé!</h2>
-    <p style="text-align:center; font-size:1.1rem; color:var(--bg-public); font-weight:bold; margin-bottom:20px;">R$ 20,00 (3 jogos de 6 dezenas)</p>
     
+    <!-- QUADRO DE REGRAS E VALORES -->
+    <div class="card-regras">
+      <h3>📋 Regras e Valores</h3>
+      <p><strong>Valor Total: R$ 20,00</strong></p>
+      <p style="font-size: 0.85rem; margin-top: -5px; margin-bottom: 10px;">(3 jogos de R$ 6,00 + R$ 2,00 de taxa de administração)</p>
+      <ul>
+        <li>Cada jogo deve ter <strong>6 números</strong>.</li>
+        <li>Os números devem ser de <strong>01 a 60</strong> (Proibido o 00).</li>
+        <li><strong>Não repita</strong> o mesmo número no mesmo jogo.</li>
+      </ul>
+    </div>
+    <!-- FIM DO QUADRO DE REGRAS -->
+
     <label>Seu Nome Completo:</label>
     <input type="text" id="pubNome" class="input-nome" placeholder="Ex: João da Silva" />
 
@@ -231,14 +256,12 @@
       <h2>👥 Cadastrar manualmente</h2>
       <input id="pNome" placeholder="Nome" />
       
-      <!-- CORREÇÃO AQUI: Apenas status, removido o input de valor -->
       <label style="font-size:0.8rem; color:#94a3b8; display:block; margin-bottom:5px;">Status do Pagamento:</label>
       <select id="pStatus" style="margin-bottom:15px;">
         <option value="pendente">Pendente (Aguardando PIX)</option>
         <option value="pago">Pago (R$ 20,00 recebidos)</option>
       </select>
       
-      <!-- CAMPOS DE JOGOS MANUAIS -->
       <p style="font-size:0.8rem; color:#94a3b8; margin: 10px 0 5px;">Jogos (opcional - deixe em branco se for só controle de caixa):</p>
       
       <div class="jogo-bloco" style="background: var(--bg-admin); border-color: var(--border-dark); padding: 10px; margin-bottom: 10px;">
@@ -276,7 +299,6 @@
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '3')" onblur="completaZero(this, 'manual', '3')" data-manual="3">
         </div>
       </div>
-      <!-- FIM DOS CAMPOS MANUAIS -->
 
       <button onclick="APP.admin.addParticipante()">Adicionar Participante</button>
     </div>
@@ -473,7 +495,6 @@
         const status = document.getElementById('pStatus').value;
         if (!nome) return alert('Informe o nome.');
 
-        // Define o valor com base no status escolhido
         const pago = status === 'pago' ? CONFIG.valorCota : 0;
 
         const jogos = [];
@@ -513,7 +534,7 @@
         }
 
         document.getElementById('pNome').value = '';
-        document.getElementById('pStatus').value = 'pendente'; // Reseta para pendente
+        document.getElementById('pStatus').value = 'pendente';
         document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
         
         salvarNuvem();
