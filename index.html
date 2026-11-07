@@ -96,12 +96,9 @@
 <body>
 
 <div id="publicArea">
-  
   <div class="public-header"><h1>🍀 Bolão da Virada</h1><p>Família Torquato's</p></div>
-  
   <div class="card-pub">
     <h2>Faça sua fé!</h2>
-    
     <div id="areaInicial">
       <div class="card-regras">
         <h3>📋 Regras e Valores</h3>
@@ -120,7 +117,6 @@
 
     <div id="areaJogos" style="display:none;">
       <label>Seus 3 Jogos:</label>
-      
       <div class="jogo-bloco">
         <h3>Jogo 1</h3>
         <div class="inputs-grid" id="grid-j1">
@@ -133,7 +129,6 @@
         </div>
         <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('1')">✨ Completar Jogo 1</button>
       </div>
-      
       <div class="jogo-bloco">
         <h3>Jogo 2</h3>
         <div class="inputs-grid" id="grid-j2">
@@ -146,7 +141,6 @@
         </div>
         <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('2')">✨ Completar Jogo 2</button>
       </div>
-      
       <div class="jogo-bloco">
         <h3>Jogo 3</h3>
         <div class="inputs-grid" id="grid-j3">
@@ -159,7 +153,6 @@
         </div>
         <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('3')">✨ Completar Jogo 3</button>
       </div>
-      
       <button class="btn-confirmar-jogos" onclick="APP.publico.confirmarJogos()">Confirmar Jogos</button>
     </div>
 
@@ -273,11 +266,21 @@
         <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'sorteio', '0')" onblur="completaZero(this, 'sorteio', '0')" data-sorteio="true">
         <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'sorteio', '0')" onblur="completaZero(this, 'sorteio', '0')" data-sorteio="true">
       </div>
-      <button onclick="APP.admin.conferir()" style="background:var(--accent); color:#000;">Conferir Jogos</button>
+      
+      <div class="row">
+        <button onclick="APP.admin.conferir()" style="background:var(--accent); color:#000; flex:2;">Conferir Jogos</button>
+        <button onclick="APP.admin.limparConferencia()" class="sec" style="flex:1;">🧹 Limpar</button>
+      </div>
+      
+      <div id="infoConferencia" style="font-size:0.8rem; color:#94a3b8; text-align:center; margin-top:5px;"></div>
       <div id="saidaConf" style="margin-top:10px;"></div>
+      
+      <button id="btnCopiarResultado" onclick="APP.admin.copiarResultado()" style="display:none; background:#25D366; color:#fff; margin-top:15px;">📲 Copiar Resumo para o WhatsApp</button>
     </div>
+
     <div class="card">
-      <h2>💰 Rateio de prêmio</h2>
+      <h2>💰 Rateio de prêmio (Igualitário)</h2>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">O valor total será dividido igualmente entre <strong>todos</strong> os participantes do bolão.</p>
       <input id="premio" type="number" step="0.01" min="0" placeholder="Prêmio total (R$)" oninput="APP.admin.ratear()" />
       <div id="saidaRateio"></div>
     </div>
@@ -293,18 +296,15 @@
       </div>
     </div>
     
-    <!-- NOVO BLOCO DE BACKUP ADICIONADO AQUI -->
     <div class="card">
       <h2>💾 Backup de Segurança</h2>
       <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Salve ou restaure todos os dados do bolão (Participantes, Jogos e Caixa).</p>
       <div class="row">
         <button class="sec" onclick="APP.admin.exportarBackup()" style="background:#10b981; color:#fff;">📤 Exportar Backup</button>
         <button class="sec" onclick="document.getElementById('fileInputBackup').click()">📥 Importar Backup</button>
-        <!-- Input invisível para ler o arquivo -->
         <input type="file" id="fileInputBackup" style="display:none;" accept=".json" onchange="APP.admin.importarBackup(event)">
       </div>
     </div>
-    <!-- FIM DO BLOCO DE BACKUP -->
 
     <div class="card">
       <h2>📥 Exportar Relatório</h2>
@@ -346,6 +346,7 @@
   let estado = { participantes: {}, caixa: {}, custoJogos: 0 };
   let isAdmin = false;
   let jogosTemporarios = {};
+  let ultimoResultadoConferencia = "";
 
   const app = initializeApp(CONFIG.firebase);
   const db = getDatabase(app);
@@ -367,13 +368,7 @@
     utils: {
       esc: (s) => {
         if (s === null || s === undefined) return '';
-        return String(s)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;")
-          .replace(/`/g, "&#x60;");
+        return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/`/g, "&#x60;");
       },
       brl: (v) => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ','),
       copiarPix: () => { navigator.clipboard.writeText(CONFIG.pixCopiaCola).then(() => alert("PIX copiado!")); },
@@ -601,17 +596,39 @@
         const c = parseFloat(document.getElementById('inputCusto').value) || 0;
         try { await update(ref(db, 'bolao'), { custoJogos: c }); alert("Salvo!"); } catch(e) { alert("Erro."); }
       },
+      
+      limparConferencia: function() {
+        document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`).forEach(inp => inp.value = '');
+        document.getElementById('saidaConf').innerHTML = '';
+        document.getElementById('saidaRateio').innerHTML = '';
+        document.getElementById('premio').value = '';
+        document.getElementById('infoConferencia').innerHTML = '';
+        document.getElementById('btnCopiarResultado').style.display = 'none';
+        ultimoResultadoConferencia = "";
+      },
+
       conferir: function() {
         let sort = [];
         document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`).forEach(inp => { if(inp.value.length === 1) inp.value = '0' + inp.value; if(inp.value) sort.push(inp.value); });
         const out = document.getElementById('saidaConf');
-        if (sort.length !== 6) return out.innerHTML = '<div class="msg" style="color:var(--danger)">Preencha os 6 números.</div>';
+        const info = document.getElementById('infoConferencia');
+        const btnCopiar = document.getElementById('btnCopiarResultado');
         
+        if (sort.length !== 6) {
+          out.innerHTML = '<div class="msg" style="color:var(--danger)">Preencha os 6 números.</div>';
+          info.innerHTML = '';
+          btnCopiar.style.display = 'none';
+          return;
+        }
+
         let sena = [], quina = [], quadra = [];
+        let totalJogosConferidos = 0;
+        let totalParticipantes = Object.keys(estado.participantes).length;
         
         Object.values(estado.participantes).forEach(p => {
           if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
             p.jogos.forEach((jStr, idx) => {
+              totalJogosConferidos++;
               const nums = jStr.split(' - ');
               const hits = nums.filter(n => sort.includes(n));
               if (hits.length === 6) sena.push({ nome: p.nome, jogo: idx+1, nums });
@@ -621,16 +638,25 @@
           }
         });
 
+        info.innerHTML = `✅ ${totalJogosConferidos} jogos conferidos de ${totalParticipantes} participantes.`;
+
         let html = '';
+        let textoWpp = `🍀 *RESULTADO DO BOLÃO* 🍀\n\nSorteio: *${sort.join(' - ')}*\n\n`;
+
         const renderLista = (titulo, lista, cor) => {
           if (lista.length === 0) return '';
+          
+          textoWpp += `*${titulo}* (${lista.length} ganhador${lista.length > 1 ? 'es' : ''}):\n`;
+          
           let h = `<div style="margin-bottom:10px;"><strong style="color:${cor};">${titulo} (${lista.length})</strong></div>`;
           lista.forEach(item => {
+            textoWpp += `- ${item.nome} (Jogo ${item.jogo})\n`;
             h += `<div class="item" style="border-color:${cor}; background:#2d2005;">
               <div class="top"><strong>${APP.utils.esc(item.nome)} - J${item.jogo}</strong><span class="badge" style="background:${cor}; color:#000;">${titulo}</span></div>
               <div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:8px;">${item.nums.map(n => `<div class="bola-num ${sort.includes(n)?'hit':''}">${n}</div>`).join('')}</div>
             </div>`;
           });
+          textoWpp += `\n`;
           return h;
         };
 
@@ -638,36 +664,45 @@
         html += renderLista('Quina', quina, '#38bdf8');
         html += renderLista('Quadra', quadra, '#a78bfa');
 
-        out.innerHTML = html || '<div class="msg">Ninguém acertou 4, 5 ou 6 números.</div>';
+        if (!html) {
+          out.innerHTML = '<div class="msg">Ninguém acertou 4, 5 ou 6 números.</div>';
+          textoWpp += `Ninguém acertou 4, 5 ou 6 números desta vez. Mais sorte na próxima!`;
+        } else {
+          out.innerHTML = html;
+          textoWpp += `_Boa sorte a todos na próxima!_`;
+        }
+        
+        ultimoResultadoConferencia = textoWpp;
+        btnCopiar.style.display = 'block';
       },
+
+      copiarResultado: function() {
+        if (!ultimoResultadoConferencia) return;
+        navigator.clipboard.writeText(ultimoResultadoConferencia).then(() => {
+          alert("Resumo copiado! Agora é só colar no grupo do WhatsApp.");
+        });
+      },
+
       ratear: function() {
         const premio = parseFloat(document.getElementById('premio').value) || 0;
         const out = document.getElementById('saidaRateio');
-        if (premio <= 0) return out.innerHTML = '<div class="msg">Informe o prêmio.</div>';
+        if (premio <= 0) return out.innerHTML = '<div class="msg">Informe o prêmio total.</div>';
         
-        let ganhadores = [];
-        Object.values(estado.participantes).forEach(p => {
-          if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
-            let maxAcertos = 0;
-            p.jogos.forEach(jStr => { 
-              const sort = []; 
-              document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`).forEach(inp => { if(inp.value) sort.push(inp.value); });
-              const hits = jStr.split(' - ').filter(n => sort.includes(n)).length; 
-              if(hits > maxAcertos) maxAcertos = hits; 
-            });
-            if(maxAcertos >= 4) ganhadores.push({ nome: p.nome, acertos: maxAcertos });
-          }
-        });
+        const participantes = Object.values(estado.participantes);
+        if (participantes.length === 0) return out.innerHTML = '<div class="msg">Nenhum participante cadastrado para dividir o prêmio.</div>';
         
-        if(ganhadores.length === 0) return out.innerHTML = '<div class="msg">Ninguém acertou 4, 5 ou 6.</div>';
+        const vCota = premio / participantes.length;
+        let html = `<div class="flexline" style="border-bottom:1px solid var(--accent); margin-bottom:5px; padding-bottom:5px;"><b>Divisão para todos (${participantes.length} pessoas)</b><span>${APP.utils.brl(vCota)} / pessoa</span></div>`;
         
-        const vCota = premio / ganhadores.length;
-        let html = `<div class="flexline"><b>Ganhadores (Divisão Igualitária)</b><span>${ganhadores.length} pessoas</span></div>`;
-        ganhadores.forEach(g => { 
-          html += `<div class="flexline"><span>${APP.utils.esc(g.nome)} (${g.acertos} acertos)</span><b class="pos">${APP.utils.brl(vCota)}</b></div>`; 
+        // Ordena alfabeticamente para ficar bonito de ler
+        participantes.sort((a, b) => a.nome.localeCompare(b.nome));
+        
+        participantes.forEach(p => { 
+          html += `<div class="flexline"><span>${APP.utils.esc(p.nome)}</span><b class="pos">${APP.utils.brl(vCota)}</b></div>`; 
         });
         out.innerHTML = html;
       },
+
       exportarExcel: function() {
         if (!Object.keys(estado.participantes).length) return alert("Nenhum participante.");
         let csv = "Nome;Jogo 1;Jogo 2;Jogo 3;Status;Pago (R$);Data\n";
@@ -682,6 +717,7 @@
         const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Relatorio_Bolao.csv"; link.click();
       },
+      
       exportarBackup: function() {
         const backup = { ...estado };
         const jsonStr = JSON.stringify(backup, null, 2);
@@ -718,6 +754,7 @@
         };
         reader.readAsText(file);
       },
+
       renderizar: function() {
         if(!isAdmin) return;
         const parts = Object.entries(estado.participantes).map(([id, p]) => ({ id, ...p }));
