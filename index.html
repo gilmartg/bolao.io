@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bolão Família Torquato's</title>
 <style>
   /* ================= ESTILOS GERAIS ================= */
@@ -28,7 +28,7 @@
   .inputs-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
   
   /* Quadradinhos dos números */
-  .num-input { width: 100%; padding: 10px 0; text-align: center; font-size: 1.2rem; font-weight: bold; border: 2px solid #9ca3af; border-radius: 6px; color: #000; background: #fff; }
+  .num-input { width: 100%; padding: 10px 0; text-align: center; font-size: 1.3rem; font-weight: bold; border: 2px solid #9ca3af; border-radius: 6px; color: #000; background: #fff; -webkit-appearance: none; margin: 0; }
   .num-input:focus { outline: none; border-color: #16a34a; box-shadow: 0 0 5px rgba(22, 163, 74, 0.5); }
   .num-input.erro { border-color: #dc2626; background: #fee2e2; color: #dc2626; animation: tremer 0.3s; }
 
@@ -111,12 +111,12 @@
     <div class="jogo-bloco">
       <h3>Jogo 1</h3>
       <div class="inputs-grid" id="grid-j1">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="1">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="1">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="1">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="1">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="1">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="1">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
       </div>
     </div>
 
@@ -124,12 +124,12 @@
     <div class="jogo-bloco">
       <h3>Jogo 2</h3>
       <div class="inputs-grid" id="grid-j2">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="2">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="2">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="2">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="2">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="2">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="2">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
       </div>
     </div>
 
@@ -137,12 +137,12 @@
     <div class="jogo-bloco">
       <h3>Jogo 3</h3>
       <div class="inputs-grid" id="grid-j3">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="3">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="3">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="3">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="3">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="3">
-        <input type="tel" maxlength="2" class="num-input" oninput="mascaraNumero(this)" data-jogo="3">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
       </div>
     </div>
 
@@ -289,53 +289,61 @@
   // MÁSCARA E VALIDAÇÃO DOS CAMPOS DE NÚMEROS
   // ==========================================
   window.mascaraNumero = function(input) {
-    // Remove tudo que não for número
     let val = input.value.replace(/\D/g, '');
     
-    // Se o cara digitar 0 primeiro (ex: 05), ele deixa. Mas se digitar apenas 0, limpa.
-    if (val.length === 1 && val === '0') {
-      input.value = '';
-      return;
-    }
-
-    // Limita a 2 dígitos
     if (val.length > 2) val = val.slice(0, 2);
     input.value = val;
 
-    // Validação de Range (1 a 60)
-    if (val.length === 2 || val.length === 1) {
+    // Valida o range assim que digita (se passar de 60, limpa)
+    if (val.length > 0) {
       const num = parseInt(val);
       if (num > 60) {
         input.classList.add('erro');
-        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 500);
+        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
         return;
       }
     }
 
-    // Validação de duplicidade no mesmo jogo
-    if (val.length === 2) { // Só valida quando tem 2 dígitos (ex: 05)
-      const numFormatado = val.padStart(2, '0');
+    // Pula para o próximo campo automaticamente quando chega em 2 dígitos
+    if (val.length === 2) {
+      const jogoAtual = input.getAttribute('data-jogo');
+      const inputsDoJogo = Array.from(document.querySelectorAll(`.num-input[data-jogo="${jogoAtual}"]`));
+      const index = inputsDoJogo.indexOf(input);
+      
+      // Pequeno delay para o navegador registrar o valor antes de pular
+      setTimeout(() => {
+        if (index < inputsDoJogo.length - 1) {
+          inputsDoJogo[index + 1].focus();
+        } else {
+          input.blur(); // Se for o último, tira o foco
+        }
+      }, 50);
+    }
+  }
+
+  // Completa com 0 à esquerda quando o campo perde o foco (ex: 5 vira 05)
+  window.completarZero = function(input) {
+    let val = input.value.replace(/\D/g, '');
+    if (val.length === 1) {
+      input.value = '0' + val;
+    }
+    
+    // Agora que temos certeza que está formatado, checamos duplicidade
+    const numFormatado = input.value;
+    if (numFormatado.length === 2) {
       const jogoAtual = input.getAttribute('data-jogo');
       const inputsDoJogo = document.querySelectorAll(`.num-input[data-jogo="${jogoAtual}"]`);
       
-      let temDuplicado = false;
-      inputsDoJogo.forEach(outroInput => {
-        if (outroInput !== input && outroInput.value === numFormatado) {
-          temDuplicado = true;
+      let duplicado = false;
+      inputsDoJogo.forEach(outro => {
+        if (outro !== input && outro.value === numFormatado) {
+          duplicado = true;
         }
       });
 
-      if (temDuplicado) {
+      if (duplicado) {
         input.classList.add('erro');
-        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 500);
-        return;
-      }
-
-      // Auto-pular para o próximo campo
-      const inputsArray = Array.from(inputsDoJogo);
-      const index = inputsArray.indexOf(input);
-      if (index < inputsArray.length - 1) {
-        inputsArray[index + 1].focus();
+        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
       }
     }
   }
@@ -347,26 +355,35 @@
     const nome = document.getElementById('pubNome').value.trim();
     if (!nome) return alert("Por favor, digite seu nome completo.");
 
-    // Pega os jogos
     const jogos = [];
     for(let i=1; i<=3; i++) {
       const inputs = document.querySelectorAll(`.num-input[data-jogo="${i}"]`);
       let nums = [];
+      let temErro = false;
+      
       inputs.forEach(inp => {
-        if(inp.value) nums.push(inp.value.padStart(2, '0'));
+        // Garante que o zero foi colocado antes de checar
+        if(inp.value.length === 1) inp.value = '0' + inp.value;
+        
+        if(!inp.value) temErro = true;
+        else nums.push(inp.value);
       });
       
-      if (nums.length !== 6) {
+      if (temErro || nums.length !== 6) {
         return alert(`Por favor, preencha todos os 6 números do Jogo ${i}.`);
       }
+
+      // Valida duplicidade final por segurança
+      if (new Set(nums).size !== nums.length) {
+        return alert(`Atenção: O Jogo ${i} tem números repetidos. Corrija por favor.`);
+      }
+
       jogos.push(nums.join(' - '));
     }
 
-    // Mostra o PIX
     document.getElementById('pixArea').style.display = 'block';
     document.getElementById('pixCodeText').innerText = PIX_COPIA_COLA;
 
-    // Salva no Firebase
     estado.participantes.push({
       id: uid(),
       nome: nome,
@@ -379,9 +396,9 @@
 
     salvar();
     
-    // Limpa tudo
     document.getElementById('pubNome').value = '';
     document.querySelectorAll('.num-input').forEach(inp => inp.value = '');
+    document.getElementById('pixArea').scrollIntoView({ behavior: 'smooth' });
   }
 
   window.copiarPix = function() {
@@ -497,94 +514,4 @@
     const totalCotas = estado.participantes.length;
     const totalDevido = totalCotas * VALOR_COTA;
     const totalPago = estado.participantes.reduce((s,p) => s + p.pago, 0);
-    const arrecadado = estado.caixa.filter(c => c.tipo === 'entrada').reduce((s,c) => s + c.valor, 0);
-    const saidas = estado.caixa.filter(c => c.tipo === 'saida').reduce((s,c) => s + c.valor, 0);
-    const saldo = arrecadado - saidas;
-    const pagos = estado.participantes.filter(p => p.pago >= VALOR_COTA).length;
-
-    document.getElementById('kPart').textContent = totalCotas;
-    document.getElementById('kArrecad').textContent = brl(arrecadado);
-    document.getElementById('kSaldo').textContent = brl(saldo);
-    document.getElementById('kPago').textContent = `${pagos}/${totalCotas}`;
-    document.getElementById('kSaldo').className = saldo < 0 ? 'neg' : '';
-
-    const alerta = document.getElementById('alertaSaldo');
-    if (totalDevido > 0 && totalPago < totalDevido) {
-      alerta.innerHTML = `<div class="msg">Faltam receber <b>${brl(totalDevido - totalPago)}</b> dos participantes.</div>`;
-    } else if (totalDevido > 0) {
-      alerta.innerHTML = `<div class="msg pos">✅ Todos os valores devidos foram pagos.</div>`;
-    } else {
-      alerta.innerHTML = '';
-    }
-
-    const rp = document.getElementById('resumoPart');
-    if (!estado.participantes.length) rp.innerHTML = '<div class="empty">Nenhum participante.</div>';
-    else {
-      rp.innerHTML = estado.participantes.map(p => {
-        const falta = +(VALOR_COTA - p.pago).toFixed(2);
-        const ok = falta <= 0;
-        return `<div class="item">
-          <div class="top">
-            <div><strong>${esc(p.nome)}</strong></div>
-            <span class="badge ${ok?'ok':'no'}">${ok?'Pago':'Devendo '+brl(falta)}</span>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    const lp = document.getElementById('listaPart');
-    if (!estado.participantes.length) lp.innerHTML = '<div class="empty">Nenhum participante.</div>';
-    else {
-      lp.innerHTML = estado.participantes.map(p => {
-        const falta = +(VALOR_COTA - p.pago).toFixed(2);
-        const ok = falta <= 0;
-        
-        // Formata os jogos como bolinhas
-        let jogosHtml = '';
-        if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
-          jogosHtml = p.jogos.map((jogoStr, index) => {
-            const nums = jogoStr.split(' - ');
-            return `<div class="jogo-exibicao">
-              <span style="font-size:0.75rem; color:#94a3b8; align-self:center; margin-right:5px;">J${index+1}:</span>
-              ${nums.map(n => `<div class="bola-num">${n}</div>`).join('')}
-            </div>`;
-          }).join('');
-        } else {
-          jogosHtml = '<small style="color:#94a3b8; display:block; margin-top:4px;">Jogos preenchidos no papel.</small>';
-        }
-
-        return `<div class="item">
-          <div class="top"><strong>${esc(p.nome)}</strong><span class="badge ${ok?'ok':'no'}">${ok?'Quitado':'Falta '+brl(falta)}</span></div>
-          ${jogosHtml}
-          <div class="row" style="margin-top:8px">
-            ${!ok ? `<button class="sm" onclick="marcarPago('${p.id}')">✔ Quitar</button>` : ''}
-            <button class="sm danger" onclick="removePart('${p.id}')">✕ Excluir</button>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    const fp = document.getElementById('finPart');
-    if (!estado.participantes.length) fp.innerHTML = '<div class="empty">Sem participantes.</div>';
-    else {
-      fp.innerHTML = estado.participantes.map(p => {
-        const falta = +(VALOR_COTA - p.pago).toFixed(2);
-        return `<div class="flexline"><span>${esc(p.nome)}</span><b class="${falta<=0?'pos':'neg'}">${falta<=0?'Quitado':brl(falta)+' a receber'}</b></div>`;
-      }).join('');
-    }
-
-    const fh = document.getElementById('finHist');
-    if (!estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhum movimento.</div>';
-    else {
-      fh.innerHTML = [...estado.caixa].reverse().map(c => `
-        <div class="flexline">
-          <span>${esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span>
-          <b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${brl(c.valor)}</b>
-        </div>`).join('');
-    }
-  }
-
-  renderAdmin();
-</script>
-</body>
-</html>
+    const arrecadado = estado.ca
