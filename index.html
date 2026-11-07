@@ -43,12 +43,13 @@
   .tab { display: none; } .tab.active { display: block; }
   .flexline { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dashed #334155; font-size: .82rem; }
   .flexline:last-child { border-bottom: none; }
+  #statusNuvem { text-align: center; font-size: 0.75rem; color: #fbbf24; margin-bottom: 10px; display: none; }
 </style>
 </head>
 <body>
 
-<h1>🍀 Bolão Admin</h1>
-<div class="sub">Painel do administrador • Mega-Sena</div>
+<h1>🍀 Bolão Admin (Nuvem)</h1>
+<div id="statusNuvem">🔄 Sincronizando com a nuvem...</div>
 
 <!-- ================= PAINEL ================= -->
 <div class="tab active" id="tab-painel">
@@ -150,289 +151,318 @@
   <button onclick="mostrarTab('fin', this)">💵<br>Caixa</button>
 </div>
 
-<script>
-const LS = 'bolaoAdminV1';
-let estado = {
-  participantes: [], // {id, nome, cotas, valorCota, pago, status}
-  jogos: [],         // {id, dezenas:[], valor, concurso}
-  caixa: [],         // {id, tipo:'entrada'|'saida', desc, valor, data}
-  premio: 0
-};
+<!-- SDK DO FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const brl = v => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ',');
+  // =========================================================
+  // ⚠️ COLE AQUI AS CONFIGURAÇÕES DO SEU FIREBASE ⚠️
+  // =========================================================
+  const firebaseConfig = {
+    apiKey: "COLE_AQUI",
+    authDomain: "COLE_AQUI",
+    databaseURL: "COLE_AQUI",
+    projectId: "COLE_AQUI",
+    storageBucket: "COLE_AQUI",
+    messagingSenderId: "COLE_AQUI",
+    appId: "COLE_AQUI"
+  };
+  // =========================================================
 
-function salvar() { localStorage.setItem(LS, JSON.stringify(estado)); }
-function carregar() { try { const d = localStorage.getItem(LS); if (d) estado = Object.assign(estado, JSON.parse(d)); } catch(e){} }
+  // Inicializa o Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const dbRef = ref(db, 'bolao'); // Referência para o banco
 
-// ============ NAV ============
-function mostrarTab(id, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
-  if (btn) btn.classList.add('active');
-  render();
-}
+  // Estado global do app
+  let estado = { participantes: [], jogos: [], caixa: [], premio: 0 };
+  let salvandoNuvem = false;
 
-// ============ PARTICIPANTES ============
-function addPart() {
-  const nome = document.getElementById('pNome').value.trim();
-  const cotas = parseInt(document.getElementById('pCotas').value) || 1;
-  const valorCota = parseFloat(document.getElementById('pValorCota').value) || 0;
-  const pago = parseFloat(document.getElementById('pPago').value) || 0;
-  const status = document.getElementById('pStatus').value;
-  if (!nome) return alert('Informe o nome.');
-  if (estado.participantes.some(p => p.nome.toLowerCase() === nome.toLowerCase()))
-    return alert('Já existe participante com esse nome.');
-  if (cotas < 1) return alert('Mínimo 1 cota.');
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const brl = v => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ',');
 
-  const totalDevido = cotas * valorCota;
-  const id = uid();
-  estado.participantes.push({ id, nome, cotas, valorCota, pago, status });
+  // --- SINCRONIZAÇÃO EM TEMPO REAL ---
+  const statusNuvem = document.getElementById('statusNuvem');
+  statusNuvem.style.display = 'block';
 
-  // lança no caixa o que foi pago agora
-  if (pago > 0) {
-    estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento inicial - ${nome}`, valor: pago, data: new Date().toISOString() });
+  onValue(dbRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      estado = Object.assign(estado, data);
+      render();
+    }
+    statusNuvem.style.display = 'none'; // Esconde o status quando sincroniza
+  });
+
+  // Salva no Firebase e atualiza a tela
+  function salvar() { 
+    set(dbRef, estado).catch(err => {
+      alert("Erro ao salvar na nuvem! Verifique as regras do Firebase.");
+      console.error(err);
+    });
+    render();
   }
-  // se marcou pago mas faltou valor, ajusta automaticamente
-  if (status === 'pago' && totalDevido > pago) {
-    const falta = totalDevido - pago;
+
+  // ============ NAV ============
+  window.mostrarTab = function(id, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    render();
+  }
+
+  // ============ PARTICIPANTES ============
+  window.addPart = function() {
+    const nome = document.getElementById('pNome').value.trim();
+    const cotas = parseInt(document.getElementById('pCotas').value) || 1;
+    const valorCota = parseFloat(document.getElementById('pValorCota').value) || 0;
+    const pago = parseFloat(document.getElementById('pPago').value) || 0;
+    const status = document.getElementById('pStatus').value;
+    if (!nome) return alert('Informe o nome.');
+    if (estado.participantes.some(p => p.nome.toLowerCase() === nome.toLowerCase()))
+      return alert('Já existe participante com esse nome.');
+    if (cotas < 1) return alert('Mínimo 1 cota.');
+
+    const totalDevido = cotas * valorCota;
+    const id = uid();
+    estado.participantes.push({ id, nome, cotas, valorCota, pago, status });
+
+    if (pago > 0) {
+      estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento inicial - ${nome}`, valor: pago, data: new Date().toISOString() });
+    }
+    if (status === 'pago' && totalDevido > pago) {
+      const falta = totalDevido - pago;
+      const p = estado.participantes.find(x => x.id === id);
+      p.pago = totalDevido;
+      estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Ajuste status pago - ${nome}`, valor: falta, data: new Date().toISOString() });
+    }
+
+    ['pNome','pCotas','pValorCota','pPago'].forEach(k => document.getElementById(k).value = '');
+    document.getElementById('pCotas').value = 1;
+    salvar();
+  }
+
+  window.removePart = function(id) {
     const p = estado.participantes.find(x => x.id === id);
-    p.pago = totalDevido;
-    estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Ajuste status pago - ${nome}`, valor: falta, data: new Date().toISOString() });
+    if (!p || !confirm(`Remover ${p.nome}?`)) return;
+    if (p.pago > 0) {
+      estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno/remoção - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
+    }
+    estado.participantes = estado.participantes.filter(x => x.id !== id);
+    salvar();
   }
 
-  ['pNome','pCotas','pValorCota','pPago'].forEach(k => document.getElementById(k).value = '');
-  document.getElementById('pCotas').value = 1;
-  salvar(); render();
-}
-
-function removePart(id) {
-  const p = estado.participantes.find(x => x.id === id);
-  if (!p || !confirm(`Remover ${p.nome}?`)) return;
-  if (p.pago > 0) {
-    estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno/remoção - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
-  }
-  estado.participantes = estado.participantes.filter(x => x.id !== id);
-  salvar(); render();
-}
-
-function registrarPagamento(id) {
-  const p = estado.participantes.find(x => x.id === id);
-  if (!p) return;
-  const devido = p.cotas * p.valorCota;
-  const falta = +(devido - p.pago).toFixed(2);
-  if (falta <= 0) return alert('Já está totalmente pago.');
-  const v = prompt(`Quanto ${p.nome} pagou agora? (falta ${brl(falta)})`, falta.toFixed(2));
-  if (v === null) return;
-  const valor = parseFloat(v) || 0;
-  if (valor <= 0) return alert('Valor inválido.');
-  p.pago = +(p.pago + valor).toFixed(2);
-  if (p.pago >= devido) p.status = 'pago';
-  estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento - ${p.nome}`, valor, data: new Date().toISOString() });
-  salvar(); render();
-}
-
-function marcarPago(id) {
-  const p = estado.participantes.find(x => x.id === id);
-  if (!p) return;
-  const devido = p.cotas * p.valorCota;
-  const falta = +(devido - p.pago).toFixed(2);
-  if (falta <= 0) return alert('Já está totalmente pago.');
-  p.pago = devido; p.status = 'pago';
-  estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Quitação - ${p.nome}`, valor: falta, data: new Date().toISOString() });
-  salvar(); render();
-}
-
-function editarPart(id) {
-  const p = estado.participantes.find(x => x.id === id);
-  if (!p) return;
-  const nome = prompt('Nome:', p.nome); if (nome === null) return;
-  const cotas = parseInt(prompt('Cotas:', p.cotas)); if (isNaN(cotas) || cotas < 1) return;
-  const valorCota = parseFloat(prompt('Valor por cota (R$):', p.valorCota)); if (isNaN(valorCota) || valorCota < 0) return;
-  p.nome = nome.trim() || p.nome;
-  p.cotas = cotas;
-  p.valorCota = valorCota;
-  const devido = cotas * valorCota;
-  if (p.pago >= devido) p.status = 'pago';
-  else p.status = 'pendente';
-  salvar(); render();
-}
-
-// ============ JOGOS ============
-function addJogo() {
-  const raw = document.getElementById('jDezenas').value.trim();
-  const valor = parseFloat(document.getElementById('jValor').value) || 0;
-  const concurso = document.getElementById('jConcurso').value.trim();
-  if (!raw) return alert('Digite as dezenas.');
-  const nums = raw.split(/[\s,;]+/).map(n => parseInt(n, 10)).filter(n => !isNaN(n));
-  if (nums.length < 6 || nums.length > 20) return alert('Entre 6 e 20 dezenas.');
-  if (nums.some(n => n < 1 || n > 60)) return alert('Dezenas de 01 a 60.');
-  if (new Set(nums).size !== nums.length) return alert('Dezenas repetidas.');
-  nums.sort((a,b) => a-b);
-  estado.jogos.push({ id: uid(), dezenas: nums, valor, concurso });
-  if (valor > 0) estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Compra de jogo ${concurso ? '('+concurso+')' : ''}`, valor, data: new Date().toISOString() });
-  document.getElementById('jDezenas').value = '';
-  document.getElementById('jValor').value = '';
-  document.getElementById('jConcurso').value = '';
-  salvar(); render();
-}
-
-function removeJogo(id) {
-  const j = estado.jogos.find(x => x.id === id);
-  if (!j || !confirm('Remover este jogo?')) return;
-  if (j.valor > 0) {
-    estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Estorno remoção de jogo`, valor: j.valor, data: new Date().toISOString() });
-  }
-  estado.jogos = estado.jogos.filter(x => x.id !== id);
-  salvar(); render();
-}
-
-// ============ CONFERÊNCIA ============
-function conferir() {
-  const raw = document.getElementById('sorteio').value.trim();
-  const sort = raw.split(/[\s,;]+/).map(n => parseInt(n, 10)).filter(n => !isNaN(n));
-  const out = document.getElementById('saidaConf');
-  if (sort.length !== 6 || sort.some(n => n < 1 || n > 60)) {
-    out.innerHTML = '<div class="msg">Digite exatamente 6 dezenas.</div>'; return;
-  }
-  if (!estado.jogos.length) { out.innerHTML = '<div class="msg">Nenhum jogo cadastrado.</div>'; return; }
-  const setS = new Set(sort);
-  let html = '';
-  estado.jogos.forEach((j, i) => {
-    const hits = j.dezenas.filter(n => setS.has(n));
-    html += `<div class="item">
-      <div class="top"><strong>Jogo ${i+1}</strong><span class="badge ${hits.length>=4?'ok':'wait'}">${hits.length} acerto(s)</span></div>
-      <div class="balls">${j.dezenas.map(n => `<span class="ball ${setS.has(n)?'hit':''}">${String(n).padStart(2,'0')}</span>`).join('')}</div>
-    </div>`;
-  });
-  out.innerHTML = html;
-}
-
-function ratear() {
-  const premio = parseFloat(document.getElementById('premio').value) || 0;
-  estado.premio = premio;
-  const out = document.getElementById('saidaRateio');
-  const totalCotas = estado.participantes.reduce((s,p) => s + p.cotas, 0);
-  if (!estado.participantes.length) { out.innerHTML = '<div class="msg">Sem participantes.</div>'; return; }
-  if (premio <= 0 || totalCotas === 0) { out.innerHTML = '<div class="msg">Informe prêmio e cotas.</div>'; return; }
-  const valorCota = premio / totalCotas;
-  let html = `<div class="flexline"><b>Valor por cota</b><b class="pos">${brl(valorCota)}</b></div>`;
-  html += `<div class="flexline"><span>Total de cotas</span><span>${totalCotas}</span></div>`;
-  estado.participantes.forEach(p => {
-    html += `<div class="flexline"><span>${esc(p.nome)} <small style="color:#94a3b8">(${p.cotas} cotas)</small></span><b class="pos">${brl(valorCota*p.cotas)}</b></div>`;
-  });
-  out.innerHTML = html;
-}
-
-// ============ RENDER ============
-function render() {
-  // KPIs
-  const totalCotas = estado.participantes.reduce((s,p) => s + p.cotas, 0);
-  const totalDevido = estado.participantes.reduce((s,p) => s + p.cotas * p.valorCota, 0);
-  const totalPago = estado.participantes.reduce((s,p) => s + p.pago, 0);
-  const custoJogos = estado.jogos.reduce((s,j) => s + j.valor, 0);
-  const arrecadado = estado.caixa.filter(c => c.tipo === 'entrada').reduce((s,c) => s + c.valor, 0);
-  const saidas = estado.caixa.filter(c => c.tipo === 'saida').reduce((s,c) => s + c.valor, 0);
-  const saldo = arrecadado - saidas;
-  const pagos = estado.participantes.filter(p => p.pago >= p.cotas * p.valorCota && p.cotas*p.valorCota > 0).length;
-
-  document.getElementById('kPart').textContent = estado.participantes.length;
-  document.getElementById('kCotas').textContent = totalCotas;
-  document.getElementById('kArrecad').textContent = brl(arrecadado);
-  document.getElementById('kCusto').textContent = brl(custoJogos);
-  document.getElementById('kSaldo').textContent = brl(saldo);
-  document.getElementById('kPago').textContent = `${pagos}/${estado.participantes.length}`;
-  document.getElementById('kSaldo').className = saldo < 0 ? 'neg' : '';
-
-  const alerta = document.getElementById('alertaSaldo');
-  if (totalDevido > 0 && totalPago < totalDevido) {
-    alerta.innerHTML = `<div class="msg">Faltam receber <b>${brl(totalDevido - totalPago)}</b> dos participantes.</div>`;
-  } else if (totalDevido > 0) {
-    alerta.innerHTML = `<div class="msg pos">✅ Todos os valores devidos foram pagos.</div>`;
-  } else {
-    alerta.innerHTML = '';
+  window.registrarPagamento = function(id) {
+    const p = estado.participantes.find(x => x.id === id);
+    if (!p) return;
+    const devido = p.cotas * p.valorCota;
+    const falta = +(devido - p.pago).toFixed(2);
+    if (falta <= 0) return alert('Já está totalmente pago.');
+    const v = prompt(`Quanto ${p.nome} pagou agora? (falta ${brl(falta)})`, falta.toFixed(2));
+    if (v === null) return;
+    const valor = parseFloat(v) || 0;
+    if (valor <= 0) return alert('Valor inválido.');
+    p.pago = +(p.pago + valor).toFixed(2);
+    if (p.pago >= devido) p.status = 'pago';
+    estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento - ${p.nome}`, valor, data: new Date().toISOString() });
+    salvar();
   }
 
-  // Resumo por participante (Painel)
-  const rp = document.getElementById('resumoPart');
-  if (!estado.participantes.length) rp.innerHTML = '<div class="empty">Nenhum participante.</div>';
-  else {
-    rp.innerHTML = estado.participantes.map(p => {
-      const devido = p.cotas * p.valorCota;
-      const falta = +(devido - p.pago).toFixed(2);
-      const ok = falta <= 0;
-      return `<div class="item">
-        <div class="top">
-          <div><strong>${esc(p.nome)}</strong><small>${p.cotas} cota(s) • devido ${brl(devido)}</small></div>
-          <span class="badge ${ok?'ok':'no'}">${ok?'Pago':falta>0?'Devendo '+brl(falta):''}</span>
-        </div>
+  window.marcarPago = function(id) {
+    const p = estado.participantes.find(x => x.id === id);
+    if (!p) return;
+    const devido = p.cotas * p.valorCota;
+    const falta = +(devido - p.pago).toFixed(2);
+    if (falta <= 0) return alert('Já está totalmente pago.');
+    p.pago = devido; p.status = 'pago';
+    estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Quitação - ${p.nome}`, valor: falta, data: new Date().toISOString() });
+    salvar();
+  }
+
+  window.editarPart = function(id) {
+    const p = estado.participantes.find(x => x.id === id);
+    if (!p) return;
+    const nome = prompt('Nome:', p.nome); if (nome === null) return;
+    const cotas = parseInt(prompt('Cotas:', p.cotas)); if (isNaN(cotas) || cotas < 1) return;
+    const valorCota = parseFloat(prompt('Valor por cota (R$):', p.valorCota)); if (isNaN(valorCota) || valorCota < 0) return;
+    p.nome = nome.trim() || p.nome;
+    p.cotas = cotas;
+    p.valorCota = valorCota;
+    const devido = cotas * valorCota;
+    if (p.pago >= devido) p.status = 'pago';
+    else p.status = 'pendente';
+    salvar();
+  }
+
+  // ============ JOGOS ============
+  window.addJogo = function() {
+    const raw = document.getElementById('jDezenas').value.trim();
+    const valor = parseFloat(document.getElementById('jValor').value) || 0;
+    const concurso = document.getElementById('jConcurso').value.trim();
+    if (!raw) return alert('Digite as dezenas.');
+    const nums = raw.split(/[\s,;]+/).map(n => parseInt(n, 10)).filter(n => !isNaN(n));
+    if (nums.length < 6 || nums.length > 20) return alert('Entre 6 e 20 dezenas.');
+    if (nums.some(n => n < 1 || n > 60)) return alert('Dezenas de 01 a 60.');
+    if (new Set(nums).size !== nums.length) return alert('Dezenas repetidas.');
+    nums.sort((a,b) => a-b);
+    estado.jogos.push({ id: uid(), dezenas: nums, valor, concurso });
+    if (valor > 0) estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Compra de jogo ${concurso ? '('+concurso+')' : ''}`, valor, data: new Date().toISOString() });
+    document.getElementById('jDezenas').value = '';
+    document.getElementById('jValor').value = '';
+    document.getElementById('jConcurso').value = '';
+    salvar();
+  }
+
+  window.removeJogo = function(id) {
+    const j = estado.jogos.find(x => x.id === id);
+    if (!j || !confirm('Remover este jogo?')) return;
+    if (j.valor > 0) {
+      estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Estorno remoção de jogo`, valor: j.valor, data: new Date().toISOString() });
+    }
+    estado.jogos = estado.jogos.filter(x => x.id !== id);
+    salvar();
+  }
+
+  // ============ CONFERÊNCIA ============
+  window.conferir = function() {
+    const raw = document.getElementById('sorteio').value.trim();
+    const sort = raw.split(/[\s,;]+/).map(n => parseInt(n, 10)).filter(n => !isNaN(n));
+    const out = document.getElementById('saidaConf');
+    if (sort.length !== 6 || sort.some(n => n < 1 || n > 60)) {
+      out.innerHTML = '<div class="msg">Digite exatamente 6 dezenas.</div>'; return;
+    }
+    if (!estado.jogos.length) { out.innerHTML = '<div class="msg">Nenhum jogo cadastrado.</div>'; return; }
+    const setS = new Set(sort);
+    let html = '';
+    estado.jogos.forEach((j, i) => {
+      const hits = j.dezenas.filter(n => setS.has(n));
+      html += `<div class="item">
+        <div class="top"><strong>Jogo ${i+1}</strong><span class="badge ${hits.length>=4?'ok':'wait'}">${hits.length} acerto(s)</span></div>
+        <div class="balls">${j.dezenas.map(n => `<span class="ball ${setS.has(n)?'hit':''}">${String(n).padStart(2,'0')}</span>`).join('')}</div>
       </div>`;
-    }).join('');
+    });
+    out.innerHTML = html;
   }
 
-  // Lista participantes (aba)
-  const lp = document.getElementById('listaPart');
-  if (!estado.participantes.length) lp.innerHTML = '<div class="empty">Nenhum participante.</div>';
-  else {
-    lp.innerHTML = estado.participantes.map(p => {
-      const devido = p.cotas * p.valorCota;
-      const falta = +(devido - p.pago).toFixed(2);
-      const ok = falta <= 0;
-      return `<div class="item">
-        <div class="top"><strong>${esc(p.nome)}</strong><span class="badge ${ok?'ok':'no'}">${ok?'Quitado':'Falta '+brl(falta)}</span></div>
-        <small>${p.cotas} cotas × ${brl(p.valorCota)} = ${brl(devido)} • pago: ${brl(p.pago)}</small>
-        <div class="row" style="margin-top:6px">
-          <button class="sm" onclick="registrarPagamento('${p.id}')">+Pagto</button>
-          <button class="sm sec" onclick="marcarPago('${p.id}')">Quitar</button>
-          <button class="sm sec" onclick="editarPart('${p.id}')">✎</button>
-          <button class="sm danger" onclick="removePart('${p.id}')">✕</button>
-        </div>
-      </div>`;
-    }).join('');
+  window.ratear = function() {
+    const premio = parseFloat(document.getElementById('premio').value) || 0;
+    estado.premio = premio;
+    const out = document.getElementById('saidaRateio');
+    const totalCotas = estado.participantes.reduce((s,p) => s + p.cotas, 0);
+    if (!estado.participantes.length) { out.innerHTML = '<div class="msg">Sem participantes.</div>'; return; }
+    if (premio <= 0 || totalCotas === 0) { out.innerHTML = '<div class="msg">Informe prêmio e cotas.</div>'; return; }
+    const valorCota = premio / totalCotas;
+    let html = `<div class="flexline"><b>Valor por cota</b><b class="pos">${brl(valorCota)}</b></div>`;
+    html += `<div class="flexline"><span>Total de cotas</span><span>${totalCotas}</span></div>`;
+    estado.participantes.forEach(p => {
+      html += `<div class="flexline"><span>${esc(p.nome)} <small style="color:#94a3b8">(${p.cotas} cotas)</small></span><b class="pos">${brl(valorCota*p.cotas)}</b></div>`;
+    });
+    out.innerHTML = html;
   }
 
-  // Jogos
-  const lj = document.getElementById('listaJogos');
-  if (!estado.jogos.length) lj.innerHTML = '<div class="empty">Nenhum jogo.</div>';
-  else {
-    lj.innerHTML = estado.jogos.map((j, i) => `
-      <div class="item">
-        <div class="top">
-          <div><strong>Jogo ${i+1}</strong>${j.concurso ? `<small>Conc. ${esc(j.concurso)}</small>` : ''}<small>${brl(j.valor)}</small></div>
-          <button class="sm danger" onclick="removeJogo('${j.id}')">✕</button>
-        </div>
-        <div class="balls">${j.dezenas.map(n => `<span class="ball">${String(n).padStart(2,'0')}</span>`).join('')}</div>
-      </div>`).join('');
+  // ============ RENDERIZAÇÃO ============
+  function render() {
+    const totalCotas = estado.participantes.reduce((s,p) => s + p.cotas, 0);
+    const totalDevido = estado.participantes.reduce((s,p) => s + p.cotas * p.valorCota, 0);
+    const totalPago = estado.participantes.reduce((s,p) => s + p.pago, 0);
+    const custoJogos = estado.jogos.reduce((s,j) => s + j.valor, 0);
+    const arrecadado = estado.caixa.filter(c => c.tipo === 'entrada').reduce((s,c) => s + c.valor, 0);
+    const saidas = estado.caixa.filter(c => c.tipo === 'saida').reduce((s,c) => s + c.valor, 0);
+    const saldo = arrecadado - saidas;
+    const pagos = estado.participantes.filter(p => p.pago >= p.cotas * p.valorCota && p.cotas*p.valorCota > 0).length;
+
+    document.getElementById('kPart').textContent = estado.participantes.length;
+    document.getElementById('kCotas').textContent = totalCotas;
+    document.getElementById('kArrecad').textContent = brl(arrecadado);
+    document.getElementById('kCusto').textContent = brl(custoJogos);
+    document.getElementById('kSaldo').textContent = brl(saldo);
+    document.getElementById('kPago').textContent = `${pagos}/${estado.participantes.length}`;
+    document.getElementById('kSaldo').className = saldo < 0 ? 'neg' : '';
+
+    const alerta = document.getElementById('alertaSaldo');
+    if (totalDevido > 0 && totalPago < totalDevido) {
+      alerta.innerHTML = `<div class="msg">Faltam receber <b>${brl(totalDevido - totalPago)}</b> dos participantes.</div>`;
+    } else if (totalDevido > 0) {
+      alerta.innerHTML = `<div class="msg pos">✅ Todos os valores devidos foram pagos.</div>`;
+    } else {
+      alerta.innerHTML = '';
+    }
+
+    const rp = document.getElementById('resumoPart');
+    if (!estado.participantes.length) rp.innerHTML = '<div class="empty">Nenhum participante.</div>';
+    else {
+      rp.innerHTML = estado.participantes.map(p => {
+        const devido = p.cotas * p.valorCota;
+        const falta = +(devido - p.pago).toFixed(2);
+        const ok = falta <= 0;
+        return `<div class="item">
+          <div class="top">
+            <div><strong>${esc(p.nome)}</strong><small>${p.cotas} cota(s) • devido ${brl(devido)}</small></div>
+            <span class="badge ${ok?'ok':'no'}">${ok?'Pago':falta>0?'Devendo '+brl(falta):''}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const lp = document.getElementById('listaPart');
+    if (!estado.participantes.length) lp.innerHTML = '<div class="empty">Nenhum participante.</div>';
+    else {
+      lp.innerHTML = estado.participantes.map(p => {
+        const devido = p.cotas * p.valorCota;
+        const falta = +(devido - p.pago).toFixed(2);
+        const ok = falta <= 0;
+        return `<div class="item">
+          <div class="top"><strong>${esc(p.nome)}</strong><span class="badge ${ok?'ok':'no'}">${ok?'Quitado':'Falta '+brl(falta)}</span></div>
+          <small>${p.cotas} cotas × ${brl(p.valorCota)} = ${brl(devido)} • pago: ${brl(p.pago)}</small>
+          <div class="row" style="margin-top:6px">
+            <button class="sm" onclick="registrarPagamento('${p.id}')">+Pagto</button>
+            <button class="sm sec" onclick="marcarPago('${p.id}')">Quitar</button>
+            <button class="sm sec" onclick="editarPart('${p.id}')">✎</button>
+            <button class="sm danger" onclick="removePart('${p.id}')">✕</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const lj = document.getElementById('listaJogos');
+    if (!estado.jogos.length) lj.innerHTML = '<div class="empty">Nenhum jogo.</div>';
+    else {
+      lj.innerHTML = estado.jogos.map((j, i) => `
+        <div class="item">
+          <div class="top">
+            <div><strong>Jogo ${i+1}</strong>${j.concurso ? `<small>Conc. ${esc(j.concurso)}</small>` : ''}<small>${brl(j.valor)}</small></div>
+            <button class="sm danger" onclick="removeJogo('${j.id}')">✕</button>
+          </div>
+          <div class="balls">${j.dezenas.map(n => `<span class="ball">${String(n).padStart(2,'0')}</span>`).join('')}</div>
+        </div>`).join('');
+    }
+
+    const fp = document.getElementById('finPart');
+    if (!estado.participantes.length) fp.innerHTML = '<div class="empty">Sem participantes.</div>';
+    else {
+      fp.innerHTML = estado.participantes.map(p => {
+        const devido = p.cotas * p.valorCota;
+        const falta = +(devido - p.pago).toFixed(2);
+        return `<div class="flexline"><span>${esc(p.nome)}</span><b class="${falta<=0?'pos':'neg'}">${falta<=0?'Quitado':brl(falta)+' a receber'}</b></div>`;
+      }).join('');
+    }
+
+    const fh = document.getElementById('finHist');
+    if (!estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhum movimento.</div>';
+    else {
+      fh.innerHTML = [...estado.caixa].reverse().map(c => `
+        <div class="flexline">
+          <span>${esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span>
+          <b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${brl(c.valor)}</b>
+        </div>`).join('');
+    }
   }
 
-  // Financeiro por participante
-  const fp = document.getElementById('finPart');
-  if (!estado.participantes.length) fp.innerHTML = '<div class="empty">Sem participantes.</div>';
-  else {
-    fp.innerHTML = estado.participantes.map(p => {
-      const devido = p.cotas * p.valorCota;
-      const falta = +(devido - p.pago).toFixed(2);
-      return `<div class="flexline"><span>${esc(p.nome)}</span><b class="${falta<=0?'pos':'neg'}">${falta<=0?'Quitado':brl(falta)+' a receber'}</b></div>`;
-    }).join('');
-  }
-
-  // Histórico caixa
-  const fh = document.getElementById('finHist');
-  if (!estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhum movimento.</div>';
-  else {
-    fh.innerHTML = [...estado.caixa].reverse().map(c => `
-      <div class="flexline">
-        <span>${esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span>
-        <b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${brl(c.valor)}</b>
-      </div>`).join('');
-  }
-}
-
-// Init
-carregar();
-render();
+  // Renderiza a tela inicial vazia enquanto o Firebase carrega
+  render();
 </script>
 </body>
 </html>
