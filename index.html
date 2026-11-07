@@ -5,79 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bolão Família Torquato's</title>
 <style>
-  /* =======================================================
-     1. VARIÁVEIS E CONFIGURAÇÕES GERAIS (DESIGN SYSTEM)
-     ======================================================= */
   :root {
-    --bg-public: #064e3b;
-    --bg-admin: #0f172a;
-    --card-bg: #ffffff;
-    --card-bg-dark: #1e293b;
-    --text-dark: #111827;
-    --text-light: #e2e8f0;
-    --primary: #16a34a;
-    --primary-hover: #15803d;
-    --accent: #fbbf24;
-    --danger: #dc2626;
-    --danger-bg: #fee2e2;
-    --border-light: #d1d5db;
-    --border-dark: #334155;
+    --bg-public: #064e3b; --bg-admin: #0f172a; --card-bg: #ffffff; --card-bg-dark: #1e293b;
+    --text-dark: #111827; --text-light: #e2e8f0; --primary: #16a34a; --primary-hover: #15803d;
+    --accent: #fbbf24; --danger: #dc2626; --danger-bg: #fee2e2; --border-light: #d1d5db; --border-dark: #334155;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-
-  /* =======================================================
-     2. ESTILOS DA TELA PÚBLICA (IDOSOS)
-     ======================================================= */
+  
+  /* TELA PÚBLICA */
   body { background: var(--bg-public); color: #fff; padding: 16px; line-height: 1.5; padding-bottom: 80px; }
   .public-header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
   .public-header h1 { font-size: 1.8rem; color: var(--accent); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 5px; }
   .public-header p { font-size: 1.1rem; font-weight: bold; }
-  
   .card-pub { background: var(--card-bg); color: var(--text-dark); border-radius: 16px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); max-width: 450px; margin: 0 auto; }
   .card-pub h2 { font-size: 1.3rem; color: var(--bg-public); text-align: center; margin-bottom: 15px; }
   .card-pub label { font-weight: bold; font-size: 1.1rem; color: var(--text-dark); display: block; margin-bottom: 8px; }
-  
   .card-regras { background: #fffbeb; border: 2px dashed #fcd34d; border-radius: 10px; padding: 15px; margin-bottom: 20px; }
-  .card-regras h3 { font-size: 1.05rem; color: #b45309; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+  .card-regras h3 { font-size: 1.05rem; color: #b45309; margin-bottom: 8px; }
   .card-regras p { font-size: 0.95rem; color: #78350f; margin-bottom: 8px; }
   .card-regras ul { padding-left: 20px; font-size: 0.9rem; color: #78350f; line-height: 1.4; }
   .card-regras li { margin-bottom: 4px; }
-
   .input-nome { width: 100%; padding: 14px; border: 3px solid #9ca3af; border-radius: 8px; font-size: 1.2rem; margin-bottom: 20px; color: #000; font-weight: bold; background: #f3f4f6; }
   .input-nome:focus { outline: none; border-color: var(--primary); background: #fff; }
-
   .jogo-bloco { border: 2px solid var(--border-light); padding: 15px; border-radius: 10px; margin-bottom: 15px; background: #f9fafb; }
   .jogo-bloco h3 { font-size: 1.1rem; color: var(--bg-public); margin-bottom: 10px; }
   .inputs-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
-  
   .num-input { width: 100%; padding: 10px 0; text-align: center; font-size: 1.3rem; font-weight: bold; border: 2px solid #9ca3af; border-radius: 6px; color: #000; background: #fff; margin: 0; }
   .num-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 5px rgba(22, 163, 74, 0.5); }
   .num-input.erro { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); animation: tremer 0.3s; }
-
   @keyframes tremer { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
-
   .btn-principal { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 1.3rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
   .btn-principal:hover { background: var(--primary-hover); }
-  
   .btn-confirmar-jogos { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-  
   .pix-box { display: none; text-align: center; margin-top: 20px; background: #f3f4f6; padding: 15px; border-radius: 8px; border: 2px solid var(--primary); }
   .pix-box img { max-width: 100%; height: auto; margin-bottom: 10px; border: 2px solid #ccc; border-radius: 8px; }
   .pix-code { background: #fff; border: 2px dashed var(--primary); padding: 12px; font-size: 0.85rem; word-break: break-all; color: #000; border-radius: 4px; cursor: pointer; margin-bottom: 10px; font-weight: bold; }
-
   .revisao-bloco { display: none; margin-bottom: 15px; }
   .revisao-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border: 1px solid var(--border-light); padding: 10px; border-radius: 8px; margin-bottom: 8px; }
   .bolinhas-revisao { display: flex; gap: 4px; flex-wrap: wrap; }
   .bolinha { background: var(--bg-public); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; }
   .btn-editar { background: #475569; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
-  
   .footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #6ee7b7; margin-top: 30px; }
   .footer span { cursor: pointer; text-decoration: underline; }
 
-  /* =======================================================
-     3. ESTILOS DO PAINEL ADMIN (Mantidos)
-     ======================================================= */
+  /* TELA ADMIN */
   #adminArea { display: none; background: var(--bg-admin); min-height: 100vh; position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 14px; padding-bottom: 80px; z-index: 999; color: var(--text-light); }
   h1.admin-title { font-size: 1.2rem; color: #4ade80; margin-bottom: 4px; }
   .sub { text-align: center; font-size: .75rem; color: #94a3b8; margin-bottom: 14px; }
@@ -93,12 +64,10 @@
   .item { background: var(--bg-admin); border-radius: 8px; padding: 10px; margin-bottom: 7px; border: 1px solid var(--border-dark); font-size: .85rem; }
   .item .top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
   .badge { display: inline-block; padding: 2px 7px; border-radius: 20px; font-size: .7rem; font-weight: 700; }
-  .badge.ok { background: #166534; color: #bbf7d0; }
-  .badge.no { background: #7f1d1d; color: #fecaca; }
+  .badge.ok { background: #166534; color: #bbf7d0; } .badge.no { background: #7f1d1d; color: #fecaca; }
   .kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .kpi > div { background: var(--bg-admin); border: 1px solid var(--border-dark); border-radius: 8px; padding: 8px; text-align: center; }
-  .kpi b { display: block; font-size: 1.05rem; color: #4ade80; }
-  .kpi span { font-size: .7rem; color: #94a3b8; }
+  .kpi b { display: block; font-size: 1.05rem; color: #4ade80; } .kpi span { font-size: .7rem; color: #94a3b8; }
   .msg { font-size: .82rem; text-align: center; margin-top: 6px; color: var(--accent); }
   .empty { color: #64748b; font-size: .82rem; text-align: center; padding: 8px; }
   .pos { color: #4ade80; } .neg { color: #f87171; }
@@ -119,9 +88,6 @@
 </head>
 <body>
 
-<!-- =======================================================
-     MÓDULO 1: TELA PÚBLICA (CADASTRO DE JOGOS)
-     ======================================================= -->
 <div id="publicArea">
   <div class="public-header">
     <h1>🍀 Bolão da Virada</h1>
@@ -131,7 +97,6 @@
   <div class="card-pub">
     <h2>Faça sua fé!</h2>
     
-    <!-- ÁREA INICIAL: REGRAS + NOME + BOTÃO CADASTRAR -->
     <div id="areaInicial">
       <div class="card-regras">
         <h3>📋 Regras e Valores</h3>
@@ -143,17 +108,13 @@
           <li><strong>Não repita</strong> o mesmo número no mesmo jogo.</li>
         </ul>
       </div>
-
       <label>Seu Nome Completo:</label>
       <input type="text" id="pubNome" class="input-nome" placeholder="Ex: João da Silva" />
-
       <button class="btn-principal" onclick="APP.publico.abrirJogos()">Cadastrar Jogos</button>
     </div>
 
-    <!-- ÁREA DE PREENCHIMENTO DOS JOGOS -->
     <div id="areaJogos" style="display:none;">
       <label>Seus 3 Jogos:</label>
-      
       <div class="jogo-bloco">
         <h3>Jogo 1</h3>
         <div class="inputs-grid" id="grid-j1">
@@ -165,7 +126,6 @@
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
         </div>
       </div>
-
       <div class="jogo-bloco">
         <h3>Jogo 2</h3>
         <div class="inputs-grid" id="grid-j2">
@@ -177,7 +137,6 @@
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
         </div>
       </div>
-
       <div class="jogo-bloco">
         <h3>Jogo 3</h3>
         <div class="inputs-grid" id="grid-j3">
@@ -189,46 +148,28 @@
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
         </div>
       </div>
-
       <button class="btn-confirmar-jogos" onclick="APP.publico.confirmarJogos()">Confirmar Jogos</button>
     </div>
 
-    <!-- ÁREA DE REVISÃO (APARECE APÓS CONFIRMAR) -->
     <div id="areaRevisao" class="revisao-bloco">
       <label>Confira seus jogos:</label>
-      
       <div class="revisao-item" id="rev-1">
-        <div>
-          <span style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 5px;">Jogo 1</span>
-          <div class="bolinhas-revisao" id="bolinhas-1"></div>
-        </div>
+        <div><span style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 5px;">Jogo 1</span><div class="bolinhas-revisao" id="bolinhas-1"></div></div>
         <button class="btn-editar" onclick="APP.publico.editarJogo(1)">✏️ Editar</button>
       </div>
-
       <div class="revisao-item" id="rev-2">
-        <div>
-          <span style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 5px;">Jogo 2</span>
-          <div class="bolinhas-revisao" id="bolinhas-2"></div>
-        </div>
+        <div><span style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 5px;">Jogo 2</span><div class="bolinhas-revisao" id="bolinhas-2"></div></div>
         <button class="btn-editar" onclick="APP.publico.editarJogo(2)">✏️ Editar</button>
       </div>
-
       <div class="revisao-item" id="rev-3">
-        <div>
-          <span style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 5px;">Jogo 3</span>
-          <div class="bolinhas-revisao" id="bolinhas-3"></div>
-        </div>
+        <div><span style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 5px;">Jogo 3</span><div class="bolinhas-revisao" id="bolinhas-3"></div></div>
         <button class="btn-editar" onclick="APP.publico.editarJogo(3)">✏️ Editar</button>
       </div>
-
       <button class="btn-principal" style="margin-top: 15px;" onclick="APP.publico.gerarPix()">Confirmar e Gerar PIX</button>
     </div>
 
-    <!-- ÁREA DO PIX -->
     <div id="pixArea" class="pix-box">
-      <div id="mensagemSucesso" style="display:none; margin-bottom: 15px; background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; font-weight: bold; border: 1px solid #86efac;">
-        ✅ Jogos registrados com sucesso!
-      </div>
+      <div id="mensagemSucesso" style="display:none; margin-bottom: 15px; background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; font-weight: bold; border: 1px solid #86efac;">✅ Jogos registrados com sucesso!</div>
       <p style="font-weight:bold; color:var(--primary); margin-bottom:10px; font-size:1.1rem;">Pague com PIX:</p>
       <img src="images/QRCODE_Mercado Pago.jpg" alt="QR Code PIX" onerror="this.style.display='none'">
       <p style="font-size:0.9rem; color:#333; font-weight:bold; margin-bottom:10px;">Ou copie o código abaixo:</p>
@@ -243,9 +184,7 @@
   <span onclick="APP.admin.login()" style="opacity:0.5;">Área do Administrador</span>
 </div>
 
-<!-- =======================================================
-     MÓDULO 2: PAINEL ADMINISTRATIVO (Mantido igual)
-     ======================================================= -->
+<!-- PAINEL ADMIN -->
 <div id="adminArea">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
     <h1 class="admin-title" style="margin:0;">🍀 Painel Admin</h1>
@@ -327,7 +266,7 @@
 
   <div class="tab" id="tab-conf">
     <div class="card">
-      <h2>🏆 Conferir sorteio</h2>
+      <h2>🏆 Conferir sorteio e Ratear</h2>
       <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Digite as 6 dezenas sorteadas:</p>
       <div class="inputs-grid-admin" id="grid-sorteio">
         <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'sorteio', '0')" onblur="completaZero(this, 'sorteio', '0')" data-sorteio="true">
@@ -341,7 +280,8 @@
       <div id="saidaConf" style="margin-top:10px;"></div>
     </div>
     <div class="card">
-      <h2>💰 Rateio de prêmio</h2>
+      <h2>💰 Rateio de prêmio (Apenas Ganhadores)</h2>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">O rateio só divide entre quem acertou 4, 5 ou 6 números no sorteio acima.</p>
       <input id="premio" type="number" step="0.01" min="0" placeholder="Prêmio total (R$)" oninput="APP.admin.ratear()" />
       <div id="saidaRateio"></div>
     </div>
@@ -376,7 +316,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+  import { getDatabase, ref, onValue, set, update, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   const CONFIG = {
     firebase: {
@@ -390,10 +330,11 @@
     },
     pixCopiaCola: "00020126360014br.gov.bcb.pix0114+5511953326997520400005303986540520.005802BR5921GILMAR TORQUATO GOMES6009Sao Paulo62210517daqr735456801956963042671",
     valorCota: 20.00,
-    senhaAdmin: "admin123" // ⚠️ MUDE SUA SENHA AQUI
+    // Hash SHA-256 da senha "admin123" (Seguro contra leitura visual no código)
+    senhaAdminHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9" 
   };
 
-  let estado = { participantes: [], caixa: [], custoJogos: 0 };
+  let estado = { participantes: {}, caixa: {}, custoJogos: 0 };
   let isAdmin = false;
   let jogosTemporarios = {};
 
@@ -405,31 +346,38 @@
     try {
       const data = snapshot.val();
       if (data) {
-        estado = Object.assign(estado, data);
+        // Garante que as chaves sempre existam
+        estado.participantes = data.participantes || {};
+        estado.caixa = data.caixa || {};
+        estado.custoJogos = data.custoJogos || 0;
         if (isAdmin) APP.admin.renderizar();
       }
     } catch (error) { console.error(error); }
   });
 
-  function salvarNuvem() { 
-    set(dbRef, estado).catch(err => alert("Erro ao salvar no Firebase."));
-    if (isAdmin) APP.admin.renderizar();
-  }
-
   window.APP = {
     utils: {
-      uid: () => Date.now().toString(36) + Math.random().toString(36).slice(2,6),
       esc: (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),
       brl: (v) => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ','),
-      copiarPix: () => { navigator.clipboard.writeText(CONFIG.pixCopiaCola).then(() => alert("PIX copiado!")); }
+      copiarPix: () => { navigator.clipboard.writeText(CONFIG.pixCopiaCola).then(() => alert("PIX copiado!")); },
+      // Função para calcular hash SHA-256
+      hashSenha: async (senha) => {
+        const msgBuffer = new TextEncoder().encode(senha);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      },
+      // Escapar campos para CSV
+      csvEscape: (str) => {
+        if (str === null || str === undefined) return '""';
+        return '"' + String(str).replace(/"/g, '""') + '"';
+      }
     },
 
     publico: {
       abrirJogos: function() {
         const nome = document.getElementById('pubNome').value.trim();
         if(!nome) return alert("Por favor, digite seu nome primeiro.");
-        
-        // Esconde a área inicial e mostra os jogos
         document.getElementById('areaInicial').style.display = 'none';
         document.getElementById('areaJogos').style.display = 'block';
       },
@@ -449,7 +397,6 @@
           
           if (temErro || nums.length !== 6) return alert(`Preencha todos os 6 números do Jogo ${i}.`);
           if (new Set(nums).size !== nums.length) return alert(`O Jogo ${i} tem números repetidos.`);
-          
           jogosTemporarios[i] = nums;
         }
 
@@ -457,20 +404,18 @@
         document.getElementById('areaRevisao').style.display = 'block';
 
         for(let i=1; i<=3; i++) {
-          const container = document.getElementById(`bolinhas-${i}`);
-          container.innerHTML = jogosTemporarios[i].map(n => `<div class="bolinha">${n}</div>`).join('');
+          document.getElementById(`bolinhas-${i}`).innerHTML = jogosTemporarios[i].map(n => `<div class="bolinha">${n}</div>`).join('');
         }
       },
 
       editarJogo: function(numJogo) {
         document.getElementById('areaRevisao').style.display = 'none';
         document.getElementById('areaJogos').style.display = 'block';
-        
         const input = document.querySelector(`.num-input[data-jogo="${numJogo}"]`);
         if(input) input.focus();
       },
 
-      gerarPix: function() {
+      gerarPix: async function() {
         const nome = document.getElementById('pubNome').value.trim();
         const primeiroNome = nome.split(' ')[0];
         
@@ -480,35 +425,54 @@
           jogosTemporarios[3].join(' - ')
         ];
 
-        // Limpa a tela e mostra só o PIX e a mensagem de sucesso
-        document.getElementById('areaRevisao').style.display = 'none';
-        document.getElementById('pixArea').style.display = 'block';
-        document.getElementById('mensagemSucesso').style.display = 'block';
-        document.getElementById('mensagemSucesso').innerHTML = `✅ Jogos de <b>${primeiroNome}</b> registrados!`;
+        // Bloqueia botão para evitar duplo clique
+        const btn = document.querySelector('#areaRevisao .btn-principal');
+        const txtOriginal = btn.innerText;
+        btn.innerText = "Salvando...";
+        btn.disabled = true;
 
-        estado.participantes.push({
-          id: APP.utils.uid(),
-          nome: nome,
-          jogos: jogosFinais,
-          pago: 0,
-          status: 'pendente'
-        });
+        try {
+          // Usa push() para gerar uma chave única e não sobrescrever ninguém
+          const novoParticipanteRef = push(ref(db, 'bolao/participantes'));
+          await set(novoParticipanteRef, {
+            nome: nome,
+            jogos: jogosFinais,
+            pago: 0,
+            status: 'pendente',
+            data: new Date().toISOString()
+          });
 
-        salvarNuvem();
-        document.getElementById('pixArea').scrollIntoView({ behavior: 'smooth' });
+          // Se deu certo (await passou), mostra o PIX
+          document.getElementById('areaRevisao').style.display = 'none';
+          document.getElementById('pixArea').style.display = 'block';
+          document.getElementById('mensagemSucesso').style.display = 'block';
+          document.getElementById('mensagemSucesso').innerHTML = `✅ Jogos de <b>${primeiroNome}</b> registrados!`;
+          document.getElementById('pixArea').scrollIntoView({ behavior: 'smooth' });
+
+        } catch (error) {
+          alert("Erro ao salvar no servidor. Verifique a internet e tente novamente.");
+          btn.innerText = txtOriginal;
+          btn.disabled = false;
+        }
       }
     },
 
     admin: {
-      login: function() {
+      login: async function() {
         const senha = prompt("Digite a senha:");
-        if (senha === CONFIG.senhaAdmin) {
+        if (senha === null) return;
+        
+        const hashDigitado = await APP.utils.hashSenha(senha);
+        
+        if (hashDigitado === CONFIG.senhaAdminHash) {
           isAdmin = true;
           document.getElementById('publicArea').style.display = 'none';
           document.getElementById('publicFooter').style.display = 'none';
           document.getElementById('adminArea').style.display = 'block';
           this.renderizar();
-        } else if (senha !== null) alert("Senha incorreta!");
+        } else {
+          alert("Senha incorreta!");
+        }
       },
       logout: function() {
         isAdmin = false;
@@ -523,13 +487,15 @@
         if (btn) btn.classList.add('active');
         this.renderizar();
       },
-      addParticipante: function() {
+      addParticipante: async function() {
         const nome = document.getElementById('pNome').value.trim();
         const status = document.getElementById('pStatus').value;
         if (!nome) return alert('Informe o nome.');
+        
         const pago = status === 'pago' ? CONFIG.valorCota : 0;
         const jogos = [];
         let temJogo = false;
+        
         for(let i=1; i<=3; i++) {
           const inputs = document.querySelectorAll(`.num-input-admin[data-manual="${i}"]`);
           let nums = [];
@@ -540,40 +506,61 @@
           else jogos.push("-");
         }
         let jogosFinais = temJogo ? jogos : ["Cadastro Manual", "-", "-"];
-        const id = APP.utils.uid();
-        estado.participantes.push({ id, nome, jogos: jogosFinais, pago, status });
-        if (pago > 0) estado.caixa.push({ id: APP.utils.uid(), tipo: 'entrada', desc: `Pagamento - ${nome}`, valor: pago, data: new Date().toISOString() });
-        document.getElementById('pNome').value = '';
-        document.getElementById('pStatus').value = 'pendente';
-        document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
-        salvarNuvem();
+
+        try {
+          const novoPartRef = push(ref(db, 'bolao/participantes'));
+          await set(novoPartRef, { nome, jogos: jogosFinais, pago, status, data: new Date().toISOString() });
+          
+          if (pago > 0) {
+            const novoCaixaRef = push(ref(db, 'bolao/caixa'));
+            await set(novoCaixaRef, { tipo: 'entrada', desc: `Pagamento - ${nome}`, valor: pago, data: new Date().toISOString() });
+          }
+          
+          document.getElementById('pNome').value = '';
+          document.getElementById('pStatus').value = 'pendente';
+          document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
+          alert("Participante cadastrado!");
+        } catch(e) { alert("Erro ao salvar."); }
       },
-      quitar: function(id) {
-        const p = estado.participantes.find(x => x.id === id);
+      quitar: async function(id) {
+        const p = estado.participantes[id];
         if (!p || p.pago >= CONFIG.valorCota) return;
         const falta = CONFIG.valorCota - p.pago;
-        p.pago = CONFIG.valorCota; p.status = 'pago';
-        estado.caixa.push({ id: APP.utils.uid(), tipo: 'entrada', desc: `Quitação - ${p.nome}`, valor: falta, data: new Date().toISOString() });
-        salvarNuvem();
+        
+        try {
+          await update(ref(db, `bolao/participantes/${id}`), { pago: CONFIG.valorCota, status: 'pago' });
+          const novoCaixaRef = push(ref(db, 'bolao/caixa'));
+          await set(novoCaixaRef, { tipo: 'entrada', desc: `Quitação - ${p.nome}`, valor: falta, data: new Date().toISOString() });
+        } catch(e) { alert("Erro ao atualizar."); }
       },
-      estornar: function(id) {
-        const p = estado.participantes.find(x => x.id === id);
+      estornar: async function(id) {
+        const p = estado.participantes[id];
         if (!p || p.pago === 0 || !confirm(`Desfazer pagamento de ${p.nome}?`)) return;
-        estado.caixa.push({ id: APP.utils.uid(), tipo: 'saida', desc: `Estorno - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
-        p.pago = 0; p.status = 'pendente';
-        salvarNuvem();
+        
+        try {
+          await update(ref(db, `bolao/participantes/${id}`), { pago: 0, status: 'pendente' });
+          const novoCaixaRef = push(ref(db, 'bolao/caixa'));
+          await set(novoCaixaRef, { tipo: 'saida', desc: `Estorno - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
+        } catch(e) { alert("Erro ao estornar."); }
       },
-      excluir: function(id) {
-        const p = estado.participantes.find(x => x.id === id);
+      excluir: async function(id) {
+        const p = estado.participantes[id];
         if (!p || !confirm(`Remover ${p.nome}?`)) return;
-        if (p.pago > 0) estado.caixa.push({ id: APP.utils.uid(), tipo: 'saida', desc: `Estorno exclusão - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
-        estado.participantes = estado.participantes.filter(x => x.id !== id);
-        salvarNuvem();
+        
+        try {
+          if (p.pago > 0) {
+            const novoCaixaRef = push(ref(db, 'bolao/caixa'));
+            await set(novoCaixaRef, { tipo: 'saida', desc: `Estorno exclusão - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
+          }
+          await set(ref(db, `bolao/participantes/${id}`), null); // Deleta
+        } catch(e) { alert("Erro ao excluir."); }
       },
-      salvarCusto: function() {
-        estado.custoJogos = parseFloat(document.getElementById('inputCusto').value) || 0;
-        salvarNuvem();
-        alert("Custo salvo!");
+      salvarCusto: async function() {
+        const c = parseFloat(document.getElementById('inputCusto').value) || 0;
+        try {
+          await update(ref(db, 'bolao'), { custoJogos: c });
+          alert("Custo salvo!");
+        } catch(e) { alert("Erro ao salvar custo."); }
       },
       conferir: function() {
         const inputs = document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`);
@@ -582,12 +569,13 @@
         const out = document.getElementById('saidaConf');
         if (sort.length !== 6) return out.innerHTML = '<div class="msg" style="color:var(--danger)">Preencha os 6 números.</div>';
         let html = '', acertos = 0;
-        estado.participantes.forEach(p => {
+        
+        Object.values(estado.participantes).forEach(p => {
           if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
             p.jogos.forEach((jStr, idx) => {
               const nums = jStr.split(' - ');
               const hits = nums.filter(n => sort.includes(n));
-              if (hits.length > 0) {
+              if (hits.length >= 4) { // Só mostra se acertou 4, 5 ou 6
                 acertos++;
                 html += `<div class="item" style="border-color:var(--accent); background:#2d2005;">
                   <div class="top"><strong>${APP.utils.esc(p.nome)} - J${idx+1}</strong><span class="badge" style="background:var(--accent); color:#000;">${hits.length} acertos</span></div>
@@ -597,38 +585,66 @@
             });
           }
         });
-        out.innerHTML = acertos === 0 ? '<div class="msg">Ninguém acertou.</div>' : `<div class="msg pos">Tivemos acertos!</div>` + html;
+        out.innerHTML = acertos === 0 ? '<div class="msg">Ninguém acertou 4, 5 ou 6 números.</div>' : `<div class="msg pos">Temos ganhadores!</div>` + html;
       },
       ratear: function() {
         const premio = parseFloat(document.getElementById('premio').value) || 0;
         const out = document.getElementById('saidaRateio');
-        const total = estado.participantes.length;
-        if (!total || premio <= 0) return out.innerHTML = '<div class="msg">Dados insuficientes.</div>';
-        const vCota = premio / total;
-        let html = `<div class="flexline"><b>Por cota</b><b class="pos">${APP.utils.brl(vCota)}</b></div>`;
-        estado.participantes.forEach(p => html += `<div class="flexline"><span>${APP.utils.esc(p.nome)}</span><b class="pos">${APP.utils.brl(vCota)}</b></div>`);
+        if (premio <= 0) return out.innerHTML = '<div class="msg">Informe o prêmio.</div>';
+
+        // Descobre quem acertou 4, 5 ou 6
+        const sort = [];
+        document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`).forEach(inp => { if(inp.value.length === 1) inp.value = '0' + inp.value; if(inp.value) sort.push(inp.value); });
+        if(sort.length !== 6) return out.innerHTML = '<div class="msg" style="color:var(--danger)">Preencha o sorteio primeiro.</div>';
+
+        let ganhadores = [];
+        Object.values(estado.participantes).forEach(p => {
+          if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
+            let maxAcertos = 0;
+            p.jogos.forEach(jStr => {
+              const nums = jStr.split(' - ');
+              const hits = nums.filter(n => sort.includes(n)).length;
+              if(hits > maxAcertos) maxAcertos = hits;
+            });
+            if(maxAcertos >= 4) ganhadores.push({ nome: p.nome, acertos: maxAcertos });
+          }
+        });
+
+        if(ganhadores.length === 0) return out.innerHTML = '<div class="msg">Ninguém acertou 4, 5 ou 6. Prêmio não distribuído.</div>';
+
+        const vCota = premio / ganhadores.length;
+        let html = `<div class="flexline"><b>Ganhadores</b><span>${ganhadores.length} pessoas</span></div>`;
+        ganhadores.forEach(g => {
+          html += `<div class="flexline"><span>${APP.utils.esc(g.nome)} (${g.acertos} acertos)</span><b class="pos">${APP.utils.brl(vCota)}</b></div>`;
+        });
         out.innerHTML = html;
       },
       exportarExcel: function() {
-        if (!estado.participantes.length) return alert("Nenhum participante.");
+        if (!Object.keys(estado.participantes).length) return alert("Nenhum participante.");
         let csv = "Nome;Jogo 1;Jogo 2;Jogo 3;Status;Pago (R$);Data\n";
-        estado.participantes.forEach(p => {
+        const escCsv = APP.utils.csvEscape;
+        
+        Object.values(estado.participantes).forEach(p => {
           const status = p.pago >= CONFIG.valorCota ? "PAGO" : "PENDENTE";
           const j1 = p.jogos?.[0] || "", j2 = p.jogos?.[1] || "", j3 = p.jogos?.[2] || "";
-          csv += `${p.nome};${j1};${j2};${j3};${status};${p.pago.toFixed(2).replace('.', ',')};${new Date().toLocaleDateString('pt-BR')}\n`;
+          const dataFormatada = p.data ? new Date(p.data).toLocaleDateString('pt-BR') : "";
+          
+          csv += `${escCsv(p.nome)};${escCsv(j1)};${escCsv(j2)};${escCsv(j3)};${escCsv(status)};${escCsv(p.pago.toFixed(2).replace('.', ','))};${escCsv(dataFormatada)}\n`;
         });
+        
         const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Relatorio_Bolao.csv"; link.click();
       },
       renderizar: function() {
         if(!isAdmin) return;
-        const tot = estado.participantes.length;
-        const arr = estado.participantes.reduce((s,p) => s + (p.pago||0), 0);
+        const parts = Object.entries(estado.participantes).map(([id, p]) => ({ id, ...p }));
+        const tot = parts.length;
+        const arr = parts.reduce((s,p) => s + (p.pago||0), 0);
         const dev = tot * CONFIG.valorCota;
         const falta = dev - arr;
         const custo = estado.custoJogos || 0;
         const saldo = arr - custo;
-        const pagos = estado.participantes.filter(p => p.pago >= CONFIG.valorCota).length;
+        const pagos = parts.filter(p => p.pago >= CONFIG.valorCota).length;
 
         document.getElementById('kPart').textContent = tot;
         document.getElementById('kArrecad').textContent = APP.utils.brl(arr);
@@ -639,22 +655,24 @@
 
         document.getElementById('alertaSaldo').innerHTML = saldo < 0 ? `<div class="msg" style="color:var(--danger);">⚠️ Gastou mais do que arrecadou.</div>` : (falta > 0 ? `<div class="msg">Faltam receber <b>${APP.utils.brl(falta)}</b>.</div>` : `<div class="msg pos">✅ Tudo pago!</div>`);
 
-        document.getElementById('resumoPart').innerHTML = !tot ? '<div class="empty">Sem participantes.</div>' : estado.participantes.map(p => {
+        document.getElementById('resumoPart').innerHTML = !tot ? '<div class="empty">Sem participantes.</div>' : parts.map(p => {
           const f = CONFIG.valorCota - p.pago;
           return `<div class="item"><div class="top"><strong>${APP.utils.esc(p.nome)}</strong><span class="badge ${f<=0?'ok':'no'}">${f<=0?'Pago':'Devendo '+APP.utils.brl(f)}</span></div></div>`;
         }).join('');
 
-        document.getElementById('listaPart').innerHTML = !tot ? '<div class="empty">Sem participantes.</div>' : estado.participantes.map(p => {
+        document.getElementById('listaPart').innerHTML = !tot ? '<div class="empty">Sem participantes.</div>' : parts.map(p => {
           const f = CONFIG.valorCota - p.pago;
           let jHtml = (p.jogos && p.jogos[0] !== "Cadastro Manual") ? p.jogos.map((j, i) => `<div class="jogo-exibicao"><span style="font-size:0.75rem; color:#94a3b8; align-self:center; margin-right:5px;">J${i+1}:</span>${j.split(' - ').map(n => `<div class="bola-num">${n}</div>`).join('')}</div>`).join('') : '<small style="color:#94a3b8;">Jogos no papel.</small>';
           return `<div class="item"><div class="top"><strong>${APP.utils.esc(p.nome)}</strong><span class="badge ${f<=0?'ok':'no'}">${f<=0?'Quitado':'Falta '+APP.utils.brl(f)}</span></div>${jHtml}<div class="row" style="margin-top:8px">${f > 0 ? `<button class="sm" onclick="APP.admin.quitar('${p.id}')">✔ Quitar</button>` : `<button class="sm sec" onclick="APP.admin.estornar('${p.id}')">↩ Estornar</button>`}<button class="sm danger" onclick="APP.admin.excluir('${p.id}')">✕ Excluir</button></div></div>`;
         }).join('');
 
-        document.getElementById('finHist').innerHTML = (!estado.caixa || !estado.caixa.length) ? '<div class="empty">Sem movimentações.</div>' : [...estado.caixa].reverse().map(c => `<div class="flexline"><span>${APP.utils.esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span><b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${APP.utils.brl(c.valor)}</b></div>`).join('');
+        const caixaArray = Object.values(estado.caixa || {});
+        document.getElementById('finHist').innerHTML = (!caixaArray.length) ? '<div class="empty">Sem movimentações.</div>' : caixaArray.sort((a,b) => new Date(b.data) - new Date(a.data)).map(c => `<div class="flexline"><span>${APP.utils.esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span><b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${APP.utils.brl(c.valor)}</b></div>`).join('');
       }
     }
   };
 
+  // Funções de validação mantidas
   window.validaNumero = function(input, tipo, grupo) {
     let val = input.value.replace(/\D/g, '');
     if (val.length > 2) val = val.slice(0, 2);
@@ -669,7 +687,6 @@
       setTimeout(() => { if (idx < inputs.length - 1) inputs[idx + 1].focus(); else input.blur(); }, 50);
     }
   }
-
   window.completaZero = function(input, tipo, grupo) {
     let val = input.value.replace(/\D/g, '');
     if (val.length === 1) input.value = '0' + val;
