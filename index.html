@@ -15,19 +15,18 @@
   .public-header p { font-size: 1rem; color: #d1d5db; }
   .card-pub { background: #fff; color: #333; border-radius: 16px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); max-width: 400px; margin: 0 auto; }
   .card-pub h2 { font-size: 1.2rem; color: #065f46; text-align: center; margin-bottom: 15px; }
-  .card-pub input, .card-pub select { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1.1rem; margin-bottom: 15px; color: #333; }
+  .card-pub input { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1.1rem; margin-bottom: 15px; color: #333; }
   .card-pub label { font-weight: bold; font-size: 1rem; color: #4b5563; display: block; margin-bottom: 5px; }
   .btn-pix { background: #16a34a; color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
   .btn-pix:hover { background: #15803d; }
   .pix-box { display: none; text-align: center; margin-top: 20px; background: #f3f4f6; padding: 15px; border-radius: 8px; }
-  .pix-box img { max-width: 200px; margin-bottom: 10px; border: 2px solid #ccc; border-radius: 8px; }
+  .pix-box img { max-width: 100%; height: auto; margin-bottom: 10px; border: 2px solid #ccc; border-radius: 8px; }
   .pix-code { background: #fff; border: 1px dashed #ccc; padding: 10px; font-size: 0.8rem; word-break: break-all; color: #666; border-radius: 4px; cursor: pointer; margin-bottom: 10px; }
   .footer { text-align: center; padding: 20px; font-size: 0.75rem; color: #6ee7b7; margin-top: 30px; }
   .footer span { cursor: pointer; text-decoration: underline; }
 
   /* ================= PAINEL ADMIN (TEMA ESCURO) ================= */
   #adminArea { display: none; background: #0f172a; min-height: 100vh; position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 14px; padding-bottom: 80px; z-index: 999; color: #e2e8f0; }
-  
   h1.admin-title { font-size: 1.2rem; text-align: center; color: #4ade80; margin-bottom: 4px; }
   .sub { text-align: center; font-size: .75rem; color: #94a3b8; margin-bottom: 14px; }
   .card { background: #1e293b; border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid #334155; }
@@ -63,7 +62,6 @@
   .tab { display: none; } .tab.active { display: block; }
   .flexline { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dashed #334155; font-size: .82rem; }
   .flexline:last-child { border-bottom: none; }
-  #statusNuvem { text-align: center; font-size: 0.75rem; color: #fbbf24; margin-bottom: 10px; display: none; }
 </style>
 </head>
 <body>
@@ -77,26 +75,18 @@
 
   <div class="card-pub">
     <h2>Garanta sua cota!</h2>
-    <p style="text-align:center; font-size:0.9rem; color:#666; margin-bottom:15px;">3 jogos por R$ 20,00</p>
+    <p style="text-align:center; font-size:1.1rem; color:#065f46; font-weight:bold; margin-bottom:15px;">Valor: R$ 20,00 (3 jogos)</p>
     
     <label>Seu Nome Completo:</label>
     <input type="text" id="pubNome" placeholder="Ex: João da Silva" />
-
-    <label>Quantidade de Cotas:</label>
-    <select id="pubCotas">
-      <option value="1">1 cota - R$ 20,00</option>
-      <option value="2">2 cotas - R$ 40,00</option>
-      <option value="3">3 cotas - R$ 60,00</option>
-      <option value="5">5 cotas - R$ 100,00</option>
-    </select>
 
     <button class="btn-pix" onclick="gerarPixPublico()">Gerar Pagamento PIX</button>
 
     <div id="pixArea" class="pix-box">
       <p style="font-weight:bold; color:#16a34a; margin-bottom:10px;">Pague com PIX:</p>
       
-      <!-- Substitua o link abaixo pela sua imagem de QR Code salva no GitHub como qrcode.png -->
-      <img src="qrcode.png" alt="QR Code PIX" onerror="this.style.display='none'">
+      <!-- Imagem do QR Code -->
+      <img src="images/QRCODE_Mercado Pago.jpg" alt="QR Code PIX" onerror="this.style.display='none'">
       
       <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">Ou copie o código abaixo:</p>
       <div class="pix-code" id="pixCodeText" onclick="copiarPix()">Clique para copiar o código PIX</div>
@@ -117,7 +107,6 @@
     <button class="sm danger" onclick="logoutAdmin()">Sair</button>
   </div>
   <div class="sub">Família Torquato's • Mega-Sena</div>
-  <div id="statusNuvem">🔄 Sincronizando com a nuvem...</div>
 
   <!-- TAB PAINEL -->
   <div class="tab active" id="tab-painel">
@@ -125,11 +114,9 @@
       <h2>📊 Resumo do Caixa</h2>
       <div class="kpi">
         <div><b id="kPart">0</b><span>Participantes</span></div>
-        <div><b id="kCotas">0</b><span>Cotas totais</span></div>
         <div><b id="kArrecad">R$ 0</b><span>Arrecadado</span></div>
         <div><b id="kCusto">R$ 0</b><span>Custo jogos</span></div>
         <div><b id="kSaldo">R$ 0</b><span>Saldo caixa</span></div>
-        <div><b id="kPago">0/0</b><span>Pagaram</span></div>
       </div>
       <div id="alertaSaldo"></div>
     </div>
@@ -146,17 +133,13 @@
       <h2>👥 Cadastrar manualmente</h2>
       <input id="pNome" placeholder="Nome" />
       <div class="row">
-        <input id="pCotas" type="number" min="1" value="1" placeholder="Cotas" />
-        <input id="pValorCota" type="number" step="0.01" min="0" value="20.00" placeholder="R$/cota" />
-      </div>
-      <div class="row">
         <input id="pPago" type="number" step="0.01" min="0" placeholder="Já pagou (R$)" />
         <select id="pStatus">
           <option value="pago">Pago</option>
           <option value="pendente">Pendente</option>
         </select>
       </div>
-      <button onclick="addPart()">Adicionar Participante</button>
+      <button onclick="addPart()">Adicionar (1 cota = R$ 20)</button>
     </div>
 
     <div class="card">
@@ -202,7 +185,7 @@
   <div class="tab" id="tab-fin">
     <div class="card">
       <h2>📥 Exportar Relatório</h2>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Baixe a planilha para abrir no Excel e controlar quem já pagou.</p>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Baixe a planilha para abrir no Excel.</p>
       <button class="sec" onclick="exportarExcel()" style="background:#0ea5e9; color:#fff;">📊 Baixar Planilha (.CSV)</button>
     </div>
     
@@ -231,7 +214,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-  // SUAS CONFIGURAÇÕES DO FIREBASE
   const firebaseConfig = {
     apiKey: "AIzaSyBd6HByBm8ZS8o9t_IrzFV_eSWWqLKPOqY",
     authDomain: "bolao-2a310.firebaseapp.com",
@@ -242,9 +224,8 @@
     appId: "1:89102406302:web:739c1fdbf536449814a18f"
   };
 
-  // CONFIGURAÇÕES DO PIX
+  // CONFIGURAÇÕES
   const PIX_COPIA_COLA = "00020126360014br.gov.bcb.pix0114+5511953326997520400005303986540520.005802BR5921GILMAR TORQUATO GOMES6009Sao Paulo62210517daqr735456801956963042671";
-  const CHAVE_PIX_TELEFONE = "+5511953326997"; // Para gerar QR Code dinâmico, se precisar
   const VALOR_COTA = 20.00;
   const SENHA_ADMIN = "admin123"; // ⚠️ MUDE SUA SENHA AQUI
 
@@ -260,7 +241,6 @@
   const brl = v => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ',');
 
   // --- FIREBASE SYNC ---
-  const statusNuvem = document.getElementById('statusNuvem');
   onValue(dbRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -281,23 +261,20 @@
   // ==========================================
   window.gerarPixPublico = function() {
     const nome = document.getElementById('pubNome').value.trim();
-    const cotas = parseInt(document.getElementById('pubCotas').value);
     if (!nome) return alert("Por favor, digite seu nome completo.");
 
-    // Verifica se já existe
     if (estado.participantes.some(p => p.nome.toLowerCase() === nome.toLowerCase())) {
-      if(!confirm("Já existe alguém com esse nome. Deseja adicionar outra cota para esta pessoa?")) return;
+      if(!confirm("Já existe alguém com esse nome. Deseja comprar mais uma cota?")) return;
     }
 
     document.getElementById('pixArea').style.display = 'block';
     document.getElementById('pixCodeText').innerText = PIX_COPIA_COLA;
 
-    // Salva no Firebase
-    const novoId = uid();
+    // Salva no Firebase como 1 cota
     estado.participantes.push({
-      id: novoId,
+      id: uid(),
       nome: nome,
-      cotas: cotas,
+      cotas: 1,
       valorCota: VALOR_COTA,
       pago: 0,
       status: 'pendente'
@@ -305,9 +282,7 @@
 
     salvar();
     
-    // Limpa campos para não duplicar sem querer
     document.getElementById('pubNome').value = '';
-    document.getElementById('pubCotas').value = '1';
   }
 
   window.copiarPix = function() {
@@ -350,15 +325,16 @@
   // --- FUNÇÕES ADMIN ---
   window.addPart = function() {
     const nome = document.getElementById('pNome').value.trim();
-    const cotas = parseInt(document.getElementById('pCotas').value) || 1;
-    const valorCota = parseFloat(document.getElementById('pValorCota').value) || VALOR_COTA;
     const pago = parseFloat(document.getElementById('pPago').value) || 0;
     const status = document.getElementById('pStatus').value;
     if (!nome) return alert('Informe o nome.');
 
-    const totalDevido = cotas * valorCota;
     const id = uid();
-    estado.participantes.push({ id, nome, cotas, valorCota, pago, status });
+    const totalDevido = VALOR_COTA;
+    
+    estado.participantes.push({ 
+      id, nome, cotas: 1, valorCota: VALOR_COTA, pago, status 
+    });
 
     if (pago > 0) {
       estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento inicial - ${nome}`, valor: pago, data: new Date().toISOString() });
@@ -370,8 +346,8 @@
       estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Ajuste status pago - ${nome}`, valor: falta, data: new Date().toISOString() });
     }
 
-    ['pNome','pPago'].forEach(k => document.getElementById(k).value = '');
-    document.getElementById('pCotas').value = 1;
+    document.getElementById('pNome').value = '';
+    document.getElementById('pPago').value = '';
     salvar();
   }
 
@@ -385,45 +361,13 @@
     salvar();
   }
 
-  window.registrarPagamento = function(id) {
-    const p = estado.participantes.find(x => x.id === id);
-    if (!p) return;
-    const devido = p.cotas * p.valorCota;
-    const falta = +(devido - p.pago).toFixed(2);
-    if (falta <= 0) return alert('Já está totalmente pago.');
-    const v = prompt(`Quanto ${p.nome} pagou agora? (falta ${brl(falta)})`, falta.toFixed(2));
-    if (v === null) return;
-    const valor = parseFloat(v) || 0;
-    if (valor <= 0) return alert('Valor inválido.');
-    p.pago = +(p.pago + valor).toFixed(2);
-    if (p.pago >= devido) p.status = 'pago';
-    estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento - ${p.nome}`, valor, data: new Date().toISOString() });
-    salvar();
-  }
-
   window.marcarPago = function(id) {
     const p = estado.participantes.find(x => x.id === id);
     if (!p) return;
-    const devido = p.cotas * p.valorCota;
-    const falta = +(devido - p.pago).toFixed(2);
+    const falta = +(VALOR_COTA - p.pago).toFixed(2);
     if (falta <= 0) return alert('Já está totalmente pago.');
-    p.pago = devido; p.status = 'pago';
+    p.pago = VALOR_COTA; p.status = 'pago';
     estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Quitação - ${p.nome}`, valor: falta, data: new Date().toISOString() });
-    salvar();
-  }
-
-  window.editarPart = function(id) {
-    const p = estado.participantes.find(x => x.id === id);
-    if (!p) return;
-    const nome = prompt('Nome:', p.nome); if (nome === null) return;
-    const cotas = parseInt(prompt('Cotas:', p.cotas)); if (isNaN(cotas) || cotas < 1) return;
-    const valorCota = parseFloat(prompt('Valor por cota (R$):', p.valorCota)); if (isNaN(valorCota) || valorCota < 0) return;
-    p.nome = nome.trim() || p.nome;
-    p.cotas = cotas;
-    p.valorCota = valorCota;
-    const devido = cotas * valorCota;
-    if (p.pago >= devido) p.status = 'pago';
-    else p.status = 'pendente';
     salvar();
   }
 
@@ -479,14 +423,14 @@
     const premio = parseFloat(document.getElementById('premio').value) || 0;
     estado.premio = premio;
     const out = document.getElementById('saidaRateio');
-    const totalCotas = estado.participantes.reduce((s,p) => s + p.cotas, 0);
+    const totalCotas = estado.participantes.length; // Agora 1 pessoa = 1 cota
     if (!estado.participantes.length) { out.innerHTML = '<div class="msg">Sem participantes.</div>'; return; }
     if (premio <= 0 || totalCotas === 0) { out.innerHTML = '<div class="msg">Informe prêmio e cotas.</div>'; return; }
     const valorCota = premio / totalCotas;
     let html = `<div class="flexline"><b>Valor por cota</b><b class="pos">${brl(valorCota)}</b></div>`;
     html += `<div class="flexline"><span>Total de cotas</span><span>${totalCotas}</span></div>`;
     estado.participantes.forEach(p => {
-      html += `<div class="flexline"><span>${esc(p.nome)} <small style="color:#94a3b8">(${p.cotas} cotas)</small></span><b class="pos">${brl(valorCota*p.cotas)}</b></div>`;
+      html += `<div class="flexline"><span>${esc(p.nome)}</span><b class="pos">${brl(valorCota)}</b></div>`;
     });
     out.innerHTML = html;
   }
@@ -494,12 +438,11 @@
   window.exportarExcel = function() {
     if (!estado.participantes.length) return alert("Nenhum participante cadastrado.");
     
-    let csvContent = "Nome;Cotas;Valor Total;Status;Pago (R$);Data\n";
+    let csvContent = "Nome;Valor;Cotas;Status;Pago (R$);Data\n";
     estado.participantes.forEach(p => {
-      const devido = p.cotas * p.valorCota;
-      const status = p.pago >= devido ? "PAGO" : "PENDENTE";
+      const status = p.pago >= VALOR_COTA ? "PAGO" : "PENDENTE";
       const data = new Date().toLocaleDateString('pt-BR');
-      csvContent += `${p.nome};${p.cotas};${devido.toFixed(2).replace('.', ',')};${status};${p.pago.toFixed(2).replace('.', ',')};${data}\n`;
+      csvContent += `${p.nome};${VALOR_COTA.toFixed(2).replace('.', ',')};1;${status};${p.pago.toFixed(2).replace('.', ',')};${data}\n`;
     });
     
     const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -513,6 +456,96 @@
   function renderAdmin() {
     if(!isAdmin) return;
 
-    const totalCotas = estado.participantes.reduce((s,p) => s + p.cotas, 0);
-    const totalDevido = estado.participantes.reduce((s,p) => s + (p.cotas * p.valorCota), 0);
-    const totalPago
+    const totalCotas = estado.participantes.length;
+    const totalDevido = totalCotas * VALOR_COTA;
+    const totalPago = estado.participantes.reduce((s,p) => s + p.pago, 0);
+    const custoJogos = estado.jogos.reduce((s,j) => s + j.valor, 0);
+    const arrecadado = estado.caixa.filter(c => c.tipo === 'entrada').reduce((s,c) => s + c.valor, 0);
+    const saidas = estado.caixa.filter(c => c.tipo === 'saida').reduce((s,c) => s + c.valor, 0);
+    const saldo = arrecadado - saidas;
+    const pagos = estado.participantes.filter(p => p.pago >= VALOR_COTA).length;
+
+    document.getElementById('kPart').textContent = totalCotas;
+    document.getElementById('kArrecad').textContent = brl(arrecadado);
+    document.getElementById('kCusto').textContent = brl(custoJogos);
+    document.getElementById('kSaldo').textContent = brl(saldo);
+    document.getElementById('kSaldo').className = saldo < 0 ? 'neg' : '';
+
+    const alerta = document.getElementById('alertaSaldo');
+    if (totalDevido > 0 && totalPago < totalDevido) {
+      alerta.innerHTML = `<div class="msg">Faltam receber <b>${brl(totalDevido - totalPago)}</b> dos participantes.</div>`;
+    } else if (totalDevido > 0) {
+      alerta.innerHTML = `<div class="msg pos">✅ Todos os valores devidos foram pagos.</div>`;
+    } else {
+      alerta.innerHTML = '';
+    }
+
+    const rp = document.getElementById('resumoPart');
+    if (!estado.participantes.length) rp.innerHTML = '<div class="empty">Nenhum participante.</div>';
+    else {
+      rp.innerHTML = estado.participantes.map(p => {
+        const falta = +(VALOR_COTA - p.pago).toFixed(2);
+        const ok = falta <= 0;
+        return `<div class="item">
+          <div class="top">
+            <div><strong>${esc(p.nome)}</strong></div>
+            <span class="badge ${ok?'ok':'no'}">${ok?'Pago':'Devendo '+brl(falta)}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const lp = document.getElementById('listaPart');
+    if (!estado.participantes.length) lp.innerHTML = '<div class="empty">Nenhum participante.</div>';
+    else {
+      lp.innerHTML = estado.participantes.map(p => {
+        const falta = +(VALOR_COTA - p.pago).toFixed(2);
+        const ok = falta <= 0;
+        return `<div class="item">
+          <div class="top"><strong>${esc(p.nome)}</strong><span class="badge ${ok?'ok':'no'}">${ok?'Quitado':'Falta '+brl(falta)}</span></div>
+          <small>Pago: ${brl(p.pago)}</small>
+          <div class="row" style="margin-top:6px">
+            ${!ok ? `<button class="sm" onclick="marcarPago('${p.id}')">✔ Quitar</button>` : ''}
+            <button class="sm danger" onclick="removePart('${p.id}')">✕ Excluir</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const lj = document.getElementById('listaJogos');
+    if (!estado.jogos.length) lj.innerHTML = '<div class="empty">Nenhum jogo.</div>';
+    else {
+      lj.innerHTML = estado.jogos.map((j, i) => `
+        <div class="item">
+          <div class="top">
+            <div><strong>Jogo ${i+1}</strong>${j.concurso ? `<small>Conc. ${esc(j.concurso)}</small>` : ''}<small>${brl(j.valor)}</small></div>
+            <button class="sm danger" onclick="removeJogo('${j.id}')">✕</button>
+          </div>
+          <div class="balls">${j.dezenas.map(n => `<span class="ball">${String(n).padStart(2,'0')}</span>`).join('')}</div>
+        </div>`).join('');
+    }
+
+    const fp = document.getElementById('finPart');
+    if (!estado.participantes.length) fp.innerHTML = '<div class="empty">Sem participantes.</div>';
+    else {
+      fp.innerHTML = estado.participantes.map(p => {
+        const falta = +(VALOR_COTA - p.pago).toFixed(2);
+        return `<div class="flexline"><span>${esc(p.nome)}</span><b class="${falta<=0?'pos':'neg'}">${falta<=0?'Quitado':brl(falta)+' a receber'}</b></div>`;
+      }).join('');
+    }
+
+    const fh = document.getElementById('finHist');
+    if (!estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhum movimento.</div>';
+    else {
+      fh.innerHTML = [...estado.caixa].reverse().map(c => `
+        <div class="flexline">
+          <span>${esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span>
+          <b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${brl(c.valor)}</b>
+        </div>`).join('');
+    }
+  }
+
+  renderAdmin();
+</script>
+</body>
+</html>
