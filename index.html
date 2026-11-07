@@ -280,8 +280,8 @@
 
     <div class="card">
       <h2>💰 Rateio de prêmio (Igualitário)</h2>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">O valor total será dividido igualmente entre <strong>todos</strong> os participantes do bolão.</p>
-      <input id="premio" type="number" step="0.01" min="0" placeholder="Prêmio total (R$)" oninput="APP.admin.ratear()" />
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">O valor total será dividido igualmente entre <strong>todos</strong> os participantes.</p>
+      <input id="premio" type="text" inputmode="decimal" placeholder="Ex: 1.234,56" oninput="APP.admin.ratear()" />
       <div id="saidaRateio"></div>
     </div>
   </div>
@@ -291,14 +291,14 @@
       <h2>💵 Custo dos Jogos</h2>
       <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Informe quanto você gastou na lotérica.</p>
       <div class="row">
-        <input id="inputCusto" type="number" step="0.01" min="0" placeholder="R$ 00,00" />
+        <input id="inputCusto" type="text" inputmode="decimal" placeholder="Ex: 50,00" />
         <button onclick="APP.admin.salvarCusto()" style="width:40%">Salvar</button>
       </div>
     </div>
     
     <div class="card">
       <h2>💾 Backup de Segurança</h2>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Salve ou restaure todos os dados do bolão (Participantes, Jogos e Caixa).</p>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Salve ou restaure todos os dados do bolão.</p>
       <div class="row">
         <button class="sec" onclick="APP.admin.exportarBackup()" style="background:#10b981; color:#fff;">📤 Exportar Backup</button>
         <button class="sec" onclick="document.getElementById('fileInputBackup').click()">📥 Importar Backup</button>
@@ -366,21 +366,42 @@
 
   window.APP = {
     utils: {
+      // Escape HTML seguro para renderização
       esc: (s) => {
         if (s === null || s === undefined) return '';
         return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/`/g, "&#x60;");
       },
       brl: (v) => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ','),
+      
+      // Nova função para converter Moeda BR (ex: "R$ 1.234,56" -> 1234.56)
+      parseMoedaBR: (str) => {
+        if (typeof str === 'number') return str;
+        if (!str) return 0;
+        let clean = String(str).replace(/R\$\s?/g, '').replace(/\./g, '').replace(',', '.');
+        const num = parseFloat(clean);
+        return isNaN(num) ? 0 : num;
+      },
+
       copiarPix: () => { navigator.clipboard.writeText(CONFIG.pixCopiaCola).then(() => alert("PIX copiado!")); },
+      
       hashSenha: async (senha) => {
         const msgBuffer = new TextEncoder().encode(senha);
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
         return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
       },
+      
+      // CSV Escape com proteção contra CSV Injection
       csvEscape: (str) => {
         if (str === null || str === undefined) return '""';
-        return '"' + String(str).replace(/"/g, '""') + '"';
+        let s = String(str);
+        // Proteção contra injeção de fórmula (=, +, -, @)
+        if (/^[=+\-@]/.test(s.trim())) {
+          s = "'" + s;
+        }
+        return '"' + s.replace(/"/g, '""') + '"';
       },
+      
+      // Validação estrita de jogos
       validarJogoCompleto: (jogoStr) => {
         if (!jogoStr || typeof jogoStr !== 'string') return false;
         const numeros = jogoStr.split(' - ').map(n => parseInt(n.trim(), 10));
@@ -473,7 +494,8 @@
 
         try {
           const novoPartRef = push(ref(db, 'bolao/participantes'));
-          await set(novoPartRef, { nome: APP.utils.esc(nome), jogos: jogosFinais, pago: 0, status: 'pendente', data: new Date().toISOString() });
+          // Salva o nome original, sem escape
+          await set(novoPartRef, { nome: nome, jogos: jogosFinais, pago: 0, status: 'pendente', data: new Date().toISOString() });
 
           document.getElementById('areaRevisao').style.display = 'none';
           document.getElementById('pixArea').style.display = 'block';
@@ -513,6 +535,7 @@
         if (btn) btn.classList.add('active');
         this.renderizar();
       },
+      
       addParticipante: async function() {
         const nome = document.getElementById('pNome').value.trim();
         const status = document.getElementById('pStatus').value;
@@ -536,18 +559,26 @@
         let jogosFinais = temJogo ? jogos : ["Cadastro Manual", "-", "-"];
 
         try {
+          // Criação atômica (tudo ou nada)
           const novoPartRef = push(ref(db, 'bolao/participantes'));
-          await set(novoPartRef, { nome: APP.utils.esc(nome), jogos: jogosFinais, pago, status, data: new Date().toISOString() });
+          const updates = {};
+          
+          updates[`participantes/${novoPartRef.key}`] = { nome: nome, jogos: jogosFinais, pago, status, data: new Date().toISOString() };
+          
           if (pago > 0) {
             const novoCaixaRef = push(ref(db, 'bolao/caixa'));
-            await set(novoCaixaRef, { tipo: 'entrada', desc: `Pagamento - ${APP.utils.esc(nome)}`, valor: pago, data: new Date().toISOString() });
+            updates[`caixa/${novoCaixaRef.key}`] = { tipo: 'entrada', desc: `Pagamento - ${nome}`, valor: pago, data: new Date().toISOString() };
           }
+
+          await update(ref(db, 'bolao'), updates);
+
           document.getElementById('pNome').value = '';
           document.getElementById('pStatus').value = 'pendente';
           document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
           alert("Participante cadastrado!");
         } catch(e) { alert("Erro ao salvar."); }
       },
+      
       quitar: async function(id) {
         const p = estado.participantes[id];
         if (!p || p.pago >= CONFIG.valorCota) return;
@@ -557,12 +588,13 @@
         updates[`participantes/${id}/pago`] = CONFIG.valorCota;
         updates[`participantes/${id}/status`] = 'pago';
         const novoCaixaKey = push(ref(db, 'bolao/caixa')).key;
-        updates[`caixa/${novoCaixaKey}`] = { tipo: 'entrada', desc: `Quitação - ${APP.utils.esc(p.nome)}`, valor: falta, data: new Date().toISOString() };
+        updates[`caixa/${novoCaixaKey}`] = { tipo: 'entrada', desc: `Quitação - ${p.nome}`, valor: falta, data: new Date().toISOString() };
         
         try {
           await update(ref(db, 'bolao'), updates);
         } catch(e) { alert("Erro ao quitar."); }
       },
+      
       estornar: async function(id) {
         const p = estado.participantes[id];
         if (!p || p.pago === 0 || !confirm(`Desfazer pagamento de ${p.nome}?`)) return;
@@ -571,12 +603,13 @@
         updates[`participantes/${id}/pago`] = 0;
         updates[`participantes/${id}/status`] = 'pendente';
         const novoCaixaKey = push(ref(db, 'bolao/caixa')).key;
-        updates[`caixa/${novoCaixaKey}`] = { tipo: 'saida', desc: `Estorno - ${APP.utils.esc(p.nome)}`, valor: p.pago, data: new Date().toISOString() };
+        updates[`caixa/${novoCaixaKey}`] = { tipo: 'saida', desc: `Estorno - ${p.nome}`, valor: p.pago, data: new Date().toISOString() };
         
         try {
           await update(ref(db, 'bolao'), updates);
         } catch(e) { alert("Erro ao estornar."); }
       },
+      
       excluir: async function(id) {
         const p = estado.participantes[id];
         if (!p || !confirm(`Remover ${p.nome}?`)) return;
@@ -585,16 +618,23 @@
         updates[`participantes/${id}`] = null;
         if (p.pago > 0) {
           const novoCaixaKey = push(ref(db, 'bolao/caixa')).key;
-          updates[`caixa/${novoCaixaKey}`] = { tipo: 'saida', desc: `Estorno exclusão - ${APP.utils.esc(p.nome)}`, valor: p.pago, data: new Date().toISOString() };
+          updates[`caixa/${novoCaixaKey}`] = { tipo: 'saida', desc: `Estorno exclusão - ${p.nome}`, valor: p.pago, data: new Date().toISOString() };
         }
         
         try {
           await update(ref(db, 'bolao'), updates);
         } catch(e) { alert("Erro ao excluir."); }
       },
+      
       salvarCusto: async function() {
-        const c = parseFloat(document.getElementById('inputCusto').value) || 0;
-        try { await update(ref(db, 'bolao'), { custoJogos: c }); alert("Salvo!"); } catch(e) { alert("Erro."); }
+        const cStr = document.getElementById('inputCusto').value;
+        const c = APP.utils.parseMoedaBR(cStr);
+        if (!isFinite(c) || c < 0) return alert("Por favor, informe um custo válido.");
+        
+        try { 
+          await update(ref(db, 'bolao'), { custoJogos: c }); 
+          alert("Custo salvo!"); 
+        } catch(e) { alert("Erro ao salvar custo."); }
       },
       
       limparConferencia: function() {
@@ -626,8 +666,11 @@
         let totalParticipantes = Object.keys(estado.participantes).length;
         
         Object.values(estado.participantes).forEach(p => {
-          if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
+          if (p.jogos && Array.isArray(p.jogos)) {
             p.jogos.forEach((jStr, idx) => {
+              // Ignora jogos vazios ou inválidos
+              if (!jStr || jStr === '-' || jStr === 'Cadastro Manual' || !APP.utils.validarJogoCompleto(jStr)) return;
+              
               totalJogosConferidos++;
               const nums = jStr.split(' - ');
               const hits = nums.filter(n => sort.includes(n));
@@ -638,7 +681,7 @@
           }
         });
 
-        info.innerHTML = `✅ ${totalJogosConferidos} jogos conferidos de ${totalParticipantes} participantes.`;
+        info.innerHTML = `✅ ${totalJogosConferidos} jogos válidos conferidos de ${totalParticipantes} participantes.`;
 
         let html = '';
         let textoWpp = `🍀 *RESULTADO DO BOLÃO* 🍀\n\nSorteio: *${sort.join(' - ')}*\n\n`;
@@ -684,9 +727,13 @@
       },
 
       ratear: function() {
-        const premio = parseFloat(document.getElementById('premio').value) || 0;
+        const premioStr = document.getElementById('premio').value;
+        const premio = APP.utils.parseMoedaBR(premioStr);
         const out = document.getElementById('saidaRateio');
-        if (premio <= 0) return out.innerHTML = '<div class="msg">Informe o prêmio total.</div>';
+        
+        if (!isFinite(premio) || premio <= 0) {
+          return out.innerHTML = '<div class="msg">Informe um valor de prêmio válido.</div>';
+        }
         
         const participantes = Object.values(estado.participantes);
         if (participantes.length === 0) return out.innerHTML = '<div class="msg">Nenhum participante cadastrado para dividir o prêmio.</div>';
@@ -694,8 +741,7 @@
         const vCota = premio / participantes.length;
         let html = `<div class="flexline" style="border-bottom:1px solid var(--accent); margin-bottom:5px; padding-bottom:5px;"><b>Divisão para todos (${participantes.length} pessoas)</b><span>${APP.utils.brl(vCota)} / pessoa</span></div>`;
         
-        // Ordena alfabeticamente para ficar bonito de ler
-        participantes.sort((a, b) => a.nome.localeCompare(b.nome));
+        participantes.sort((a, b) => (a.nome || "").localeCompare(b.nome || ""));
         
         participantes.forEach(p => { 
           html += `<div class="flexline"><span>${APP.utils.esc(p.nome)}</span><b class="pos">${APP.utils.brl(vCota)}</b></div>`; 
@@ -719,7 +765,7 @@
       },
       
       exportarBackup: function() {
-        const backup = { ...estado };
+        const backup = { participantes: estado.participantes, caixa: estado.caixa, custoJogos: estado.custoJogos };
         const jsonStr = JSON.stringify(backup, null, 2);
         const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
         const link = document.createElement("a");
@@ -727,29 +773,43 @@
         link.download = `backup_bolao_${new Date().toISOString().slice(0,10)}.json`;
         link.click();
       },
+      
       importarBackup: function(event) {
         const file = event.target.files[0];
         if (!file) return;
         
         const reader = new FileReader();
         reader.onload = async function(e) {
+          let data;
           try {
-            const data = JSON.parse(e.target.result);
-            if (!data.participantes || !data.caixa) throw new Error("Formato inválido");
-            
-            const numPart = Object.keys(data.participantes).length;
-            const confirmacao = prompt(`Você está prestes a RESTAURAR um backup com ${numPart} participantes.\nIsso SUBSTITUIRÁ todos os dados atuais.\n\nDigite "CONFIRMAR" para prosseguir:`);
-            
-            if (confirmacao !== "CONFIRMAR") {
-              alert("Restauração cancelada.");
-              return;
-            }
+            data = JSON.parse(e.target.result);
+          } catch(err) {
+            return alert("Erro: O arquivo não é um JSON válido.");
+          }
 
+          if (!data || typeof data !== 'object' || !data.participantes || !data.caixa) {
+            return alert("Erro: Estrutura do backup inválida. Faltando dados de participantes ou caixa.");
+          }
+          
+          const numPart = Object.keys(data.participantes).length;
+          
+          // 1. Gerar backup automático do estado ATUAL antes de apagar
+          APP.admin.exportarBackup();
+          
+          // 2. Pedir confirmação
+          const confirmacao = prompt(`⚠️ ATENÇÃO: Você está prestes a RESTAURAR um backup com ${numPart} participantes.\n\nUm backup do estado atual foi baixado automaticamente.\n\nDigite "CONFIRMAR" para prosseguir:`);
+          
+          if (confirmacao !== "CONFIRMAR") {
+            alert("Restauração cancelada. Seus dados atuais estão seguros.");
+            return;
+          }
+
+          try {
             await set(ref(db, 'bolao'), data);
             alert("Backup restaurado com sucesso!");
             window.location.reload();
-          } catch (err) {
-            alert("Erro ao ler o arquivo de backup: " + err.message);
+          } catch(err) {
+            alert("Erro ao gravar dados no servidor: " + err.message);
           }
         };
         reader.readAsText(file);
@@ -769,8 +829,14 @@
         document.getElementById('kArrecad').textContent = APP.utils.brl(arr);
         document.getElementById('kFalta').textContent = APP.utils.brl(falta > 0 ? falta : 0);
         document.getElementById('kCusto').textContent = APP.utils.brl(custo);
-        const elS = document.getElementById('kSaldo'); elS.textContent = APP.utils.brl(saldo); elS.className = saldo < 0 ? 'neg' : 'pos';
-        if(document.getElementById('inputCusto').value == '' && custo > 0) document.getElementById('inputCusto').value = custo;
+        
+        const elS = document.getElementById('kSaldo'); 
+        elS.textContent = APP.utils.brl(saldo); 
+        elS.className = saldo < 0 ? 'neg' : 'pos';
+        
+        if(document.getElementById('inputCusto').value == '' && custo > 0) {
+          document.getElementById('inputCusto').value = custo.toFixed(2).replace('.', ',');
+        }
 
         document.getElementById('alertaSaldo').innerHTML = saldo < 0 ? `<div class="msg" style="color:var(--danger);">⚠️ Gastou mais do que arrecadou.</div>` : (falta > 0 ? `<div class="msg">Faltam receber <b>${APP.utils.brl(falta)}</b>.</div>` : `<div class="msg pos">✅ Tudo pago!</div>`);
 
@@ -782,6 +848,7 @@
         document.getElementById('listaPart').innerHTML = !tot ? '<div class="empty">Sem participantes.</div>' : parts.map(p => {
           const f = CONFIG.valorCota - p.pago;
           let jHtml = (p.jogos && p.jogos[0] !== "Cadastro Manual") ? p.jogos.map((j, i) => `<div class="jogo-exibicao"><span style="font-size:0.75rem; color:#94a3b8; align-self:center; margin-right:5px;">J${i+1}:</span>${j.split(' - ').map(n => `<div class="bola-num">${APP.utils.esc(n)}</div>`).join('')}</div>`).join('') : '<small style="color:#94a3b8;">Jogos no papel.</small>';
+          
           return `<div class="item"><div class="top"><strong>${APP.utils.esc(p.nome)}</strong><span class="badge ${f<=0?'ok':'no'}">${f<=0?'Quitado':'Falta '+APP.utils.brl(f)}</span></div>${jHtml}<div class="row" style="margin-top:8px">${f > 0 ? `<button class="sm" onclick="APP.admin.quitar('${p.id}')">✔ Quitar</button>` : `<button class="sm sec" onclick="APP.admin.estornar('${p.id}')">↩ Estornar</button>`}<button class="sm danger" onclick="APP.admin.excluir('${p.id}')">✕ Excluir</button></div></div>`;
         }).join('');
 
