@@ -83,6 +83,12 @@
   .jogo-exibicao { background: #1e293b; padding: 8px; border-radius: 6px; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
   .bola-num { background: #38bdf8; color: #0f172a; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
   .bola-num.hit { background: #fbbf24; color: #000; }
+  
+  /* Customização da caixinha de conferência no admin */
+  .inputs-grid-admin { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 10px; }
+  .num-input-admin { width: 100%; padding: 10px 0; text-align: center; font-size: 1.2rem; font-weight: bold; border: 2px solid #475569; border-radius: 6px; color: #fff; background: #0f172a; margin: 0; }
+  .num-input-admin:focus { outline: none; border-color: #fbbf24; }
+  .num-input-admin.erro { border-color: #dc2626; background: #7f1d1d; animation: tremer 0.3s; }
 </style>
 </head>
 <body>
@@ -217,7 +223,18 @@
   <div class="tab" id="tab-conf">
     <div class="card">
       <h2>🏆 Conferir sorteio</h2>
-      <input id="sorteio" placeholder="Ex: 01 05 12 23 34 45" style="font-size:1.1rem; padding:12px; text-align:center; font-weight:bold;" />
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Digite as 6 dezenas sorteadas:</p>
+      
+      <!-- NOVOS CAMPOS DE CONFERÊNCIA (6 CAIXINHAS) -->
+      <div class="inputs-grid-admin" id="grid-sorteio">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
+      </div>
+
       <button onclick="conferir()" style="background:#fbbf24; color:#000;">Conferir Jogos</button>
       <div id="saidaConf" style="margin-top:10px;"></div>
     </div>
@@ -283,7 +300,6 @@
   const db = getDatabase(app);
   const dbRef = ref(db, 'bolao'); 
 
-  // Agora incluímos o custoJogos no estado global
   let estado = { participantes: [], caixa: [], custoJogos: 0 };
   let isAdmin = false;
 
@@ -296,7 +312,6 @@
     const data = snapshot.val();
     if (data) {
       estado = Object.assign(estado, data);
-      // Se a pessoa logou no admin, atualiza a tela
       if (isAdmin) renderAdmin();
     }
   });
@@ -309,7 +324,7 @@
   }
 
   // ==========================================
-  // MÁSCARA E VALIDAÇÃO DOS CAMPOS DE NÚMEROS
+  // MÁSCARA E VALIDAÇÃO DOS CAMPOS DE NÚMEROS (PÚBLICO)
   // ==========================================
   window.mascaraNumero = function(input) {
     let val = input.value.replace(/\D/g, '');
@@ -318,7 +333,8 @@
 
     if (val.length > 0) {
       const num = parseInt(val);
-      if (num > 60) {
+      // TRAVA DO 00 E MAIORES QUE 60
+      if (num > 60 || (val === '00')) {
         input.classList.add('erro');
         setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
         return;
@@ -347,12 +363,76 @@
     }
     
     const numFormatado = input.value;
+    if (numFormatado === '00') {
+      input.value = '';
+      return;
+    }
+
     if (numFormatado.length === 2) {
       const jogoAtual = input.getAttribute('data-jogo');
       const inputsDoJogo = document.querySelectorAll(`.num-input[data-jogo="${jogoAtual}"]`);
       
       let duplicado = false;
       inputsDoJogo.forEach(outro => {
+        if (outro !== input && outro.value === numFormatado) {
+          duplicado = true;
+        }
+      });
+
+      if (duplicado) {
+        input.classList.add('erro');
+        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
+      }
+    }
+  }
+
+  // ==========================================
+  // MÁSCARA E VALIDAÇÃO (CONFERÊNCIA ADMIN)
+  // ==========================================
+  window.mascaraNumeroAdmin = function(input) {
+    let val = input.value.replace(/\D/g, '');
+    if (val.length > 2) val = val.slice(0, 2);
+    input.value = val;
+
+    if (val.length > 0) {
+      const num = parseInt(val);
+      if (num > 60 || (val === '00')) {
+        input.classList.add('erro');
+        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
+        return;
+      }
+    }
+
+    if (val.length === 2) {
+      const inputsDoSorteio = Array.from(document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`));
+      const index = inputsDoSorteio.indexOf(input);
+      
+      setTimeout(() => {
+        if (index < inputsDoSorteio.length - 1) {
+          inputsDoSorteio[index + 1].focus();
+        } else {
+          input.blur();
+        }
+      }, 50);
+    }
+  }
+
+  window.completarZeroAdmin = function(input) {
+    let val = input.value.replace(/\D/g, '');
+    if (val.length === 1) {
+      input.value = '0' + val;
+    }
+    
+    const numFormatado = input.value;
+    if (numFormatado === '00') {
+      input.value = '';
+      return;
+    }
+
+    if (numFormatado.length === 2) {
+      const inputsDoSorteio = document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`);
+      let duplicado = false;
+      inputsDoSorteio.forEach(outro => {
         if (outro !== input && outro.value === numFormatado) {
           duplicado = true;
         }
@@ -462,7 +542,6 @@
       id, nome, jogos: ["Cadastro Manual", "-", "-"], pago, status 
     });
 
-    // Se já pagou na hora de cadastrar, joga pro histórico de movimentações
     if (pago > 0) {
       estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento inicial - ${nome}`, valor: pago, data: new Date().toISOString() });
     }
@@ -482,12 +561,10 @@
     const p = estado.participantes.find(x => x.id === id);
     if (!p || !confirm(`Remover ${p.nome}?`)) return;
     
-    // Registra saída se a pessoa havia pago
     if (p.pago > 0) {
       estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno exclusão - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
     }
     
-    // Remove a pessoa da lista (o "Arrecadado" vai cair automaticamente pq ele calcula em cima dos que sobraram)
     estado.participantes = estado.participantes.filter(x => x.id !== id);
     salvar();
   }
@@ -522,12 +599,21 @@
   }
 
   window.conferir = function() {
-    const raw = document.getElementById('sorteio').value.trim();
-    const sort = raw.split(/[\s,;]+/).map(n => n.replace(/\D/g,'')).filter(n => n.length === 2);
+    // Pega as 6 caixinhas da conferência
+    const inputs = document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`);
+    let sort = [];
+    let temErro = false;
+
+    inputs.forEach(inp => {
+      if(inp.value.length === 1) inp.value = '0' + inp.value;
+      if(!inp.value) temErro = true;
+      else sort.push(inp.value);
+    });
+
     const out = document.getElementById('saidaConf');
     
-    if (sort.length !== 6) {
-      out.innerHTML = '<div class="msg" style="color:#f87171">Digite exatamente 6 dezenas válidas.</div>'; return;
+    if (temErro || sort.length !== 6) {
+      out.innerHTML = '<div class="msg" style="color:#f87171">Preencha todos os 6 números do sorteio.</div>'; return;
     }
     
     if (!estado.participantes.length) { out.innerHTML = '<div class="msg">Nenhum participante.</div>'; return; }
@@ -604,9 +690,6 @@
     if(!isAdmin) return;
 
     const totalCotas = estado.participantes.length;
-    
-    // CÁLCULO MATEMÁTICO REAL E À PROVA DE FALHAS:
-    // Arrecadado = Soma do 'pago' de quem está na lista atualmente
     const arrecadado = estado.participantes.reduce((s,p) => s + (p.pago || 0), 0);
     const totalDevido = totalCotas * VALOR_COTA;
     const faltaReceber = totalDevido - arrecadado;
@@ -619,6 +702,11 @@
     document.getElementById('kFalta').textContent = brl(faltaReceber > 0 ? faltaReceber : 0);
     document.getElementById('kCusto').textContent = brl(custoJogos);
     
+    // Input de custo preenchido
+    if(document.getElementById('inputCusto').value == '' && custoJogos > 0) {
+      document.getElementById('inputCusto').value = custoJogos;
+    }
+
     const elSaldo = document.getElementById('kSaldo');
     elSaldo.textContent = brl(saldoCaixa);
     elSaldo.className = saldoCaixa < 0 ? 'neg' : 'pos';
@@ -634,7 +722,6 @@
       alerta.innerHTML = '';
     }
 
-    // Lista de resumo (Painel)
     const rp = document.getElementById('resumoPart');
     if (!estado.participantes.length) rp.innerHTML = '<div class="empty">Nenhum participante.</div>';
     else {
@@ -650,7 +737,6 @@
       }).join('');
     }
 
-    // Lista Completa (Pessoas)
     const lp = document.getElementById('listaPart');
     if (!estado.participantes.length) lp.innerHTML = '<div class="empty">Nenhum participante.</div>';
     else {
@@ -682,7 +768,6 @@
       }).join('');
     }
 
-    // Histórico Financeiro
     const fh = document.getElementById('finHist');
     if (!estado.caixa || !estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhuma movimentação.</div>';
     else {
