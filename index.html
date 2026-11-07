@@ -233,12 +233,13 @@
       <div class="row">
         <input id="pPago" type="number" step="0.01" min="0" placeholder="Já pagou (R$)" />
         <select id="pStatus">
-          <option value="pago">Pago</option>
+          <!-- CORREÇÃO AQUI: Pendente vem primeiro para ser o padrão -->
           <option value="pendente">Pendente</option>
+          <option value="pago">Pago</option>
         </select>
       </div>
       
-      <!-- NOVOS CAMPOS DE JOGOS MANUAIS -->
+      <!-- CAMPOS DE JOGOS MANUAIS -->
       <p style="font-size:0.8rem; color:#94a3b8; margin: 10px 0 5px;">Jogos (opcional - deixe em branco se for só controle de caixa):</p>
       
       <div class="jogo-bloco" style="background: var(--bg-admin); border-color: var(--border-dark); padding: 10px; margin-bottom: 10px;">
@@ -345,7 +346,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-  // --- CONFIGURAÇÕES GLOBAIS ---
   const CONFIG = {
     firebase: {
       apiKey: "AIzaSyBd6HByBm8ZS8o9t_IrzFV_eSWWqLKPOqY",
@@ -361,11 +361,9 @@
     senhaAdmin: "admin123" // ⚠️ MUDE SUA SENHA AQUI
   };
 
-  // --- ESTADO GLOBAL ---
   let estado = { participantes: [], caixa: [], custoJogos: 0 };
   let isAdmin = false;
 
-  // --- INICIALIZAÇÃO FIREBASE ---
   const app = initializeApp(CONFIG.firebase);
   const db = getDatabase(app);
   const dbRef = ref(db, 'bolao'); 
@@ -389,9 +387,6 @@
     if (isAdmin) APP.admin.renderizar();
   }
 
-  // =======================================================
-  // MÓDULO UTILITÁRIOS (Compartilhado)
-  // =======================================================
   window.APP = {
     utils: {
       uid: () => Date.now().toString(36) + Math.random().toString(36).slice(2,6),
@@ -404,9 +399,6 @@
       }
     },
 
-    // =======================================================
-    // MÓDULO PÚBLICO (Idosos)
-    // =======================================================
     publico: {
       gerarPix: function() {
         const nome = document.getElementById('pubNome').value.trim();
@@ -442,16 +434,12 @@
 
         salvarNuvem();
         
-        // Limpa formulário
         document.getElementById('pubNome').value = '';
         document.querySelectorAll('.num-input').forEach(inp => inp.value = '');
         document.getElementById('pixArea').scrollIntoView({ behavior: 'smooth' });
       }
     },
 
-    // =======================================================
-    // MÓDULO ADMIN (Painel)
-    // =======================================================
     admin: {
       login: function() {
         const senha = prompt("Digite a senha de Administrador:");
@@ -487,7 +475,6 @@
         const status = document.getElementById('pStatus').value;
         if (!nome) return alert('Informe o nome.');
 
-        // --- NOVA LÓGICA PARA CAPTURAR OS JOGOS MANUAIS ---
         const jogos = [];
         let temJogoPreenchido = false;
 
@@ -508,15 +495,15 @@
           } else if (nums.length > 0 && nums.length < 6) {
             return alert(`Preencha todos os 6 números do Jogo ${i} ou deixe-o totalmente em branco.`);
           } else {
-            jogos.push("-"); // Se deixou em branco
+            jogos.push("-");
           }
         }
         
-        // Se o admin não preencheu nenhum jogo, define o status manual padrão
         let jogosFinais = temJogoPreenchido ? jogos : ["Cadastro Manual", "-", "-"];
-        // ---------------------------------------------------
 
         const id = APP.utils.uid();
+        
+        // Como o select agora tem "Pendente" como padrão, a validação de "Pago" só ativa se o usuário mudar.
         estado.participantes.push({ 
           id, nome, jogos: jogosFinais, pago, status 
         });
@@ -530,9 +517,9 @@
           estado.caixa.push({ id: APP.utils.uid(), tipo: 'entrada', desc: `Ajuste - ${nome}`, valor: falta, data: new Date().toISOString() });
         }
 
-        // Limpa os campos
         document.getElementById('pNome').value = '';
         document.getElementById('pPago').value = '';
+        document.getElementById('pStatus').value = 'pendente'; // Reseta o select para pendente
         document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
         
         salvarNuvem();
@@ -652,7 +639,6 @@
       renderizar: function() {
         if(!isAdmin) return;
 
-        // Cálculos Matemáticos
         const totalPart = estado.participantes.length;
         const arrecadado = estado.participantes.reduce((s,p) => s + (p.pago || 0), 0);
         const totalDevido = totalPart * CONFIG.valorCota;
@@ -661,7 +647,6 @@
         const saldoCaixa = arrecadado - custoJogos;
         const pagos = estado.participantes.filter(p => p.pago >= CONFIG.valorCota).length;
 
-        // Atualiza KPIs
         document.getElementById('kPart').textContent = totalPart;
         document.getElementById('kArrecad').textContent = APP.utils.brl(arrecadado);
         document.getElementById('kFalta').textContent = APP.utils.brl(faltaReceber > 0 ? faltaReceber : 0);
@@ -673,13 +658,11 @@
         
         if(document.getElementById('inputCusto').value == '' && custoJogos > 0) document.getElementById('inputCusto').value = custoJogos;
 
-        // Alerta
         const alerta = document.getElementById('alertaSaldo');
         if (saldoCaixa < 0) alerta.innerHTML = `<div class="msg" style="color:var(--danger);">⚠️ Gastou mais do que arrecadou.</div>`;
         else if (faltaReceber > 0) alerta.innerHTML = `<div class="msg">Faltam receber <b>${APP.utils.brl(faltaReceber)}</b> (${totalPart - pagos} pessoas).</div>`;
         else if (totalDevido > 0) alerta.innerHTML = `<div class="msg pos">✅ Tudo pago!</div>`;
 
-        // Resumo (Painel)
         document.getElementById('resumoPart').innerHTML = !totalPart ? '<div class="empty">Sem participantes.</div>' :
           estado.participantes.map(p => {
             const falta = CONFIG.valorCota - p.pago;
@@ -691,7 +674,6 @@
             </div>`;
           }).join('');
 
-        // Lista Completa (Pessoas)
         document.getElementById('listaPart').innerHTML = !totalPart ? '<div class="empty">Sem participantes.</div>' :
           estado.participantes.map(p => {
             const falta = CONFIG.valorCota - p.pago;
@@ -713,7 +695,6 @@
             </div>`;
           }).join('');
 
-        // Histórico Financeiro
         document.getElementById('finHist').innerHTML = (!estado.caixa || !estado.caixa.length) ? '<div class="empty">Sem movimentações.</div>' :
           [...estado.caixa].reverse().map(c => `
             <div class="flexline">
@@ -724,9 +705,6 @@
     }
   };
 
-  // =======================================================
-  // MÓDULO VALIDAÇÃO DE INPUTS (Genérico e Reutilizável)
-  // =======================================================
   window.validaNumero = function(input, tipo, grupo) {
     let val = input.value.replace(/\D/g, '');
     if (val.length > 2) val = val.slice(0, 2);
@@ -739,7 +717,6 @@
     }
 
     if (val.length === 2) {
-      // Define qual grupo de inputs validar com base no tipo
       const seletor = tipo === 'jogo' ? `.num-input[data-jogo="${grupo}"]` : 
                       tipo === 'manual' ? `.num-input-admin[data-manual="${grupo}"]` :
                       `.num-input-admin[data-sorteio="true"]`;
@@ -777,7 +754,6 @@
       }
     }
   }
-
 </script>
 </body>
 </html>
