@@ -16,9 +16,6 @@
   /* ================= TELA PÚBLICA ================= */
   body { background: var(--bg-public); color: #fff; padding: 16px; line-height: 1.5; padding-bottom: 80px; }
   
-  .top-bar { display: flex; justify-content: flex-end; max-width: 450px; margin: 0 auto 10px auto; }
-  .btn-sair-top { background: #475569; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-
   .public-header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
   .public-header h1 { font-size: 1.8rem; color: var(--accent); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 5px; }
   .public-header p { font-size: 1.1rem; font-weight: bold; }
@@ -34,15 +31,15 @@
   .input-nome:focus { outline: none; border-color: var(--primary); background: #fff; }
   
   .jogo-bloco { border: 2px solid var(--border-light); padding: 15px; border-radius: 10px; margin-bottom: 15px; background: #f9fafb; }
-  .jogo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .jogo-bloco h3 { font-size: 1.1rem; color: var(--bg-public); margin: 0; }
-  .btn-surpresinha { background: var(--surpresinha); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
+  .jogo-bloco h3 { font-size: 1.1rem; color: var(--bg-public); margin-bottom: 10px; }
   
-  .inputs-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .inputs-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 10px; }
   .num-input { width: 100%; padding: 10px 0; text-align: center; font-size: 1.3rem; font-weight: bold; border: 2px solid #9ca3af; border-radius: 6px; color: #000; background: #fff; margin: 0; }
   .num-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 5px rgba(22, 163, 74, 0.5); }
   .num-input.erro { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); animation: tremer 0.3s; }
   @keyframes tremer { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+  
+  .btn-surpresinha { background: var(--surpresinha); color: #fff; border: none; padding: 10px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 5px; }
   
   .btn-principal { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 1.3rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
   .btn-principal:hover { background: var(--primary-hover); }
@@ -100,10 +97,6 @@
 
 <div id="publicArea">
   
-  <div class="top-bar">
-    <button class="btn-sair-top" onclick="APP.publico.resetarTudo()">✖ Sair / Novo Cadastro</button>
-  </div>
-
   <div class="public-header"><h1>🍀 Bolão da Virada</h1><p>Família Torquato's</p></div>
   
   <div class="card-pub">
@@ -129,10 +122,7 @@
       <label>Seus 3 Jogos:</label>
       
       <div class="jogo-bloco">
-        <div class="jogo-header">
-          <h3>Jogo 1</h3>
-          <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('1')">✨ Completar Jogo 1</button>
-        </div>
+        <h3>Jogo 1</h3>
         <div class="inputs-grid" id="grid-j1">
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
@@ -141,13 +131,11 @@
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
         </div>
+        <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('1')">✨ Completar Jogo 1</button>
       </div>
       
       <div class="jogo-bloco">
-        <div class="jogo-header">
-          <h3>Jogo 2</h3>
-          <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('2')">✨ Completar Jogo 2</button>
-        </div>
+        <h3>Jogo 2</h3>
         <div class="inputs-grid" id="grid-j2">
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
@@ -156,13 +144,11 @@
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
         </div>
+        <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('2')">✨ Completar Jogo 2</button>
       </div>
       
       <div class="jogo-bloco">
-        <div class="jogo-header">
-          <h3>Jogo 3</h3>
-          <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('3')">✨ Completar Jogo 3</button>
-        </div>
+        <h3>Jogo 3</h3>
         <div class="inputs-grid" id="grid-j3">
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
@@ -171,7 +157,9 @@
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
           <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
         </div>
+        <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('3')">✨ Completar Jogo 3</button>
       </div>
+      
       <button class="btn-confirmar-jogos" onclick="APP.publico.confirmarJogos()">Confirmar Jogos</button>
     </div>
 
@@ -378,25 +366,6 @@
     },
 
     publico: {
-      resetarTudo: function() {
-        // Reseta TUDO para o estado inicial
-        document.getElementById('pubNome').value = '';
-        document.querySelectorAll('.num-input').forEach(inp => inp.value = '');
-        jogosTemporarios = {};
-        
-        // Esconde áreas
-        document.getElementById('areaJogos').style.display = 'none';
-        document.getElementById('areaRevisao').style.display = 'none';
-        document.getElementById('pixArea').style.display = 'none';
-        document.getElementById('mensagemSucesso').style.display = 'none';
-        
-        // Mostra área inicial
-        document.getElementById('areaInicial').style.display = 'block';
-        
-        // Scroll para o topo
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      },
-
       abrirJogos: function() {
         const nome = document.getElementById('pubNome').value.trim();
         if(!nome) return alert("Por favor, digite seu nome primeiro.");
@@ -405,42 +374,31 @@
       },
 
       gerarAleatorio: function(numJogo) {
-        // Pega os inputs do jogo específico
         const inputs = Array.from(document.querySelectorAll(`.num-input[data-jogo="${numJogo}"]`));
-        
-        // 1. Descobre quais números já estão preenchidos para não apagar
         let numerosAtuais = [];
         inputs.forEach(inp => {
           if(inp.value.length === 1) inp.value = '0' + inp.value;
           if(inp.value && inp.value !== '00') numerosAtuais.push(parseInt(inp.value));
         });
 
-        // 2. Descobre quantos faltam
         let faltam = 6 - numerosAtuais.length;
-        if(faltam <= 0) return; // Já está cheio
+        if(faltam <= 0) return;
 
-        // 3. Gera números aleatórios únicos (01 a 60) que não estão na lista
         let novosNumeros = [];
         while(novosNumeros.length < faltam) {
           let num = Math.floor(Math.random() * 60) + 1;
-          // Se não está nos atuais e não está nos novos gerados, adiciona
           if(!numerosAtuais.includes(num) && !novosNumeros.includes(num)) {
             novosNumeros.push(num);
           }
         }
 
-        // 4. Junta os atuais com os novos
         let todosNumeros = [...numerosAtuais, ...novosNumeros];
-
-        // 5. Embaralha para não ficar os digitados no começo e os gerados no fim
         todosNumeros.sort(() => Math.random() - 0.5);
 
-        // 6. Preenche nos inputs (formatando com zero à esquerda)
         inputs.forEach((inp, index) => {
           inp.value = String(todosNumeros[index]).padStart(2, '0');
         });
         
-        // Foca no último input preenchido (feedback visual)
         inputs[5].focus();
         inputs[5].blur();
       },
@@ -517,7 +475,6 @@
         document.getElementById('adminArea').style.display = 'none';
         document.getElementById('publicArea').style.display = 'block';
         document.getElementById('publicFooter').style.display = 'block';
-        APP.publico.resetarTudo(); // Garante que ao sair do admin, o público esteja limpo
       },
       mudarTab: function(id, btn) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
