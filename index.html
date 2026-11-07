@@ -3,11 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bolão Admin - Mega-Sena</title>
+<title>Bolão Família Torquato's</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; padding: 14px; line-height: 1.5; padding-bottom: 80px; }
-  h1 { font-size: 1.2rem; text-align: center; color: #4ade80; margin-bottom: 4px; }
+  /* ================= ESTILOS GERAIS ================= */
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+  
+  /* ================= TELA PÚBLICA (IDOSOS) ================= */
+  body { background: #064e3b; color: #fff; padding: 16px; line-height: 1.5; padding-bottom: 80px; }
+  .public-header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
+  .public-header h1 { font-size: 1.8rem; color: #fbbf24; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 5px; }
+  .public-header p { font-size: 1rem; color: #d1d5db; }
+  .card-pub { background: #fff; color: #333; border-radius: 16px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); max-width: 400px; margin: 0 auto; }
+  .card-pub h2 { font-size: 1.2rem; color: #065f46; text-align: center; margin-bottom: 15px; }
+  .card-pub input, .card-pub select { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1.1rem; margin-bottom: 15px; color: #333; }
+  .card-pub label { font-weight: bold; font-size: 1rem; color: #4b5563; display: block; margin-bottom: 5px; }
+  .btn-pix { background: #16a34a; color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+  .btn-pix:hover { background: #15803d; }
+  .pix-box { display: none; text-align: center; margin-top: 20px; background: #f3f4f6; padding: 15px; border-radius: 8px; }
+  .pix-box img { max-width: 200px; margin-bottom: 10px; border: 2px solid #ccc; border-radius: 8px; }
+  .pix-code { background: #fff; border: 1px dashed #ccc; padding: 10px; font-size: 0.8rem; word-break: break-all; color: #666; border-radius: 4px; cursor: pointer; margin-bottom: 10px; }
+  .footer { text-align: center; padding: 20px; font-size: 0.75rem; color: #6ee7b7; margin-top: 30px; }
+  .footer span { cursor: pointer; text-decoration: underline; }
+
+  /* ================= PAINEL ADMIN (TEMA ESCURO) ================= */
+  #adminArea { display: none; background: #0f172a; min-height: 100vh; position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 14px; padding-bottom: 80px; z-index: 999; color: #e2e8f0; }
+  
+  h1.admin-title { font-size: 1.2rem; text-align: center; color: #4ade80; margin-bottom: 4px; }
   .sub { text-align: center; font-size: .75rem; color: #94a3b8; margin-bottom: 14px; }
   .card { background: #1e293b; border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid #334155; }
   .card h2 { font-size: .95rem; margin-bottom: 10px; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; }
@@ -36,10 +57,9 @@
   .msg { font-size: .82rem; text-align: center; margin-top: 6px; color: #fbbf24; }
   .empty { color: #64748b; font-size: .82rem; text-align: center; padding: 8px; }
   .neg { color: #f87171; } .pos { color: #4ade80; }
-  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; border-top: 1px solid #334155; display: flex; z-index: 10; }
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; border-top: 1px solid #334155; display: flex; z-index: 1000; }
   .tabbar button { flex: 1; background: none; border: none; color: #94a3b8; padding: 10px 4px; font-size: .72rem; margin: 0; border-radius: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .tabbar button.active { color: #4ade80; background: #0f172a; }
-  .tabbar button:hover { background: #0f172a; }
   .tab { display: none; } .tab.active { display: block; }
   .flexline { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dashed #334155; font-size: .82rem; }
   .flexline:last-child { border-bottom: none; }
@@ -48,107 +68,162 @@
 </head>
 <body>
 
-<h1>🍀 Bolão Admin (Nuvem)</h1>
-<div id="statusNuvem">🔄 Sincronizando com a nuvem...</div>
+<!-- ================= TELA PÚBLICA ================= -->
+<div id="publicArea">
+  <div class="public-header">
+    <h1>🍀 Bolão da Virada</h1>
+    <p>Família Torquato's • Prêmio R$ 1 Bilhão!</p>
+  </div>
 
-<!-- ================= PAINEL ================= -->
-<div class="tab active" id="tab-painel">
-  <div class="card">
-    <h2>📊 Resumo</h2>
-    <div class="kpi">
-      <div><b id="kPart">0</b><span>Participantes</span></div>
-      <div><b id="kCotas">0</b><span>Cotas totais</span></div>
-      <div><b id="kArrecad">R$ 0</b><span>Arrecadado</span></div>
-      <div><b id="kCusto">R$ 0</b><span>Custo jogos</span></div>
-      <div><b id="kSaldo">R$ 0</b><span>Saldo caixa</span></div>
-      <div><b id="kPago">0/0</b><span>Pagaram</span></div>
+  <div class="card-pub">
+    <h2>Garanta sua cota!</h2>
+    <p style="text-align:center; font-size:0.9rem; color:#666; margin-bottom:15px;">3 jogos por R$ 20,00</p>
+    
+    <label>Seu Nome Completo:</label>
+    <input type="text" id="pubNome" placeholder="Ex: João da Silva" />
+
+    <label>Quantidade de Cotas:</label>
+    <select id="pubCotas">
+      <option value="1">1 cota - R$ 20,00</option>
+      <option value="2">2 cotas - R$ 40,00</option>
+      <option value="3">3 cotas - R$ 60,00</option>
+      <option value="5">5 cotas - R$ 100,00</option>
+    </select>
+
+    <button class="btn-pix" onclick="gerarPixPublico()">Gerar Pagamento PIX</button>
+
+    <div id="pixArea" class="pix-box">
+      <p style="font-weight:bold; color:#16a34a; margin-bottom:10px;">Pague com PIX:</p>
+      
+      <!-- Substitua o link abaixo pela sua imagem de QR Code salva no GitHub como qrcode.png -->
+      <img src="qrcode.png" alt="QR Code PIX" onerror="this.style.display='none'">
+      
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">Ou copie o código abaixo:</p>
+      <div class="pix-code" id="pixCodeText" onclick="copiarPix()">Clique para copiar o código PIX</div>
+      <p style="font-size:0.8rem; color:#666;">Após pagar, envie o comprovante no grupo!</p>
     </div>
-    <div id="alertaSaldo"></div>
-  </div>
-
-  <div class="card">
-    <h2>💸 Situação por participante</h2>
-    <div id="resumoPart"></div>
   </div>
 </div>
 
-<!-- ================= PARTICIPANTES ================= -->
-<div class="tab" id="tab-part">
-  <div class="card">
-    <h2>👥 Cadastrar participante</h2>
-    <input id="pNome" placeholder="Nome" />
-    <div class="row">
-      <input id="pCotas" type="number" min="1" value="1" placeholder="Cotas" />
-      <input id="pValorCota" type="number" step="0.01" min="0" placeholder="R$/cota" />
+<div class="footer" id="publicFooter">
+  🍀 Boa sorte a todos! <br>
+  <span onclick="abrirLoginAdmin()" style="opacity:0.5;">Área do Administrador</span>
+</div>
+
+<!-- ================= PAINEL ADMIN ================= -->
+<div id="adminArea">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <h1 class="admin-title" style="margin:0;">🍀 Painel Admin</h1>
+    <button class="sm danger" onclick="logoutAdmin()">Sair</button>
+  </div>
+  <div class="sub">Família Torquato's • Mega-Sena</div>
+  <div id="statusNuvem">🔄 Sincronizando com a nuvem...</div>
+
+  <!-- TAB PAINEL -->
+  <div class="tab active" id="tab-painel">
+    <div class="card">
+      <h2>📊 Resumo do Caixa</h2>
+      <div class="kpi">
+        <div><b id="kPart">0</b><span>Participantes</span></div>
+        <div><b id="kCotas">0</b><span>Cotas totais</span></div>
+        <div><b id="kArrecad">R$ 0</b><span>Arrecadado</span></div>
+        <div><b id="kCusto">R$ 0</b><span>Custo jogos</span></div>
+        <div><b id="kSaldo">R$ 0</b><span>Saldo caixa</span></div>
+        <div><b id="kPago">0/0</b><span>Pagaram</span></div>
+      </div>
+      <div id="alertaSaldo"></div>
     </div>
-    <div class="row">
-      <input id="pPago" type="number" step="0.01" min="0" placeholder="Já pagou (R$)" />
-      <select id="pStatus">
-        <option value="pago">Pago</option>
-        <option value="pendente">Pendente</option>
-      </select>
+
+    <div class="card">
+      <h2>💸 Situação por participante</h2>
+      <div id="resumoPart"></div>
     </div>
-    <button onclick="addPart()">Adicionar</button>
   </div>
 
-  <div class="card">
-    <h2>👥 Lista</h2>
-    <div id="listaPart"></div>
-  </div>
-</div>
-
-<!-- ================= JOGOS ================= -->
-<div class="tab" id="tab-jogos">
-  <div class="card">
-    <h2>🎱 Registrar jogo</h2>
-    <input id="jDezenas" placeholder="Ex: 01 05 12 23 34 45 (6 a 20)" />
-    <div class="row">
-      <input id="jValor" type="number" step="0.01" min="0" placeholder="Valor (R$)" />
-      <input id="jConcurso" placeholder="Concurso" />
+  <!-- TAB PARTICIPANTES -->
+  <div class="tab" id="tab-part">
+    <div class="card">
+      <h2>👥 Cadastrar manualmente</h2>
+      <input id="pNome" placeholder="Nome" />
+      <div class="row">
+        <input id="pCotas" type="number" min="1" value="1" placeholder="Cotas" />
+        <input id="pValorCota" type="number" step="0.01" min="0" value="20.00" placeholder="R$/cota" />
+      </div>
+      <div class="row">
+        <input id="pPago" type="number" step="0.01" min="0" placeholder="Já pagou (R$)" />
+        <select id="pStatus">
+          <option value="pago">Pago</option>
+          <option value="pendente">Pendente</option>
+        </select>
+      </div>
+      <button onclick="addPart()">Adicionar Participante</button>
     </div>
-    <button onclick="addJogo()">Adicionar jogo</button>
-  </div>
-  <div class="card">
-    <h2>🎱 Jogos do bolão</h2>
-    <div id="listaJogos"></div>
-  </div>
-</div>
 
-<!-- ================= CONFERÊNCIA ================= -->
-<div class="tab" id="tab-conf">
-  <div class="card">
-    <h2>🏆 Conferir sorteio</h2>
-    <input id="sorteio" placeholder="6 dezenas sorteadas" />
-    <button onclick="conferir()">Conferir</button>
-    <div id="saidaConf"></div>
+    <div class="card">
+      <h2>👥 Lista de Pessoas</h2>
+      <div id="listaPart"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>💰 Rateio de prêmio</h2>
-    <input id="premio" type="number" step="0.01" min="0" placeholder="Prêmio total recebido (R$)" oninput="ratear()" />
-    <div id="saidaRateio"></div>
+  <!-- TAB JOGOS -->
+  <div class="tab" id="tab-jogos">
+    <div class="card">
+      <h2>🎱 Registrar jogo oficial</h2>
+      <input id="jDezenas" placeholder="Ex: 01 05 12 23 34 45 (6 a 20)" />
+      <div class="row">
+        <input id="jValor" type="number" step="0.01" min="0" placeholder="Valor (R$)" />
+        <input id="jConcurso" placeholder="Concurso" />
+      </div>
+      <button onclick="addJogo()">Adicionar jogo</button>
+    </div>
+    <div class="card">
+      <h2>🎱 Jogos do bolão</h2>
+      <div id="listaJogos"></div>
+    </div>
   </div>
-</div>
 
-<!-- ================= FINANCEIRO ================= -->
-<div class="tab" id="tab-fin">
-  <div class="card">
-    <h2>💵 Recebimentos</h2>
-    <div id="finPart"></div>
-  </div>
-  <div class="card">
-    <h2>🧾 Histórico de caixa</h2>
-    <div id="finHist"></div>
-  </div>
-</div>
+  <!-- TAB CONFERÊNCIA -->
+  <div class="tab" id="tab-conf">
+    <div class="card">
+      <h2>🏆 Conferir sorteio</h2>
+      <input id="sorteio" placeholder="6 dezenas sorteadas" />
+      <button onclick="conferir()">Conferir</button>
+      <div id="saidaConf"></div>
+    </div>
 
-<!-- BOTTOM NAV -->
-<div class="tabbar">
-  <button class="active" onclick="mostrarTab('painel', this)">📊<br>Painel</button>
-  <button onclick="mostrarTab('part', this)">👥<br>Pessoas</button>
-  <button onclick="mostrarTab('jogos', this)">🎱<br>Jogos</button>
-  <button onclick="mostrarTab('conf', this)">🏆<br>Conferir</button>
-  <button onclick="mostrarTab('fin', this)">💵<br>Caixa</button>
+    <div class="card">
+      <h2>💰 Rateio de prêmio</h2>
+      <input id="premio" type="number" step="0.01" min="0" placeholder="Prêmio total recebido (R$)" oninput="ratear()" />
+      <div id="saidaRateio"></div>
+    </div>
+  </div>
+
+  <!-- TAB FINANCEIRO -->
+  <div class="tab" id="tab-fin">
+    <div class="card">
+      <h2>📥 Exportar Relatório</h2>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Baixe a planilha para abrir no Excel e controlar quem já pagou.</p>
+      <button class="sec" onclick="exportarExcel()" style="background:#0ea5e9; color:#fff;">📊 Baixar Planilha (.CSV)</button>
+    </div>
+    
+    <div class="card">
+      <h2>💵 Recebimentos</h2>
+      <div id="finPart"></div>
+    </div>
+    <div class="card">
+      <h2>🧾 Histórico de caixa</h2>
+      <div id="finHist"></div>
+    </div>
+  </div>
+
+  <!-- NAVEGAÇÃO ADMIN -->
+  <div class="tabbar">
+    <button class="active" onclick="mostrarTab('painel', this)">📊<br>Painel</button>
+    <button onclick="mostrarTab('part', this)">👥<br>Pessoas</button>
+    <button onclick="mostrarTab('jogos', this)">🎱<br>Jogos</button>
+    <button onclick="mostrarTab('conf', this)">🏆<br>Conferir</button>
+    <button onclick="mostrarTab('fin', this)">💵<br>Caixa</button>
+  </div>
 </div>
 
 <!-- SDK DO FIREBASE -->
@@ -156,75 +231,130 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-  // =========================================================
-  // ⚠️ COLE AQUI AS CONFIGURAÇÕES DO SEU FIREBASE ⚠️
-  // =========================================================
- const firebaseConfig = {
-  apiKey: "AIzaSyBd6HByBm8ZS8o9t_IrzFV_eSWWqLKPOqY",
-  authDomain: "bolao-2a310.firebaseapp.com",
-  databaseURL: "https://bolao-2a310-default-rtdb.firebaseio.com",
-  projectId: "bolao-2a310",
-  storageBucket: "bolao-2a310.firebasestorage.app",
-  messagingSenderId: "89102406302",
-  appId: "1:89102406302:web:739c1fdbf536449814a18f"
- };
-  // =========================================================
+  // SUAS CONFIGURAÇÕES DO FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyBd6HByBm8ZS8o9t_IrzFV_eSWWqLKPOqY",
+    authDomain: "bolao-2a310.firebaseapp.com",
+    databaseURL: "https://bolao-2a310-default-rtdb.firebaseio.com",
+    projectId: "bolao-2a310",
+    storageBucket: "bolao-2a310.firebasestorage.app",
+    messagingSenderId: "89102406302",
+    appId: "1:89102406302:web:739c1fdbf536449814a18f"
+  };
 
-  // Inicializa o Firebase
+  // CONFIGURAÇÕES DO PIX
+  const PIX_COPIA_COLA = "00020126360014br.gov.bcb.pix0114+5511953326997520400005303986540520.005802BR5921GILMAR TORQUATO GOMES6009Sao Paulo62210517daqr735456801956963042671";
+  const CHAVE_PIX_TELEFONE = "+5511953326997"; // Para gerar QR Code dinâmico, se precisar
+  const VALOR_COTA = 20.00;
+  const SENHA_ADMIN = "admin123"; // ⚠️ MUDE SUA SENHA AQUI
+
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const dbRef = ref(db, 'bolao'); // Referência para o banco
+  const dbRef = ref(db, 'bolao'); 
 
-  // Estado global do app
   let estado = { participantes: [], jogos: [], caixa: [], premio: 0 };
-  let salvandoNuvem = false;
+  let isAdmin = false;
 
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const brl = v => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ',');
 
-  // --- SINCRONIZAÇÃO EM TEMPO REAL ---
+  // --- FIREBASE SYNC ---
   const statusNuvem = document.getElementById('statusNuvem');
-  statusNuvem.style.display = 'block';
-
   onValue(dbRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
       estado = Object.assign(estado, data);
-      render();
+      if (isAdmin) renderAdmin();
     }
-    statusNuvem.style.display = 'none'; // Esconde o status quando sincroniza
   });
 
-  // Salva no Firebase e atualiza a tela
   function salvar() { 
     set(dbRef, estado).catch(err => {
-      alert("Erro ao salvar na nuvem! Verifique as regras do Firebase.");
-      console.error(err);
+      alert("Erro ao salvar! Verifique regras do Firebase.");
     });
-    render();
+    if (isAdmin) renderAdmin();
   }
 
-  // ============ NAV ============
+  // ==========================================
+  // LÓGICA PÚBLICA (IDOSOS)
+  // ==========================================
+  window.gerarPixPublico = function() {
+    const nome = document.getElementById('pubNome').value.trim();
+    const cotas = parseInt(document.getElementById('pubCotas').value);
+    if (!nome) return alert("Por favor, digite seu nome completo.");
+
+    // Verifica se já existe
+    if (estado.participantes.some(p => p.nome.toLowerCase() === nome.toLowerCase())) {
+      if(!confirm("Já existe alguém com esse nome. Deseja adicionar outra cota para esta pessoa?")) return;
+    }
+
+    document.getElementById('pixArea').style.display = 'block';
+    document.getElementById('pixCodeText').innerText = PIX_COPIA_COLA;
+
+    // Salva no Firebase
+    const novoId = uid();
+    estado.participantes.push({
+      id: novoId,
+      nome: nome,
+      cotas: cotas,
+      valorCota: VALOR_COTA,
+      pago: 0,
+      status: 'pendente'
+    });
+
+    salvar();
+    
+    // Limpa campos para não duplicar sem querer
+    document.getElementById('pubNome').value = '';
+    document.getElementById('pubCotas').value = '1';
+  }
+
+  window.copiarPix = function() {
+    navigator.clipboard.writeText(PIX_COPIA_COLA).then(() => {
+      alert("Código PIX copiado! Vá no app do seu banco e escolha 'PIX Copia e Cola'.");
+    });
+  }
+
+  // ==========================================
+  // LÓGICA ADMIN
+  // ==========================================
+  window.abrirLoginAdmin = function() {
+    const senha = prompt("Digite a senha de Administrador:");
+    if (senha === SENHA_ADMIN) {
+      isAdmin = true;
+      document.getElementById('publicArea').style.display = 'none';
+      document.getElementById('publicFooter').style.display = 'none';
+      document.getElementById('adminArea').style.display = 'block';
+      renderAdmin();
+    } else if (senha !== null) {
+      alert("Senha incorreta!");
+    }
+  }
+
+  window.logoutAdmin = function() {
+    isAdmin = false;
+    document.getElementById('adminArea').style.display = 'none';
+    document.getElementById('publicArea').style.display = 'block';
+    document.getElementById('publicFooter').style.display = 'block';
+  }
+
   window.mostrarTab = function(id, btn) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + id).classList.add('active');
     if (btn) btn.classList.add('active');
-    render();
+    renderAdmin();
   }
 
-  // ============ PARTICIPANTES ============
+  // --- FUNÇÕES ADMIN ---
   window.addPart = function() {
     const nome = document.getElementById('pNome').value.trim();
     const cotas = parseInt(document.getElementById('pCotas').value) || 1;
-    const valorCota = parseFloat(document.getElementById('pValorCota').value) || 0;
+    const valorCota = parseFloat(document.getElementById('pValorCota').value) || VALOR_COTA;
     const pago = parseFloat(document.getElementById('pPago').value) || 0;
     const status = document.getElementById('pStatus').value;
     if (!nome) return alert('Informe o nome.');
-    if (estado.participantes.some(p => p.nome.toLowerCase() === nome.toLowerCase()))
-      return alert('Já existe participante com esse nome.');
-    if (cotas < 1) return alert('Mínimo 1 cota.');
 
     const totalDevido = cotas * valorCota;
     const id = uid();
@@ -240,7 +370,7 @@
       estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Ajuste status pago - ${nome}`, valor: falta, data: new Date().toISOString() });
     }
 
-    ['pNome','pCotas','pValorCota','pPago'].forEach(k => document.getElementById(k).value = '');
+    ['pNome','pPago'].forEach(k => document.getElementById(k).value = '');
     document.getElementById('pCotas').value = 1;
     salvar();
   }
@@ -297,7 +427,6 @@
     salvar();
   }
 
-  // ============ JOGOS ============
   window.addJogo = function() {
     const raw = document.getElementById('jDezenas').value.trim();
     const valor = parseFloat(document.getElementById('jValor').value) || 0;
@@ -326,7 +455,6 @@
     salvar();
   }
 
-  // ============ CONFERÊNCIA ============
   window.conferir = function() {
     const raw = document.getElementById('sorteio').value.trim();
     const sort = raw.split(/[\s,;]+/).map(n => parseInt(n, 10)).filter(n => !isNaN(n));
@@ -363,106 +491,28 @@
     out.innerHTML = html;
   }
 
-  // ============ RENDERIZAÇÃO ============
-  function render() {
-    const totalCotas = estado.participantes.reduce((s,p) => s + p.cotas, 0);
-    const totalDevido = estado.participantes.reduce((s,p) => s + p.cotas * p.valorCota, 0);
-    const totalPago = estado.participantes.reduce((s,p) => s + p.pago, 0);
-    const custoJogos = estado.jogos.reduce((s,j) => s + j.valor, 0);
-    const arrecadado = estado.caixa.filter(c => c.tipo === 'entrada').reduce((s,c) => s + c.valor, 0);
-    const saidas = estado.caixa.filter(c => c.tipo === 'saida').reduce((s,c) => s + c.valor, 0);
-    const saldo = arrecadado - saidas;
-    const pagos = estado.participantes.filter(p => p.pago >= p.cotas * p.valorCota && p.cotas*p.valorCota > 0).length;
-
-    document.getElementById('kPart').textContent = estado.participantes.length;
-    document.getElementById('kCotas').textContent = totalCotas;
-    document.getElementById('kArrecad').textContent = brl(arrecadado);
-    document.getElementById('kCusto').textContent = brl(custoJogos);
-    document.getElementById('kSaldo').textContent = brl(saldo);
-    document.getElementById('kPago').textContent = `${pagos}/${estado.participantes.length}`;
-    document.getElementById('kSaldo').className = saldo < 0 ? 'neg' : '';
-
-    const alerta = document.getElementById('alertaSaldo');
-    if (totalDevido > 0 && totalPago < totalDevido) {
-      alerta.innerHTML = `<div class="msg">Faltam receber <b>${brl(totalDevido - totalPago)}</b> dos participantes.</div>`;
-    } else if (totalDevido > 0) {
-      alerta.innerHTML = `<div class="msg pos">✅ Todos os valores devidos foram pagos.</div>`;
-    } else {
-      alerta.innerHTML = '';
-    }
-
-    const rp = document.getElementById('resumoPart');
-    if (!estado.participantes.length) rp.innerHTML = '<div class="empty">Nenhum participante.</div>';
-    else {
-      rp.innerHTML = estado.participantes.map(p => {
-        const devido = p.cotas * p.valorCota;
-        const falta = +(devido - p.pago).toFixed(2);
-        const ok = falta <= 0;
-        return `<div class="item">
-          <div class="top">
-            <div><strong>${esc(p.nome)}</strong><small>${p.cotas} cota(s) • devido ${brl(devido)}</small></div>
-            <span class="badge ${ok?'ok':'no'}">${ok?'Pago':falta>0?'Devendo '+brl(falta):''}</span>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    const lp = document.getElementById('listaPart');
-    if (!estado.participantes.length) lp.innerHTML = '<div class="empty">Nenhum participante.</div>';
-    else {
-      lp.innerHTML = estado.participantes.map(p => {
-        const devido = p.cotas * p.valorCota;
-        const falta = +(devido - p.pago).toFixed(2);
-        const ok = falta <= 0;
-        return `<div class="item">
-          <div class="top"><strong>${esc(p.nome)}</strong><span class="badge ${ok?'ok':'no'}">${ok?'Quitado':'Falta '+brl(falta)}</span></div>
-          <small>${p.cotas} cotas × ${brl(p.valorCota)} = ${brl(devido)} • pago: ${brl(p.pago)}</small>
-          <div class="row" style="margin-top:6px">
-            <button class="sm" onclick="registrarPagamento('${p.id}')">+Pagto</button>
-            <button class="sm sec" onclick="marcarPago('${p.id}')">Quitar</button>
-            <button class="sm sec" onclick="editarPart('${p.id}')">✎</button>
-            <button class="sm danger" onclick="removePart('${p.id}')">✕</button>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    const lj = document.getElementById('listaJogos');
-    if (!estado.jogos.length) lj.innerHTML = '<div class="empty">Nenhum jogo.</div>';
-    else {
-      lj.innerHTML = estado.jogos.map((j, i) => `
-        <div class="item">
-          <div class="top">
-            <div><strong>Jogo ${i+1}</strong>${j.concurso ? `<small>Conc. ${esc(j.concurso)}</small>` : ''}<small>${brl(j.valor)}</small></div>
-            <button class="sm danger" onclick="removeJogo('${j.id}')">✕</button>
-          </div>
-          <div class="balls">${j.dezenas.map(n => `<span class="ball">${String(n).padStart(2,'0')}</span>`).join('')}</div>
-        </div>`).join('');
-    }
-
-    const fp = document.getElementById('finPart');
-    if (!estado.participantes.length) fp.innerHTML = '<div class="empty">Sem participantes.</div>';
-    else {
-      fp.innerHTML = estado.participantes.map(p => {
-        const devido = p.cotas * p.valorCota;
-        const falta = +(devido - p.pago).toFixed(2);
-        return `<div class="flexline"><span>${esc(p.nome)}</span><b class="${falta<=0?'pos':'neg'}">${falta<=0?'Quitado':brl(falta)+' a receber'}</b></div>`;
-      }).join('');
-    }
-
-    const fh = document.getElementById('finHist');
-    if (!estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhum movimento.</div>';
-    else {
-      fh.innerHTML = [...estado.caixa].reverse().map(c => `
-        <div class="flexline">
-          <span>${esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span>
-          <b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${brl(c.valor)}</b>
-        </div>`).join('');
-    }
+  window.exportarExcel = function() {
+    if (!estado.participantes.length) return alert("Nenhum participante cadastrado.");
+    
+    let csvContent = "Nome;Cotas;Valor Total;Status;Pago (R$);Data\n";
+    estado.participantes.forEach(p => {
+      const devido = p.cotas * p.valorCota;
+      const status = p.pago >= devido ? "PAGO" : "PENDENTE";
+      const data = new Date().toLocaleDateString('pt-BR');
+      csvContent += `${p.nome};${p.cotas};${devido.toFixed(2).replace('.', ',')};${status};${p.pago.toFixed(2).replace('.', ',')};${data}\n`;
+    });
+    
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "Relatorio_Bolao_Torquato.csv";
+    link.click();
   }
 
-  // Renderiza a tela inicial vazia enquanto o Firebase carrega
-  render();
-</script>
-</body>
-</html>
+  // ============ RENDERIZAÇÃO ============
+  function renderAdmin() {
+    if(!isAdmin) return;
+
+    const totalCotas = estado.participantes.reduce((s,p) => s + p.cotas, 0);
+    const totalDevido = estado.participantes.reduce((s,p) => s + (p.cotas * p.valorCota), 0);
+    const totalPago
