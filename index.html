@@ -33,13 +33,14 @@
   .jogo-bloco { border: 2px solid var(--border-light); padding: 15px; border-radius: 10px; margin-bottom: 15px; background: #f9fafb; }
   .jogo-bloco h3 { font-size: 1.1rem; color: var(--bg-public); margin-bottom: 10px; }
   
-  .inputs-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 10px; }
+  .inputs-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 12px; }
   .num-input { width: 100%; padding: 10px 0; text-align: center; font-size: 1.3rem; font-weight: bold; border: 2px solid #9ca3af; border-radius: 6px; color: #000; background: #fff; margin: 0; }
   .num-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 5px rgba(22, 163, 74, 0.5); }
   .num-input.erro { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); animation: tremer 0.3s; }
   @keyframes tremer { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
   
-  .btn-surpresinha { background: var(--surpresinha); color: #fff; border: none; padding: 10px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 5px; }
+  /* Botão Completar Jogo */
+  .btn-surpresinha { background: var(--surpresinha); color: #fff; border: none; padding: 10px; border-radius: 8px; font-size: 0.95rem; font-weight: bold; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 5px; }
   
   .btn-principal { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 1.3rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
   .btn-principal:hover { background: var(--primary-hover); }
@@ -121,6 +122,7 @@
     <div id="areaJogos" style="display:none;">
       <label>Seus 3 Jogos:</label>
       
+      <!-- JOGO 1 -->
       <div class="jogo-bloco">
         <h3>Jogo 1</h3>
         <div class="inputs-grid" id="grid-j1">
@@ -134,6 +136,7 @@
         <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('1')">✨ Completar Jogo 1</button>
       </div>
       
+      <!-- JOGO 2 -->
       <div class="jogo-bloco">
         <h3>Jogo 2</h3>
         <div class="inputs-grid" id="grid-j2">
@@ -147,6 +150,7 @@
         <button class="btn-surpresinha" onclick="APP.publico.gerarAleatorio('2')">✨ Completar Jogo 2</button>
       </div>
       
+      <!-- JOGO 3 -->
       <div class="jogo-bloco">
         <h3>Jogo 3</h3>
         <div class="inputs-grid" id="grid-j3">
