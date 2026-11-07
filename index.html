@@ -514,4 +514,93 @@
     const totalCotas = estado.participantes.length;
     const totalDevido = totalCotas * VALOR_COTA;
     const totalPago = estado.participantes.reduce((s,p) => s + p.pago, 0);
-    const arrecadado = estado.ca
+    const arrecadado = estado.caixa.filter(c => c.tipo === 'entrada').reduce((s,c) => s + c.valor, 0);
+    const saidas = estado.caixa.filter(c => c.tipo === 'saida').reduce((s,c) => s + c.valor, 0);
+    const saldo = arrecadado - saidas;
+    const pagos = estado.participantes.filter(p => p.pago >= VALOR_COTA).length;
+
+    document.getElementById('kPart').textContent = totalCotas;
+    document.getElementById('kArrecad').textContent = brl(arrecadado);
+    document.getElementById('kSaldo').textContent = brl(saldo);
+    document.getElementById('kPago').textContent = `${pagos}/${totalCotas}`;
+    document.getElementById('kSaldo').className = saldo < 0 ? 'neg' : '';
+
+    const alerta = document.getElementById('alertaSaldo');
+    if (totalDevido > 0 && totalPago < totalDevido) {
+      alerta.innerHTML = `<div class="msg">Faltam receber <b>${brl(totalDevido - totalPago)}</b> dos participantes.</div>`;
+    } else if (totalDevido > 0) {
+      alerta.innerHTML = `<div class="msg pos">✅ Todos os valores devidos foram pagos.</div>`;
+    } else {
+      alerta.innerHTML = '';
+    }
+
+    const rp = document.getElementById('resumoPart');
+    if (!estado.participantes.length) rp.innerHTML = '<div class="empty">Nenhum participante.</div>';
+    else {
+      rp.innerHTML = estado.participantes.map(p => {
+        const falta = +(VALOR_COTA - p.pago).toFixed(2);
+        const ok = falta <= 0;
+        return `<div class="item">
+          <div class="top">
+            <div><strong>${esc(p.nome)}</strong></div>
+            <span class="badge ${ok?'ok':'no'}">${ok?'Pago':'Devendo '+brl(falta)}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const lp = document.getElementById('listaPart');
+    if (!estado.participantes.length) lp.innerHTML = '<div class="empty">Nenhum participante.</div>';
+    else {
+      lp.innerHTML = estado.participantes.map(p => {
+        const falta = +(VALOR_COTA - p.pago).toFixed(2);
+        const ok = falta <= 0;
+        
+        let jogosHtml = '';
+        if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
+          jogosHtml = p.jogos.map((jogoStr, index) => {
+            const nums = jogoStr.split(' - ');
+            return `<div class="jogo-exibicao">
+              <span style="font-size:0.75rem; color:#94a3b8; align-self:center; margin-right:5px;">J${index+1}:</span>
+              ${nums.map(n => `<div class="bola-num">${n}</div>`).join('')}
+            </div>`;
+          }).join('');
+        } else {
+          jogosHtml = '<small style="color:#94a3b8; display:block; margin-top:4px;">Jogos preenchidos no papel.</small>';
+        }
+
+        return `<div class="item">
+          <div class="top"><strong>${esc(p.nome)}</strong><span class="badge ${ok?'ok':'no'}">${ok?'Quitado':'Falta '+brl(falta)}</span></div>
+          ${jogosHtml}
+          <div class="row" style="margin-top:8px">
+            ${!ok ? `<button class="sm" onclick="marcarPago('${p.id}')">✔ Quitar</button>` : ''}
+            <button class="sm danger" onclick="removePart('${p.id}')">✕ Excluir</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const fp = document.getElementById('finPart');
+    if (!estado.participantes.length) fp.innerHTML = '<div class="empty">Sem participantes.</div>';
+    else {
+      fp.innerHTML = estado.participantes.map(p => {
+        const falta = +(VALOR_COTA - p.pago).toFixed(2);
+        return `<div class="flexline"><span>${esc(p.nome)}</span><b class="${falta<=0?'pos':'neg'}">${falta<=0?'Quitado':brl(falta)+' a receber'}</b></div>`;
+      }).join('');
+    }
+
+    const fh = document.getElementById('finHist');
+    if (!estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhum movimento.</div>';
+    else {
+      fh.innerHTML = [...estado.caixa].reverse().map(c => `
+        <div class="flexline">
+          <span>${esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span>
+          <b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${brl(c.valor)}</b>
+        </div>`).join('');
+    }
+  }
+
+  renderAdmin();
+</script>
+</body>
+</html>
