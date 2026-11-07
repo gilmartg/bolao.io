@@ -230,14 +230,13 @@
     <div class="card">
       <h2>👥 Cadastrar manualmente</h2>
       <input id="pNome" placeholder="Nome" />
-      <div class="row">
-        <input id="pPago" type="number" step="0.01" min="0" placeholder="Já pagou (R$)" />
-        <select id="pStatus">
-          <!-- CORREÇÃO AQUI: Pendente vem primeiro para ser o padrão -->
-          <option value="pendente">Pendente</option>
-          <option value="pago">Pago</option>
-        </select>
-      </div>
+      
+      <!-- CORREÇÃO AQUI: Apenas status, removido o input de valor -->
+      <label style="font-size:0.8rem; color:#94a3b8; display:block; margin-bottom:5px;">Status do Pagamento:</label>
+      <select id="pStatus" style="margin-bottom:15px;">
+        <option value="pendente">Pendente (Aguardando PIX)</option>
+        <option value="pago">Pago (R$ 20,00 recebidos)</option>
+      </select>
       
       <!-- CAMPOS DE JOGOS MANUAIS -->
       <p style="font-size:0.8rem; color:#94a3b8; margin: 10px 0 5px;">Jogos (opcional - deixe em branco se for só controle de caixa):</p>
@@ -279,7 +278,7 @@
       </div>
       <!-- FIM DOS CAMPOS MANUAIS -->
 
-      <button onclick="APP.admin.addParticipante()">Adicionar (1 cota = R$ 20)</button>
+      <button onclick="APP.admin.addParticipante()">Adicionar Participante</button>
     </div>
     <div class="card">
       <h2>👥 Lista de Pessoas</h2>
@@ -471,9 +470,11 @@
 
       addParticipante: function() {
         const nome = document.getElementById('pNome').value.trim();
-        const pago = parseFloat(document.getElementById('pPago').value) || 0;
         const status = document.getElementById('pStatus').value;
         if (!nome) return alert('Informe o nome.');
+
+        // Define o valor com base no status escolhido
+        const pago = status === 'pago' ? CONFIG.valorCota : 0;
 
         const jogos = [];
         let temJogoPreenchido = false;
@@ -503,7 +504,6 @@
 
         const id = APP.utils.uid();
         
-        // Como o select agora tem "Pendente" como padrão, a validação de "Pago" só ativa se o usuário mudar.
         estado.participantes.push({ 
           id, nome, jogos: jogosFinais, pago, status 
         });
@@ -511,15 +511,9 @@
         if (pago > 0) {
           estado.caixa.push({ id: APP.utils.uid(), tipo: 'entrada', desc: `Pagamento - ${nome}`, valor: pago, data: new Date().toISOString() });
         }
-        if (status === 'pago' && CONFIG.valorCota > pago) {
-          const falta = CONFIG.valorCota - pago;
-          estado.participantes.find(x => x.id === id).pago = CONFIG.valorCota;
-          estado.caixa.push({ id: APP.utils.uid(), tipo: 'entrada', desc: `Ajuste - ${nome}`, valor: falta, data: new Date().toISOString() });
-        }
 
         document.getElementById('pNome').value = '';
-        document.getElementById('pPago').value = '';
-        document.getElementById('pStatus').value = 'pendente'; // Reseta o select para pendente
+        document.getElementById('pStatus').value = 'pendente'; // Reseta para pendente
         document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
         
         salvarNuvem();
