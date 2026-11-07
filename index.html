@@ -5,29 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bolão Família Torquato's</title>
 <style>
-  /* ================= ESTILOS GERAIS ================= */
+  /* =======================================================
+     1. VARIÁVEIS E CONFIGURAÇÕES GERAIS (DESIGN SYSTEM)
+     ======================================================= */
+  :root {
+    --bg-public: #064e3b;
+    --bg-admin: #0f172a;
+    --card-bg: #ffffff;
+    --card-bg-dark: #1e293b;
+    --text-dark: #111827;
+    --text-light: #e2e8f0;
+    --primary: #16a34a;
+    --primary-hover: #15803d;
+    --accent: #fbbf24;
+    --danger: #dc2626;
+    --danger-bg: #fee2e2;
+    --border-light: #d1d5db;
+    --border-dark: #334155;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-  
-  /* ================= TELA PÚBLICA (IDOSOS) ================= */
-  body { background: #064e3b; color: #fff; padding: 16px; line-height: 1.5; padding-bottom: 80px; }
+
+  /* =======================================================
+     2. ESTILOS DA TELA PÚBLICA (IDOSOS)
+     ======================================================= */
+  body { background: var(--bg-public); color: #fff; padding: 16px; line-height: 1.5; padding-bottom: 80px; }
   .public-header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
-  .public-header h1 { font-size: 1.8rem; color: #fbbf24; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 5px; }
-  .public-header p { font-size: 1.1rem; color: #fff; font-weight: bold; }
+  .public-header h1 { font-size: 1.8rem; color: var(--accent); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 5px; }
+  .public-header p { font-size: 1.1rem; font-weight: bold; }
   
-  .card-pub { background: #fff; color: #333; border-radius: 16px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); max-width: 450px; margin: 0 auto; }
-  .card-pub h2 { font-size: 1.3rem; color: #065f46; text-align: center; margin-bottom: 15px; }
-  .card-pub label { font-weight: bold; font-size: 1.1rem; color: #111827; display: block; margin-bottom: 8px; }
+  .card-pub { background: var(--card-bg); color: var(--text-dark); border-radius: 16px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); max-width: 450px; margin: 0 auto; }
+  .card-pub h2 { font-size: 1.3rem; color: var(--bg-public); text-align: center; margin-bottom: 15px; }
+  .card-pub label { font-weight: bold; font-size: 1.1rem; color: var(--text-dark); display: block; margin-bottom: 8px; }
   
   .input-nome { width: 100%; padding: 14px; border: 3px solid #9ca3af; border-radius: 8px; font-size: 1.2rem; margin-bottom: 20px; color: #000; font-weight: bold; background: #f3f4f6; }
-  .input-nome:focus { outline: none; border-color: #16a34a; background: #fff; }
+  .input-nome:focus { outline: none; border-color: var(--primary); background: #fff; }
 
-  .jogo-bloco { border: 2px solid #d1d5db; padding: 15px; border-radius: 10px; margin-bottom: 15px; background: #f9fafb; }
-  .jogo-bloco h3 { font-size: 1.1rem; color: #065f46; margin-bottom: 10px; }
+  .jogo-bloco { border: 2px solid var(--border-light); padding: 15px; border-radius: 10px; margin-bottom: 15px; background: #f9fafb; }
+  .jogo-bloco h3 { font-size: 1.1rem; color: var(--bg-public); margin-bottom: 10px; }
   .inputs-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
   
-  .num-input { width: 100%; padding: 10px 0; text-align: center; font-size: 1.3rem; font-weight: bold; border: 2px solid #9ca3af; border-radius: 6px; color: #000; background: #fff; -webkit-appearance: none; margin: 0; }
-  .num-input:focus { outline: none; border-color: #16a34a; box-shadow: 0 0 5px rgba(22, 163, 74, 0.5); }
-  .num-input.erro { border-color: #dc2626; background: #fee2e2; color: #dc2626; animation: tremer 0.3s; }
+  .num-input { width: 100%; padding: 10px 0; text-align: center; font-size: 1.3rem; font-weight: bold; border: 2px solid #9ca3af; border-radius: 6px; color: #000; background: #fff; margin: 0; }
+  .num-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 5px rgba(22, 163, 74, 0.5); }
+  .num-input.erro { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); animation: tremer 0.3s; }
 
   @keyframes tremer {
     0% { transform: translateX(0); } 25% { transform: translateX(-5px); }
@@ -35,65 +55,73 @@
     100% { transform: translateX(0); }
   }
 
-  .btn-pix { background: #16a34a; color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 1.3rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-  .btn-pix:hover { background: #15803d; }
+  .btn-pix { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 1.3rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+  .btn-pix:hover { background: var(--primary-hover); }
   
-  .pix-box { display: none; text-align: center; margin-top: 20px; background: #f3f4f6; padding: 15px; border-radius: 8px; border: 2px solid #16a34a; }
+  .pix-box { display: none; text-align: center; margin-top: 20px; background: #f3f4f6; padding: 15px; border-radius: 8px; border: 2px solid var(--primary); }
   .pix-box img { max-width: 100%; height: auto; margin-bottom: 10px; border: 2px solid #ccc; border-radius: 8px; }
-  .pix-code { background: #fff; border: 2px dashed #16a34a; padding: 12px; font-size: 0.85rem; word-break: break-all; color: #000; border-radius: 4px; cursor: pointer; margin-bottom: 10px; font-weight: bold; }
+  .pix-code { background: #fff; border: 2px dashed var(--primary); padding: 12px; font-size: 0.85rem; word-break: break-all; color: #000; border-radius: 4px; cursor: pointer; margin-bottom: 10px; font-weight: bold; }
   
   .footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #6ee7b7; margin-top: 30px; }
   .footer span { cursor: pointer; text-decoration: underline; }
 
-  /* ================= PAINEL ADMIN (TEMA ESCURO) ================= */
-  #adminArea { display: none; background: #0f172a; min-height: 100vh; position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 14px; padding-bottom: 80px; z-index: 999; color: #e2e8f0; }
-  h1.admin-title { font-size: 1.2rem; text-align: center; color: #4ade80; margin-bottom: 4px; }
+  /* =======================================================
+     3. ESTILOS DO PAINEL ADMIN
+     ======================================================= */
+  #adminArea { display: none; background: var(--bg-admin); min-height: 100vh; position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 14px; padding-bottom: 80px; z-index: 999; color: var(--text-light); }
+  h1.admin-title { font-size: 1.2rem; color: #4ade80; margin-bottom: 4px; }
   .sub { text-align: center; font-size: .75rem; color: #94a3b8; margin-bottom: 14px; }
-  .card { background: #1e293b; border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid #334155; }
+  
+  .card { background: var(--card-bg-dark); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border-dark); }
   .card h2 { font-size: .95rem; margin-bottom: 10px; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; }
-  input, select, button { font-size: .95rem; padding: 9px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #e2e8f0; width: 100%; margin-bottom: 7px; }
-  input:focus, select:focus { outline: 2px solid #38bdf8; }
-  button { background: #16a34a; border: none; color: #fff; font-weight: 600; cursor: pointer; transition: .2s; }
-  button:hover { background: #15803d; }
+  
+  input, select, button { font-size: .95rem; padding: 9px; border-radius: 8px; border: 1px solid #475569; background: var(--bg-admin); color: var(--text-light); width: 100%; margin-bottom: 7px; }
+  button { background: var(--primary); border: none; font-weight: 600; cursor: pointer; transition: .2s; color: #fff; }
+  button:hover { background: var(--primary-hover); }
   button.sec { background: #475569; } button.sec:hover { background: #64748b; }
-  button.danger { background: #dc2626; } button.danger:hover { background: #b91c1c; }
+  button.danger { background: var(--danger); } button.danger:hover { background: #b91c1c; }
   button.sm { padding: 5px 8px; font-size: .75rem; width: auto; margin: 0; }
+  
   .row { display: flex; gap: 7px; } .row > * { flex: 1; }
-  .item { background: #0f172a; border-radius: 8px; padding: 10px; margin-bottom: 7px; border: 1px solid #334155; font-size: .85rem; }
+  .item { background: var(--bg-admin); border-radius: 8px; padding: 10px; margin-bottom: 7px; border: 1px solid var(--border-dark); font-size: .85rem; }
   .item .top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-  .item small { color: #94a3b8; display: block; font-size: .75rem; }
+  
   .badge { display: inline-block; padding: 2px 7px; border-radius: 20px; font-size: .7rem; font-weight: 700; }
   .badge.ok { background: #166534; color: #bbf7d0; }
   .badge.no { background: #7f1d1d; color: #fecaca; }
+  
   .kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .kpi > div { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px; text-align: center; }
+  .kpi > div { background: var(--bg-admin); border: 1px solid var(--border-dark); border-radius: 8px; padding: 8px; text-align: center; }
   .kpi b { display: block; font-size: 1.05rem; color: #4ade80; }
   .kpi span { font-size: .7rem; color: #94a3b8; }
-  .msg { font-size: .82rem; text-align: center; margin-top: 6px; color: #fbbf24; }
+  
+  .msg { font-size: .82rem; text-align: center; margin-top: 6px; color: var(--accent); }
   .empty { color: #64748b; font-size: .82rem; text-align: center; padding: 8px; }
-  .neg { color: #f87171; } .pos { color: #4ade80; }
-  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; border-top: 1px solid #334155; display: flex; z-index: 1000; }
+  .pos { color: #4ade80; } .neg { color: #f87171; }
+  
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg-dark); border-top: 1px solid var(--border-dark); display: flex; z-index: 1000; }
   .tabbar button { flex: 1; background: none; border: none; color: #94a3b8; padding: 10px 4px; font-size: .72rem; margin: 0; border-radius: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .tabbar button.active { color: #4ade80; background: #0f172a; }
+  .tabbar button.active { color: #4ade80; background: var(--bg-admin); }
   .tab { display: none; } .tab.active { display: block; }
-  .flexline { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dashed #334155; font-size: .82rem; }
+  
+  .flexline { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dashed var(--border-dark); font-size: .82rem; }
   .flexline:last-child { border-bottom: none; }
   
-  /* Bolinhas no Admin */
-  .jogo-exibicao { background: #1e293b; padding: 8px; border-radius: 6px; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
-  .bola-num { background: #38bdf8; color: #0f172a; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
-  .bola-num.hit { background: #fbbf24; color: #000; }
+  .jogo-exibicao { background: var(--card-bg-dark); padding: 8px; border-radius: 6px; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .bola-num { background: #38bdf8; color: var(--bg-admin); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
+  .bola-num.hit { background: var(--accent); color: #000; }
   
-  /* Customização da caixinha de conferência no admin */
   .inputs-grid-admin { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 10px; }
-  .num-input-admin { width: 100%; padding: 10px 0; text-align: center; font-size: 1.2rem; font-weight: bold; border: 2px solid #475569; border-radius: 6px; color: #fff; background: #0f172a; margin: 0; }
-  .num-input-admin:focus { outline: none; border-color: #fbbf24; }
-  .num-input-admin.erro { border-color: #dc2626; background: #7f1d1d; animation: tremer 0.3s; }
+  .num-input-admin { width: 100%; padding: 10px 0; text-align: center; font-size: 1.2rem; font-weight: bold; border: 2px solid #475569; border-radius: 6px; color: #fff; background: var(--bg-admin); margin: 0; }
+  .num-input-admin:focus { outline: none; border-color: var(--accent); }
+  .num-input-admin.erro { border-color: var(--danger); background: #7f1d1d; animation: tremer 0.3s; }
 </style>
 </head>
 <body>
 
-<!-- ================= TELA PÚBLICA ================= -->
+<!-- =======================================================
+     MÓDULO 1: TELA PÚBLICA (CADASTRO DE JOGOS)
+     ======================================================= -->
 <div id="publicArea">
   <div class="public-header">
     <h1>🍀 Bolão da Virada</h1>
@@ -102,7 +130,7 @@
 
   <div class="card-pub">
     <h2>Faça sua fé!</h2>
-    <p style="text-align:center; font-size:1.1rem; color:#065f46; font-weight:bold; margin-bottom:20px;">R$ 20,00 (3 jogos de 6 dezenas)</p>
+    <p style="text-align:center; font-size:1.1rem; color:var(--bg-public); font-weight:bold; margin-bottom:20px;">R$ 20,00 (3 jogos de 6 dezenas)</p>
     
     <label>Seu Nome Completo:</label>
     <input type="text" id="pubNome" class="input-nome" placeholder="Ex: João da Silva" />
@@ -113,12 +141,12 @@
     <div class="jogo-bloco">
       <h3>Jogo 1</h3>
       <div class="inputs-grid" id="grid-j1">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="1">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '1')" onblur="completaZero(this, 'jogo', '1')" data-jogo="1">
       </div>
     </div>
 
@@ -126,12 +154,12 @@
     <div class="jogo-bloco">
       <h3>Jogo 2</h3>
       <div class="inputs-grid" id="grid-j2">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="2">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '2')" onblur="completaZero(this, 'jogo', '2')" data-jogo="2">
       </div>
     </div>
 
@@ -139,43 +167,43 @@
     <div class="jogo-bloco">
       <h3>Jogo 3</h3>
       <div class="inputs-grid" id="grid-j3">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input" oninput="mascaraNumero(this)" onblur="completarZero(this)" data-jogo="3">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input" oninput="validaNumero(this, 'jogo', '3')" onblur="completaZero(this, 'jogo', '3')" data-jogo="3">
       </div>
     </div>
 
-    <button class="btn-pix" onclick="gerarPixPublico()">Gerar Pagamento PIX</button>
+    <button class="btn-pix" onclick="APP.publico.gerarPix()">Gerar Pagamento PIX</button>
 
     <div id="pixArea" class="pix-box">
-      <p style="font-weight:bold; color:#16a34a; margin-bottom:10px; font-size:1.1rem;">Pague com PIX:</p>
-      
+      <p style="font-weight:bold; color:var(--primary); margin-bottom:10px; font-size:1.1rem;">Pague com PIX:</p>
       <img src="images/QRCODE_Mercado Pago.jpg" alt="QR Code PIX" onerror="this.style.display='none'">
-      
       <p style="font-size:0.9rem; color:#333; font-weight:bold; margin-bottom:10px;">Ou copie o código abaixo:</p>
-      <div class="pix-code" id="pixCodeText" onclick="copiarPix()">Clique para copiar o código PIX</div>
-      <p style="font-size:0.9rem; color:#065f46; font-weight:bold;">Após pagar, envie o comprovante no grupo!</p>
+      <div class="pix-code" onclick="APP.utils.copiarPix()">Clique para copiar o código PIX</div>
+      <p style="font-size:0.9rem; color:var(--bg-public); font-weight:bold;">Após pagar, envie o comprovante no grupo!</p>
     </div>
   </div>
 </div>
 
 <div class="footer" id="publicFooter">
   🍀 Boa sorte a todos! <br>
-  <span onclick="abrirLoginAdmin()" style="opacity:0.5;">Área do Administrador</span>
+  <span onclick="APP.admin.login()" style="opacity:0.5;">Área do Administrador</span>
 </div>
 
-<!-- ================= PAINEL ADMIN ================= -->
+<!-- =======================================================
+     MÓDULO 2: PAINEL ADMINISTRATIVO
+     ======================================================= -->
 <div id="adminArea">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
     <h1 class="admin-title" style="margin:0;">🍀 Painel Admin</h1>
-    <button class="sm danger" onclick="logoutAdmin()">Sair</button>
+    <button class="sm danger" onclick="APP.admin.logout()">Sair</button>
   </div>
   <div class="sub">Família Torquato's • Mega-Sena</div>
 
-  <!-- TAB PAINEL -->
+  <!-- ABA: PAINEL -->
   <div class="tab active" id="tab-painel">
     <div class="card">
       <h2>📊 Resumo Financeiro Real</h2>
@@ -185,20 +213,19 @@
         <div><b id="kFalta">R$ 0</b><span>A Receber</span></div>
         <div><b id="kCusto">R$ 0</b><span>Custo Jogos</span></div>
       </div>
-      <div style="margin-top:10px; text-align:center; border-top:1px dashed #334155; padding-top:10px;">
+      <div style="margin-top:10px; text-align:center; border-top:1px dashed var(--border-dark); padding-top:10px;">
         <span style="font-size:0.9rem; color:#94a3b8;">Saldo em Caixa:</span>
         <b id="kSaldo" style="font-size:1.3rem; display:block; color:#4ade80;">R$ 0</b>
       </div>
       <div id="alertaSaldo" style="margin-top:10px;"></div>
     </div>
-
     <div class="card">
       <h2>💸 Situação por participante</h2>
       <div id="resumoPart"></div>
     </div>
   </div>
 
-  <!-- TAB PARTICIPANTES -->
+  <!-- ABA: PARTICIPANTES -->
   <div class="tab" id="tab-part">
     <div class="card">
       <h2>👥 Cadastrar manualmente</h2>
@@ -210,58 +237,92 @@
           <option value="pendente">Pendente</option>
         </select>
       </div>
-      <button onclick="addPart()">Adicionar (1 cota = R$ 20)</button>
-    </div>
+      
+      <!-- NOVOS CAMPOS DE JOGOS MANUAIS -->
+      <p style="font-size:0.8rem; color:#94a3b8; margin: 10px 0 5px;">Jogos (opcional - deixe em branco se for só controle de caixa):</p>
+      
+      <div class="jogo-bloco" style="background: var(--bg-admin); border-color: var(--border-dark); padding: 10px; margin-bottom: 10px;">
+        <h3 style="color:#38bdf8; font-size:0.85rem; margin-bottom:5px;">Jogo 1</h3>
+        <div class="inputs-grid">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '1')" onblur="completaZero(this, 'manual', '1')" data-manual="1">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '1')" onblur="completaZero(this, 'manual', '1')" data-manual="1">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '1')" onblur="completaZero(this, 'manual', '1')" data-manual="1">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '1')" onblur="completaZero(this, 'manual', '1')" data-manual="1">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '1')" onblur="completaZero(this, 'manual', '1')" data-manual="1">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '1')" onblur="completaZero(this, 'manual', '1')" data-manual="1">
+        </div>
+      </div>
 
+      <div class="jogo-bloco" style="background: var(--bg-admin); border-color: var(--border-dark); padding: 10px; margin-bottom: 10px;">
+        <h3 style="color:#38bdf8; font-size:0.85rem; margin-bottom:5px;">Jogo 2</h3>
+        <div class="inputs-grid">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '2')" onblur="completaZero(this, 'manual', '2')" data-manual="2">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '2')" onblur="completaZero(this, 'manual', '2')" data-manual="2">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '2')" onblur="completaZero(this, 'manual', '2')" data-manual="2">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '2')" onblur="completaZero(this, 'manual', '2')" data-manual="2">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '2')" onblur="completaZero(this, 'manual', '2')" data-manual="2">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '2')" onblur="completaZero(this, 'manual', '2')" data-manual="2">
+        </div>
+      </div>
+
+      <div class="jogo-bloco" style="background: var(--bg-admin); border-color: var(--border-dark); padding: 10px; margin-bottom: 10px;">
+        <h3 style="color:#38bdf8; font-size:0.85rem; margin-bottom:5px;">Jogo 3</h3>
+        <div class="inputs-grid">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '3')" onblur="completaZero(this, 'manual', '3')" data-manual="3">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '3')" onblur="completaZero(this, 'manual', '3')" data-manual="3">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '3')" onblur="completaZero(this, 'manual', '3')" data-manual="3">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '3')" onblur="completaZero(this, 'manual', '3')" data-manual="3">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '3')" onblur="completaZero(this, 'manual', '3')" data-manual="3">
+          <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'manual', '3')" onblur="completaZero(this, 'manual', '3')" data-manual="3">
+        </div>
+      </div>
+      <!-- FIM DOS CAMPOS MANUAIS -->
+
+      <button onclick="APP.admin.addParticipante()">Adicionar (1 cota = R$ 20)</button>
+    </div>
     <div class="card">
       <h2>👥 Lista de Pessoas</h2>
       <div id="listaPart"></div>
     </div>
   </div>
 
-  <!-- TAB CONFERÊNCIA -->
+  <!-- ABA: CONFERÊNCIA -->
   <div class="tab" id="tab-conf">
     <div class="card">
       <h2>🏆 Conferir sorteio</h2>
       <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Digite as 6 dezenas sorteadas:</p>
-      
-      <!-- NOVOS CAMPOS DE CONFERÊNCIA (6 CAIXINHAS) -->
       <div class="inputs-grid-admin" id="grid-sorteio">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
-        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="num-input-admin" oninput="mascaraNumeroAdmin(this)" onblur="completarZeroAdmin(this)" data-sorteio="true">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'sorteio', '0')" onblur="completaZero(this, 'sorteio', '0')" data-sorteio="true">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'sorteio', '0')" onblur="completaZero(this, 'sorteio', '0')" data-sorteio="true">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'sorteio', '0')" onblur="completaZero(this, 'sorteio', '0')" data-sorteio="true">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'sorteio', '0')" onblur="completaZero(this, 'sorteio', '0')" data-sorteio="true">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'sorteio', '0')" onblur="completaZero(this, 'sorteio', '0')" data-sorteio="true">
+        <input type="tel" inputmode="numeric" maxlength="2" class="num-input-admin" oninput="validaNumero(this, 'sorteio', '0')" onblur="completaZero(this, 'sorteio', '0')" data-sorteio="true">
       </div>
-
-      <button onclick="conferir()" style="background:#fbbf24; color:#000;">Conferir Jogos</button>
+      <button onclick="APP.admin.conferir()" style="background:var(--accent); color:#000;">Conferir Jogos</button>
       <div id="saidaConf" style="margin-top:10px;"></div>
     </div>
-
     <div class="card">
       <h2>💰 Rateio de prêmio</h2>
-      <input id="premio" type="number" step="0.01" min="0" placeholder="Prêmio total recebido (R$)" oninput="ratear()" />
+      <input id="premio" type="number" step="0.01" min="0" placeholder="Prêmio total (R$)" oninput="APP.admin.ratear()" />
       <div id="saidaRateio"></div>
     </div>
   </div>
 
-  <!-- TAB FINANCEIRO -->
+  <!-- ABA: FINANCEIRO -->
   <div class="tab" id="tab-fin">
     <div class="card">
       <h2>💵 Custo dos Jogos</h2>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Informe quanto você gastou na lotérica para abater do caixa.</p>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Informe quanto você gastou na lotérica.</p>
       <div class="row">
         <input id="inputCusto" type="number" step="0.01" min="0" placeholder="R$ 00,00" />
-        <button onclick="salvarCusto()" style="width:40%">Salvar Custo</button>
+        <button onclick="APP.admin.salvarCusto()" style="width:40%">Salvar</button>
       </div>
     </div>
-
     <div class="card">
       <h2>📥 Exportar Relatório</h2>
-      <button class="sec" onclick="exportarExcel()" style="background:#0ea5e9; color:#fff;">📊 Baixar Planilha (.CSV)</button>
+      <button class="sec" onclick="APP.admin.exportarExcel()" style="background:#0ea5e9;">📊 Baixar Planilha (.CSV)</button>
     </div>
-    
     <div class="card">
       <h2>🧾 Histórico de Movimentações</h2>
       <div id="finHist"></div>
@@ -270,516 +331,453 @@
 
   <!-- NAVEGAÇÃO ADMIN -->
   <div class="tabbar">
-    <button class="active" onclick="mostrarTab('painel', this)">📊<br>Painel</button>
-    <button onclick="mostrarTab('part', this)">👥<br>Pessoas</button>
-    <button onclick="mostrarTab('conf', this)">🏆<br>Conferir</button>
-    <button onclick="mostrarTab('fin', this)">💵<br>Caixa</button>
+    <button class="active" onclick="APP.admin.mudarTab('painel', this)">📊<br>Painel</button>
+    <button onclick="APP.admin.mudarTab('part', this)">👥<br>Pessoas</button>
+    <button onclick="APP.admin.mudarTab('conf', this)">🏆<br>Conferir</button>
+    <button onclick="APP.admin.mudarTab('fin', this)">💵<br>Caixa</button>
   </div>
 </div>
 
-<!-- SDK DO FIREBASE -->
+<!-- =======================================================
+     MÓDULO 3: JAVASCRIPT (LÓGICA E FIREBASE)
+     ======================================================= -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBd6HByBm8ZS8o9t_IrzFV_eSWWqLKPOqY",
-    authDomain: "bolao-2a310.firebaseapp.com",
-    databaseURL: "https://bolao-2a310-default-rtdb.firebaseio.com",
-    projectId: "bolao-2a310",
-    storageBucket: "bolao-2a310.firebasestorage.app",
-    messagingSenderId: "89102406302",
-    appId: "1:89102406302:web:739c1fdbf536449814a18f"
+  // --- CONFIGURAÇÕES GLOBAIS ---
+  const CONFIG = {
+    firebase: {
+      apiKey: "AIzaSyBd6HByBm8ZS8o9t_IrzFV_eSWWqLKPOqY",
+      authDomain: "bolao-2a310.firebaseapp.com",
+      databaseURL: "https://bolao-2a310-default-rtdb.firebaseio.com",
+      projectId: "bolao-2a310",
+      storageBucket: "bolao-2a310.firebasestorage.app",
+      messagingSenderId: "89102406302",
+      appId: "1:89102406302:web:739c1fdbf536449814a18f"
+    },
+    pixCopiaCola: "00020126360014br.gov.bcb.pix0114+5511953326997520400005303986540520.005802BR5921GILMAR TORQUATO GOMES6009Sao Paulo62210517daqr735456801956963042671",
+    valorCota: 20.00,
+    senhaAdmin: "admin123" // ⚠️ MUDE SUA SENHA AQUI
   };
 
-  const PIX_COPIA_COLA = "00020126360014br.gov.bcb.pix0114+5511953326997520400005303986540520.005802BR5921GILMAR TORQUATO GOMES6009Sao Paulo62210517daqr735456801956963042671";
-  const VALOR_COTA = 20.00;
-  const SENHA_ADMIN = "admin123"; // ⚠️ MUDE SUA SENHA AQUI
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const dbRef = ref(db, 'bolao'); 
-
+  // --- ESTADO GLOBAL ---
   let estado = { participantes: [], caixa: [], custoJogos: 0 };
   let isAdmin = false;
 
-  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const brl = v => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ',');
+  // --- INICIALIZAÇÃO FIREBASE ---
+  const app = initializeApp(CONFIG.firebase);
+  const db = getDatabase(app);
+  const dbRef = ref(db, 'bolao'); 
 
-  // --- FIREBASE SYNC ---
   onValue(dbRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      estado = Object.assign(estado, data);
-      if (isAdmin) renderAdmin();
+    try {
+      const data = snapshot.val();
+      if (data) {
+        estado = Object.assign(estado, data);
+        if (isAdmin) APP.admin.renderizar();
+      }
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
     }
   });
 
-  function salvar() { 
+  function salvarNuvem() { 
     set(dbRef, estado).catch(err => {
       alert("Erro ao salvar! Verifique regras do Firebase.");
     });
-    if (isAdmin) renderAdmin();
+    if (isAdmin) APP.admin.renderizar();
   }
 
-  // ==========================================
-  // MÁSCARA E VALIDAÇÃO DOS CAMPOS DE NÚMEROS (PÚBLICO)
-  // ==========================================
-  window.mascaraNumero = function(input) {
-    let val = input.value.replace(/\D/g, '');
-    if (val.length > 2) val = val.slice(0, 2);
-    input.value = val;
-
-    if (val.length > 0) {
-      const num = parseInt(val);
-      // TRAVA DO 00 E MAIORES QUE 60
-      if (num > 60 || (val === '00')) {
-        input.classList.add('erro');
-        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
-        return;
-      }
-    }
-
-    if (val.length === 2) {
-      const jogoAtual = input.getAttribute('data-jogo');
-      const inputsDoJogo = Array.from(document.querySelectorAll(`.num-input[data-jogo="${jogoAtual}"]`));
-      const index = inputsDoJogo.indexOf(input);
-      
-      setTimeout(() => {
-        if (index < inputsDoJogo.length - 1) {
-          inputsDoJogo[index + 1].focus();
-        } else {
-          input.blur();
-        }
-      }, 50);
-    }
-  }
-
-  window.completarZero = function(input) {
-    let val = input.value.replace(/\D/g, '');
-    if (val.length === 1) {
-      input.value = '0' + val;
-    }
-    
-    const numFormatado = input.value;
-    if (numFormatado === '00') {
-      input.value = '';
-      return;
-    }
-
-    if (numFormatado.length === 2) {
-      const jogoAtual = input.getAttribute('data-jogo');
-      const inputsDoJogo = document.querySelectorAll(`.num-input[data-jogo="${jogoAtual}"]`);
-      
-      let duplicado = false;
-      inputsDoJogo.forEach(outro => {
-        if (outro !== input && outro.value === numFormatado) {
-          duplicado = true;
-        }
-      });
-
-      if (duplicado) {
-        input.classList.add('erro');
-        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
-      }
-    }
-  }
-
-  // ==========================================
-  // MÁSCARA E VALIDAÇÃO (CONFERÊNCIA ADMIN)
-  // ==========================================
-  window.mascaraNumeroAdmin = function(input) {
-    let val = input.value.replace(/\D/g, '');
-    if (val.length > 2) val = val.slice(0, 2);
-    input.value = val;
-
-    if (val.length > 0) {
-      const num = parseInt(val);
-      if (num > 60 || (val === '00')) {
-        input.classList.add('erro');
-        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
-        return;
-      }
-    }
-
-    if (val.length === 2) {
-      const inputsDoSorteio = Array.from(document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`));
-      const index = inputsDoSorteio.indexOf(input);
-      
-      setTimeout(() => {
-        if (index < inputsDoSorteio.length - 1) {
-          inputsDoSorteio[index + 1].focus();
-        } else {
-          input.blur();
-        }
-      }, 50);
-    }
-  }
-
-  window.completarZeroAdmin = function(input) {
-    let val = input.value.replace(/\D/g, '');
-    if (val.length === 1) {
-      input.value = '0' + val;
-    }
-    
-    const numFormatado = input.value;
-    if (numFormatado === '00') {
-      input.value = '';
-      return;
-    }
-
-    if (numFormatado.length === 2) {
-      const inputsDoSorteio = document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`);
-      let duplicado = false;
-      inputsDoSorteio.forEach(outro => {
-        if (outro !== input && outro.value === numFormatado) {
-          duplicado = true;
-        }
-      });
-
-      if (duplicado) {
-        input.classList.add('erro');
-        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
-      }
-    }
-  }
-
-  // ==========================================
-  // LÓGICA PÚBLICA (IDOSOS)
-  // ==========================================
-  window.gerarPixPublico = function() {
-    const nome = document.getElementById('pubNome').value.trim();
-    if (!nome) return alert("Por favor, digite seu nome completo.");
-
-    const jogos = [];
-    for(let i=1; i<=3; i++) {
-      const inputs = document.querySelectorAll(`.num-input[data-jogo="${i}"]`);
-      let nums = [];
-      let temErro = false;
-      
-      inputs.forEach(inp => {
-        if(inp.value.length === 1) inp.value = '0' + inp.value;
-        if(!inp.value) temErro = true;
-        else nums.push(inp.value);
-      });
-      
-      if (temErro || nums.length !== 6) {
-        return alert(`Por favor, preencha todos os 6 números do Jogo ${i}.`);
-      }
-
-      if (new Set(nums).size !== nums.length) {
-        return alert(`Atenção: O Jogo ${i} tem números repetidos. Corrija por favor.`);
-      }
-      jogos.push(nums.join(' - '));
-    }
-
-    document.getElementById('pixArea').style.display = 'block';
-    document.getElementById('pixCodeText').innerText = PIX_COPIA_COLA;
-
-    estado.participantes.push({
-      id: uid(),
-      nome: nome,
-      jogos: jogos,
-      pago: 0,
-      status: 'pendente'
-    });
-
-    salvar();
-    
-    document.getElementById('pubNome').value = '';
-    document.querySelectorAll('.num-input').forEach(inp => inp.value = '');
-    document.getElementById('pixArea').scrollIntoView({ behavior: 'smooth' });
-  }
-
-  window.copiarPix = function() {
-    navigator.clipboard.writeText(PIX_COPIA_COLA).then(() => {
-      alert("Código PIX copiado! Vá no app do seu banco e escolha 'PIX Copia e Cola'.");
-    });
-  }
-
-  // ==========================================
-  // LÓGICA ADMIN
-  // ==========================================
-  window.abrirLoginAdmin = function() {
-    const senha = prompt("Digite a senha de Administrador:");
-    if (senha === SENHA_ADMIN) {
-      isAdmin = true;
-      document.getElementById('publicArea').style.display = 'none';
-      document.getElementById('publicFooter').style.display = 'none';
-      document.getElementById('adminArea').style.display = 'block';
-      renderAdmin();
-    } else if (senha !== null) {
-      alert("Senha incorreta!");
-    }
-  }
-
-  window.logoutAdmin = function() {
-    isAdmin = false;
-    document.getElementById('adminArea').style.display = 'none';
-    document.getElementById('publicArea').style.display = 'block';
-    document.getElementById('publicFooter').style.display = 'block';
-  }
-
-  window.mostrarTab = function(id, btn) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + id).classList.add('active');
-    if (btn) btn.classList.add('active');
-    renderAdmin();
-  }
-
-  // --- FUNÇÕES ADMIN ---
-  window.addPart = function() {
-    const nome = document.getElementById('pNome').value.trim();
-    const pago = parseFloat(document.getElementById('pPago').value) || 0;
-    const status = document.getElementById('pStatus').value;
-    if (!nome) return alert('Informe o nome.');
-
-    const id = uid();
-    
-    estado.participantes.push({ 
-      id, nome, jogos: ["Cadastro Manual", "-", "-"], pago, status 
-    });
-
-    if (pago > 0) {
-      estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Pagamento inicial - ${nome}`, valor: pago, data: new Date().toISOString() });
-    }
-    if (status === 'pago' && VALOR_COTA > pago) {
-      const falta = VALOR_COTA - pago;
-      const p = estado.participantes.find(x => x.id === id);
-      p.pago = VALOR_COTA;
-      estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Ajuste status pago - ${nome}`, valor: falta, data: new Date().toISOString() });
-    }
-
-    document.getElementById('pNome').value = '';
-    document.getElementById('pPago').value = '';
-    salvar();
-  }
-
-  window.removePart = function(id) {
-    const p = estado.participantes.find(x => x.id === id);
-    if (!p || !confirm(`Remover ${p.nome}?`)) return;
-    
-    if (p.pago > 0) {
-      estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno exclusão - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
-    }
-    
-    estado.participantes = estado.participantes.filter(x => x.id !== id);
-    salvar();
-  }
-
-  window.marcarPago = function(id) {
-    const p = estado.participantes.find(x => x.id === id);
-    if (!p) return;
-    const falta = +(VALOR_COTA - p.pago).toFixed(2);
-    if (falta <= 0) return;
-    
-    p.pago = VALOR_COTA; p.status = 'pago';
-    estado.caixa.push({ id: uid(), tipo: 'entrada', desc: `Quitação PIX - ${p.nome}`, valor: falta, data: new Date().toISOString() });
-    salvar();
-  }
-
-  window.desfazerPago = function(id) {
-    const p = estado.participantes.find(x => x.id === id);
-    if (!p || p.pago === 0) return;
-    if (!confirm(`Desfazer o pagamento de ${p.nome}?`)) return;
-    
-    const valorDevolvido = p.pago;
-    p.pago = 0; p.status = 'pendente';
-    estado.caixa.push({ id: uid(), tipo: 'saida', desc: `Estorno de pagamento - ${p.nome}`, valor: valorDevolvido, data: new Date().toISOString() });
-    salvar();
-  }
-
-  window.salvarCusto = function() {
-    const custo = parseFloat(document.getElementById('inputCusto').value) || 0;
-    estado.custoJogos = custo;
-    salvar();
-    alert("Custo salvo! O saldo do caixa foi recalculado.");
-  }
-
-  window.conferir = function() {
-    // Pega as 6 caixinhas da conferência
-    const inputs = document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`);
-    let sort = [];
-    let temErro = false;
-
-    inputs.forEach(inp => {
-      if(inp.value.length === 1) inp.value = '0' + inp.value;
-      if(!inp.value) temErro = true;
-      else sort.push(inp.value);
-    });
-
-    const out = document.getElementById('saidaConf');
-    
-    if (temErro || sort.length !== 6) {
-      out.innerHTML = '<div class="msg" style="color:#f87171">Preencha todos os 6 números do sorteio.</div>'; return;
-    }
-    
-    if (!estado.participantes.length) { out.innerHTML = '<div class="msg">Nenhum participante.</div>'; return; }
-    
-    let html = '';
-    let acertosGerais = 0;
-
-    estado.participantes.forEach(p => {
-      if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
-        p.jogos.forEach((jogoStr, idx) => {
-          const nums = jogoStr.split(' - ');
-          const acertos = nums.filter(n => sort.includes(n));
-          
-          if (acertos.length > 0) {
-            acertosGerais++;
-            html += `<div class="item" style="border-color:#fbbf24; background:#2d2005;">
-              <div class="top"><strong>${esc(p.nome)} - Jogo ${idx+1}</strong><span class="badge" style="background:#fbbf24; color:#000;">${acertos.length} acerto(s)</span></div>
-              <div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:8px;">
-                ${nums.map(n => `<div class="bola-num ${sort.includes(n)?'hit':''}">${n}</div>`).join('')}
-              </div>
-            </div>`;
-          }
+  // =======================================================
+  // MÓDULO UTILITÁRIOS (Compartilhado)
+  // =======================================================
+  window.APP = {
+    utils: {
+      uid: () => Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      esc: (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),
+      brl: (v) => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ','),
+      copiarPix: () => {
+        navigator.clipboard.writeText(CONFIG.pixCopiaCola).then(() => {
+          alert("Código PIX copiado! Vá no app do seu banco e escolha 'PIX Copia e Cola'.");
         });
       }
-    });
+    },
 
-    if (acertosGerais === 0) {
-      html = '<div class="msg">Nenhum participante acertou nada neste concurso.</div>';
-    } else {
-      html = `<div class="msg pos" style="margin-bottom:10px;">Tivemos acertos!</div>` + html;
-    }
-    out.innerHTML = html;
-  }
+    // =======================================================
+    // MÓDULO PÚBLICO (Idosos)
+    // =======================================================
+    publico: {
+      gerarPix: function() {
+        const nome = document.getElementById('pubNome').value.trim();
+        if (!nome) return alert("Por favor, digite seu nome completo.");
 
-  window.ratear = function() {
-    const premio = parseFloat(document.getElementById('premio').value) || 0;
-    const out = document.getElementById('saidaRateio');
-    const totalCotas = estado.participantes.length; 
-    if (!estado.participantes.length) { out.innerHTML = '<div class="msg">Sem participantes.</div>'; return; }
-    if (premio <= 0 || totalCotas === 0) { out.innerHTML = '<div class="msg">Informe o prêmio.</div>'; return; }
-    
-    const valorCota = premio / totalCotas;
-    let html = `<div class="flexline"><b>Valor por cota</b><b class="pos">${brl(valorCota)}</b></div>`;
-    html += `<div class="flexline"><span>Total de cotas</span><span>${totalCotas}</span></div>`;
-    estado.participantes.forEach(p => {
-      html += `<div class="flexline"><span>${esc(p.nome)}</span><b class="pos">${brl(valorCota)}</b></div>`;
-    });
-    out.innerHTML = html;
-  }
-
-  window.exportarExcel = function() {
-    if (!estado.participantes.length) return alert("Nenhum participante cadastrado.");
-    
-    let csvContent = "Nome;Jogo 1;Jogo 2;Jogo 3;Status;Pago (R$);Data\n";
-    estado.participantes.forEach(p => {
-      const status = p.pago >= VALOR_COTA ? "PAGO" : "PENDENTE";
-      const data = new Date().toLocaleDateString('pt-BR');
-      const j1 = p.jogos ? p.jogos[0] : "";
-      const j2 = p.jogos ? p.jogos[1] : "";
-      const j3 = p.jogos ? p.jogos[2] : "";
-      
-      csvContent += `${p.nome};${j1};${j2};${j3};${status};${p.pago.toFixed(2).replace('.', ',')};${data}\n`;
-    });
-    
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "Relatorio_Bolao_Torquato.csv";
-    link.click();
-  }
-
-  // ============ RENDERIZAÇÃO ADMIN ============
-  function renderAdmin() {
-    if(!isAdmin) return;
-
-    const totalCotas = estado.participantes.length;
-    const arrecadado = estado.participantes.reduce((s,p) => s + (p.pago || 0), 0);
-    const totalDevido = totalCotas * VALOR_COTA;
-    const faltaReceber = totalDevido - arrecadado;
-    const custoJogos = estado.custoJogos || 0;
-    const saldoCaixa = arrecadado - custoJogos;
-    const pagos = estado.participantes.filter(p => p.pago >= VALOR_COTA).length;
-
-    document.getElementById('kPart').textContent = totalCotas;
-    document.getElementById('kArrecad').textContent = brl(arrecadado);
-    document.getElementById('kFalta').textContent = brl(faltaReceber > 0 ? faltaReceber : 0);
-    document.getElementById('kCusto').textContent = brl(custoJogos);
-    
-    // Input de custo preenchido
-    if(document.getElementById('inputCusto').value == '' && custoJogos > 0) {
-      document.getElementById('inputCusto').value = custoJogos;
-    }
-
-    const elSaldo = document.getElementById('kSaldo');
-    elSaldo.textContent = brl(saldoCaixa);
-    elSaldo.className = saldoCaixa < 0 ? 'neg' : 'pos';
-    
-    const alerta = document.getElementById('alertaSaldo');
-    if (saldoCaixa < 0) {
-      alerta.innerHTML = `<div class="msg" style="color:#f87171;">⚠️ Atenção: Você gastou mais nos jogos do que arrecadou até agora.</div>`;
-    } else if (faltaReceber > 0) {
-      alerta.innerHTML = `<div class="msg">Ainda faltam receber <b>${brl(faltaReceber)}</b> (${totalCotas - pagos} pessoas).</div>`;
-    } else if (totalDevido > 0) {
-      alerta.innerHTML = `<div class="msg pos">✅ Tudo pago! Caixa 100% positivo.</div>`;
-    } else {
-      alerta.innerHTML = '';
-    }
-
-    const rp = document.getElementById('resumoPart');
-    if (!estado.participantes.length) rp.innerHTML = '<div class="empty">Nenhum participante.</div>';
-    else {
-      rp.innerHTML = estado.participantes.map(p => {
-        const falta = +(VALOR_COTA - p.pago).toFixed(2);
-        const ok = falta <= 0;
-        return `<div class="item">
-          <div class="top">
-            <div><strong>${esc(p.nome)}</strong></div>
-            <span class="badge ${ok?'ok':'no'}">${ok?'Pago':'Devendo '+brl(falta)}</span>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    const lp = document.getElementById('listaPart');
-    if (!estado.participantes.length) lp.innerHTML = '<div class="empty">Nenhum participante.</div>';
-    else {
-      lp.innerHTML = estado.participantes.map(p => {
-        const falta = +(VALOR_COTA - p.pago).toFixed(2);
-        const ok = falta <= 0;
-        
-        let jogosHtml = '';
-        if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
-          jogosHtml = p.jogos.map((jogoStr, index) => {
-            const nums = jogoStr.split(' - ');
-            return `<div class="jogo-exibicao">
-              <span style="font-size:0.75rem; color:#94a3b8; align-self:center; margin-right:5px;">J${index+1}:</span>
-              ${nums.map(n => `<div class="bola-num">${n}</div>`).join('')}
-            </div>`;
-          }).join('');
-        } else {
-          jogosHtml = '<small style="color:#94a3b8; display:block; margin-top:4px;">Jogos no papel.</small>';
+        const jogos = [];
+        for(let i=1; i<=3; i++) {
+          const inputs = document.querySelectorAll(`.num-input[data-jogo="${i}"]`);
+          let nums = [];
+          let temErro = false;
+          
+          inputs.forEach(inp => {
+            if(inp.value.length === 1) inp.value = '0' + inp.value;
+            if(!inp.value) temErro = true;
+            else nums.push(inp.value);
+          });
+          
+          if (temErro || nums.length !== 6) return alert(`Preencha todos os 6 números do Jogo ${i}.`);
+          if (new Set(nums).size !== nums.length) return alert(`O Jogo ${i} tem números repetidos. Corrija.`);
+          
+          jogos.push(nums.join(' - '));
         }
 
-        return `<div class="item">
-          <div class="top"><strong>${esc(p.nome)}</strong><span class="badge ${ok?'ok':'no'}">${ok?'Quitado':'Falta '+brl(falta)}</span></div>
-          ${jogosHtml}
-          <div class="row" style="margin-top:8px">
-            ${!ok ? `<button class="sm" onclick="marcarPago('${p.id}')">✔ Quitar</button>` : `<button class="sm sec" onclick="desfazerPago('${p.id}')">↩ Estornar</button>`}
-            <button class="sm danger" onclick="removePart('${p.id}')">✕ Excluir</button>
-          </div>
-        </div>`;
-      }).join('');
+        document.getElementById('pixArea').style.display = 'block';
+        
+        estado.participantes.push({
+          id: APP.utils.uid(),
+          nome: nome,
+          jogos: jogos,
+          pago: 0,
+          status: 'pendente'
+        });
+
+        salvarNuvem();
+        
+        // Limpa formulário
+        document.getElementById('pubNome').value = '';
+        document.querySelectorAll('.num-input').forEach(inp => inp.value = '');
+        document.getElementById('pixArea').scrollIntoView({ behavior: 'smooth' });
+      }
+    },
+
+    // =======================================================
+    // MÓDULO ADMIN (Painel)
+    // =======================================================
+    admin: {
+      login: function() {
+        const senha = prompt("Digite a senha de Administrador:");
+        if (senha === CONFIG.senhaAdmin) {
+          isAdmin = true;
+          document.getElementById('publicArea').style.display = 'none';
+          document.getElementById('publicFooter').style.display = 'none';
+          document.getElementById('adminArea').style.display = 'block';
+          this.renderizar();
+        } else if (senha !== null) {
+          alert("Senha incorreta!");
+        }
+      },
+      
+      logout: function() {
+        isAdmin = false;
+        document.getElementById('adminArea').style.display = 'none';
+        document.getElementById('publicArea').style.display = 'block';
+        document.getElementById('publicFooter').style.display = 'block';
+      },
+
+      mudarTab: function(id, btn) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active');
+        if (btn) btn.classList.add('active');
+        this.renderizar();
+      },
+
+      addParticipante: function() {
+        const nome = document.getElementById('pNome').value.trim();
+        const pago = parseFloat(document.getElementById('pPago').value) || 0;
+        const status = document.getElementById('pStatus').value;
+        if (!nome) return alert('Informe o nome.');
+
+        // --- NOVA LÓGICA PARA CAPTURAR OS JOGOS MANUAIS ---
+        const jogos = [];
+        let temJogoPreenchido = false;
+
+        for(let i=1; i<=3; i++) {
+          const inputs = document.querySelectorAll(`.num-input-admin[data-manual="${i}"]`);
+          let nums = [];
+          
+          inputs.forEach(inp => {
+            if(inp.value.length === 1) inp.value = '0' + inp.value;
+            if(inp.value) nums.push(inp.value);
+          });
+          
+          if (nums.length > 0) temJogoPreenchido = true;
+          
+          if (nums.length === 6) {
+            if (new Set(nums).size !== nums.length) return alert(`O Jogo ${i} tem números repetidos. Corrija.`);
+            jogos.push(nums.join(' - '));
+          } else if (nums.length > 0 && nums.length < 6) {
+            return alert(`Preencha todos os 6 números do Jogo ${i} ou deixe-o totalmente em branco.`);
+          } else {
+            jogos.push("-"); // Se deixou em branco
+          }
+        }
+        
+        // Se o admin não preencheu nenhum jogo, define o status manual padrão
+        let jogosFinais = temJogoPreenchido ? jogos : ["Cadastro Manual", "-", "-"];
+        // ---------------------------------------------------
+
+        const id = APP.utils.uid();
+        estado.participantes.push({ 
+          id, nome, jogos: jogosFinais, pago, status 
+        });
+
+        if (pago > 0) {
+          estado.caixa.push({ id: APP.utils.uid(), tipo: 'entrada', desc: `Pagamento - ${nome}`, valor: pago, data: new Date().toISOString() });
+        }
+        if (status === 'pago' && CONFIG.valorCota > pago) {
+          const falta = CONFIG.valorCota - pago;
+          estado.participantes.find(x => x.id === id).pago = CONFIG.valorCota;
+          estado.caixa.push({ id: APP.utils.uid(), tipo: 'entrada', desc: `Ajuste - ${nome}`, valor: falta, data: new Date().toISOString() });
+        }
+
+        // Limpa os campos
+        document.getElementById('pNome').value = '';
+        document.getElementById('pPago').value = '';
+        document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
+        
+        salvarNuvem();
+      },
+
+      quitar: function(id) {
+        const p = estado.participantes.find(x => x.id === id);
+        if (!p || p.pago >= CONFIG.valorCota) return;
+        
+        const falta = CONFIG.valorCota - p.pago;
+        p.pago = CONFIG.valorCota; p.status = 'pago';
+        estado.caixa.push({ id: APP.utils.uid(), tipo: 'entrada', desc: `Quitação PIX - ${p.nome}`, valor: falta, data: new Date().toISOString() });
+        salvarNuvem();
+      },
+
+      estornar: function(id) {
+        const p = estado.participantes.find(x => x.id === id);
+        if (!p || p.pago === 0 || !confirm(`Desfazer pagamento de ${p.nome}?`)) return;
+        
+        estado.caixa.push({ id: APP.utils.uid(), tipo: 'saida', desc: `Estorno - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
+        p.pago = 0; p.status = 'pendente';
+        salvarNuvem();
+      },
+
+      excluir: function(id) {
+        const p = estado.participantes.find(x => x.id === id);
+        if (!p || !confirm(`Remover ${p.nome}?`)) return;
+        
+        if (p.pago > 0) {
+          estado.caixa.push({ id: APP.utils.uid(), tipo: 'saida', desc: `Estorno exclusão - ${p.nome}`, valor: p.pago, data: new Date().toISOString() });
+        }
+        estado.participantes = estado.participantes.filter(x => x.id !== id);
+        salvarNuvem();
+      },
+
+      salvarCusto: function() {
+        const custo = parseFloat(document.getElementById('inputCusto').value) || 0;
+        estado.custoJogos = custo;
+        salvarNuvem();
+        alert("Custo salvo! Saldo recalculado.");
+      },
+
+      conferir: function() {
+        const inputs = document.querySelectorAll(`.num-input-admin[data-sorteio="true"]`);
+        let sort = [];
+        let temErro = false;
+
+        inputs.forEach(inp => {
+          if(inp.value.length === 1) inp.value = '0' + inp.value;
+          if(!inp.value) temErro = true;
+          else sort.push(inp.value);
+        });
+
+        const out = document.getElementById('saidaConf');
+        if (temErro || sort.length !== 6) return out.innerHTML = '<div class="msg" style="color:var(--danger)">Preencha os 6 números.</div>';
+        if (!estado.participantes.length) return out.innerHTML = '<div class="msg">Sem participantes.</div>';
+        
+        let html = '', acertosGerais = 0;
+
+        estado.participantes.forEach(p => {
+          if (p.jogos && p.jogos[0] !== "Cadastro Manual") {
+            p.jogos.forEach((jogoStr, idx) => {
+              const nums = jogoStr.split(' - ');
+              const acertos = nums.filter(n => sort.includes(n));
+              if (acertos.length > 0) {
+                acertosGerais++;
+                html += `<div class="item" style="border-color:var(--accent); background:#2d2005;">
+                  <div class="top"><strong>${APP.utils.esc(p.nome)} - J${idx+1}</strong><span class="badge" style="background:var(--accent); color:#000;">${acertos.length} acertos</span></div>
+                  <div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:8px;">
+                    ${nums.map(n => `<div class="bola-num ${sort.includes(n)?'hit':''}">${n}</div>`).join('')}
+                  </div>
+                </div>`;
+              }
+            });
+          }
+        });
+
+        out.innerHTML = acertosGerais === 0 ? '<div class="msg">Ninguém acertou nada.</div>' : `<div class="msg pos" style="margin-bottom:10px;">Tivemos acertos!</div>` + html;
+      },
+
+      ratear: function() {
+        const premio = parseFloat(document.getElementById('premio').value) || 0;
+        const out = document.getElementById('saidaRateio');
+        const totalCotas = estado.participantes.length; 
+        
+        if (!totalCotas) return out.innerHTML = '<div class="msg">Sem participantes.</div>';
+        if (premio <= 0) return out.innerHTML = '<div class="msg">Informe o prêmio.</div>';
+        
+        const valorCota = premio / totalCotas;
+        let html = `<div class="flexline"><b>Valor por cota</b><b class="pos">${APP.utils.brl(valorCota)}</b></div>`;
+        estado.participantes.forEach(p => {
+          html += `<div class="flexline"><span>${APP.utils.esc(p.nome)}</span><b class="pos">${APP.utils.brl(valorCota)}</b></div>`;
+        });
+        out.innerHTML = html;
+      },
+
+      exportarExcel: function() {
+        if (!estado.participantes.length) return alert("Nenhum participante cadastrado.");
+        
+        let csvContent = "Nome;Jogo 1;Jogo 2;Jogo 3;Status;Pago (R$);Data\n";
+        estado.participantes.forEach(p => {
+          const status = p.pago >= CONFIG.valorCota ? "PAGO" : "PENDENTE";
+          const data = new Date().toLocaleDateString('pt-BR');
+          const j1 = p.jogos ? p.jogos[0] : "";
+          const j2 = p.jogos ? p.jogos[1] : "";
+          const j3 = p.jogos ? p.jogos[2] : "";
+          csvContent += `${p.nome};${j1};${j2};${j3};${status};${p.pago.toFixed(2).replace('.', ',')};${data}\n`;
+        });
+        
+        const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "Relatorio_Bolao.csv";
+        link.click();
+      },
+
+      renderizar: function() {
+        if(!isAdmin) return;
+
+        // Cálculos Matemáticos
+        const totalPart = estado.participantes.length;
+        const arrecadado = estado.participantes.reduce((s,p) => s + (p.pago || 0), 0);
+        const totalDevido = totalPart * CONFIG.valorCota;
+        const faltaReceber = totalDevido - arrecadado;
+        const custoJogos = estado.custoJogos || 0;
+        const saldoCaixa = arrecadado - custoJogos;
+        const pagos = estado.participantes.filter(p => p.pago >= CONFIG.valorCota).length;
+
+        // Atualiza KPIs
+        document.getElementById('kPart').textContent = totalPart;
+        document.getElementById('kArrecad').textContent = APP.utils.brl(arrecadado);
+        document.getElementById('kFalta').textContent = APP.utils.brl(faltaReceber > 0 ? faltaReceber : 0);
+        document.getElementById('kCusto').textContent = APP.utils.brl(custoJogos);
+        
+        const elSaldo = document.getElementById('kSaldo');
+        elSaldo.textContent = APP.utils.brl(saldoCaixa);
+        elSaldo.className = saldoCaixa < 0 ? 'neg' : 'pos';
+        
+        if(document.getElementById('inputCusto').value == '' && custoJogos > 0) document.getElementById('inputCusto').value = custoJogos;
+
+        // Alerta
+        const alerta = document.getElementById('alertaSaldo');
+        if (saldoCaixa < 0) alerta.innerHTML = `<div class="msg" style="color:var(--danger);">⚠️ Gastou mais do que arrecadou.</div>`;
+        else if (faltaReceber > 0) alerta.innerHTML = `<div class="msg">Faltam receber <b>${APP.utils.brl(faltaReceber)}</b> (${totalPart - pagos} pessoas).</div>`;
+        else if (totalDevido > 0) alerta.innerHTML = `<div class="msg pos">✅ Tudo pago!</div>`;
+
+        // Resumo (Painel)
+        document.getElementById('resumoPart').innerHTML = !totalPart ? '<div class="empty">Sem participantes.</div>' :
+          estado.participantes.map(p => {
+            const falta = CONFIG.valorCota - p.pago;
+            return `<div class="item">
+              <div class="top">
+                <div><strong>${APP.utils.esc(p.nome)}</strong></div>
+                <span class="badge ${falta<=0?'ok':'no'}">${falta<=0?'Pago':'Devendo '+APP.utils.brl(falta)}</span>
+              </div>
+            </div>`;
+          }).join('');
+
+        // Lista Completa (Pessoas)
+        document.getElementById('listaPart').innerHTML = !totalPart ? '<div class="empty">Sem participantes.</div>' :
+          estado.participantes.map(p => {
+            const falta = CONFIG.valorCota - p.pago;
+            let jogosHtml = (p.jogos && p.jogos[0] !== "Cadastro Manual") ? 
+              p.jogos.map((jStr, idx) => `
+                <div class="jogo-exibicao">
+                  <span style="font-size:0.75rem; color:#94a3b8; align-self:center; margin-right:5px;">J${idx+1}:</span>
+                  ${jStr.split(' - ').map(n => `<div class="bola-num">${n}</div>`).join('')}
+                </div>`).join('') 
+              : '<small style="color:#94a3b8; display:block; margin-top:4px;">Jogos no papel.</small>';
+
+            return `<div class="item">
+              <div class="top"><strong>${APP.utils.esc(p.nome)}</strong><span class="badge ${falta<=0?'ok':'no'}">${falta<=0?'Quitado':'Falta '+APP.utils.brl(falta)}</span></div>
+              ${jogosHtml}
+              <div class="row" style="margin-top:8px">
+                ${falta > 0 ? `<button class="sm" onclick="APP.admin.quitar('${p.id}')">✔ Quitar</button>` : `<button class="sm sec" onclick="APP.admin.estornar('${p.id}')">↩ Estornar</button>`}
+                <button class="sm danger" onclick="APP.admin.excluir('${p.id}')">✕ Excluir</button>
+              </div>
+            </div>`;
+          }).join('');
+
+        // Histórico Financeiro
+        document.getElementById('finHist').innerHTML = (!estado.caixa || !estado.caixa.length) ? '<div class="empty">Sem movimentações.</div>' :
+          [...estado.caixa].reverse().map(c => `
+            <div class="flexline">
+              <span>${APP.utils.esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span>
+              <b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${APP.utils.brl(c.valor)}</b>
+            </div>`).join('');
+      }
+    }
+  };
+
+  // =======================================================
+  // MÓDULO VALIDAÇÃO DE INPUTS (Genérico e Reutilizável)
+  // =======================================================
+  window.validaNumero = function(input, tipo, grupo) {
+    let val = input.value.replace(/\D/g, '');
+    if (val.length > 2) val = val.slice(0, 2);
+    input.value = val;
+
+    if (val.length > 0 && (parseInt(val) > 60 || val === '00')) {
+      input.classList.add('erro');
+      setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
+      return;
     }
 
-    const fh = document.getElementById('finHist');
-    if (!estado.caixa || !estado.caixa.length) fh.innerHTML = '<div class="empty">Nenhuma movimentação.</div>';
-    else {
-      fh.innerHTML = [...estado.caixa].reverse().map(c => `
-        <div class="flexline">
-          <span>${esc(c.desc)}<small style="color:#94a3b8;display:block">${new Date(c.data).toLocaleString('pt-BR')}</small></span>
-          <b class="${c.tipo==='entrada'?'pos':'neg'}">${c.tipo==='entrada'?'+':'-'} ${brl(c.valor)}</b>
-        </div>`).join('');
+    if (val.length === 2) {
+      // Define qual grupo de inputs validar com base no tipo
+      const seletor = tipo === 'jogo' ? `.num-input[data-jogo="${grupo}"]` : 
+                      tipo === 'manual' ? `.num-input-admin[data-manual="${grupo}"]` :
+                      `.num-input-admin[data-sorteio="true"]`;
+      
+      const inputsGrupo = Array.from(document.querySelectorAll(seletor));
+      const index = inputsGrupo.indexOf(input);
+      
+      setTimeout(() => {
+        if (index < inputsGrupo.length - 1) inputsGrupo[index + 1].focus();
+        else input.blur();
+      }, 50);
     }
   }
 
-  renderAdmin();
+  window.completaZero = function(input, tipo, grupo) {
+    let val = input.value.replace(/\D/g, '');
+    if (val.length === 1) input.value = '0' + val;
+    if (input.value === '00') { input.value = ''; return; }
+
+    if (input.value.length === 2) {
+      const seletor = tipo === 'jogo' ? `.num-input[data-jogo="${grupo}"]` : 
+                      tipo === 'manual' ? `.num-input-admin[data-manual="${grupo}"]` :
+                      `.num-input-admin[data-sorteio="true"]`;
+      
+      const inputsGrupo = document.querySelectorAll(seletor);
+      
+      let duplicado = false;
+      inputsGrupo.forEach(outro => {
+        if (outro !== input && outro.value === input.value) duplicado = true;
+      });
+
+      if (duplicado) {
+        input.classList.add('erro');
+        setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600);
+      }
+    }
+  }
+
 </script>
 </body>
 </html>
