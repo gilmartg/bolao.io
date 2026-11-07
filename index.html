@@ -366,27 +366,6 @@
     },
 
     publico: {
-      resetarTela: function() {
-        // Limpa Nome
-        document.getElementById('pubNome').value = '';
-        
-        // Limpa as caixinhas de jogos
-        document.querySelectorAll('.num-input').forEach(inp => inp.value = '');
-        
-        // Reseta variáveis
-        jogosTemporarios = {};
-        
-        // Volta a exibir a tela inicial (Regras + Nome) e esconde as outras
-        document.getElementById('areaInicial').style.display = 'block';
-        document.getElementById('areaJogos').style.display = 'none';
-        document.getElementById('areaRevisao').style.display = 'none';
-        document.getElementById('pixArea').style.display = 'none';
-        document.getElementById('mensagemSucesso').style.display = 'none';
-        
-        // Sobe para o topo da tela
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      },
-
       abrirJogos: function() {
         const nome = document.getElementById('pubNome').value.trim();
         if(!nome) return alert("Por favor, digite seu nome primeiro.");
@@ -493,13 +472,8 @@
       },
       logout: function() {
         isAdmin = false;
-        // Esconde Admin, Mostra Público
-        document.getElementById('adminArea').style.display = 'none';
-        document.getElementById('publicArea').style.display = 'block';
-        document.getElementById('publicFooter').style.display = 'block';
-        
-        // CHAMA A FUNÇÃO DE RESETAR A TELA (Volta pro estado inicial)
-        APP.publico.resetarTela();
+        // O SEGREDO ESTÁ AQUI: Recarrega a página para garantir o estado 100% inicial
+        window.location.reload();
       },
       mudarTab: function(id, btn) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
