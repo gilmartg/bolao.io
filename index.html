@@ -603,6 +603,16 @@
 
     admin: {
       login: async function() {
+        if (auth.currentUser) {
+          // Já está logado no Firebase, entra direto
+          document.getElementById('publicArea').style.display = 'none';
+          document.getElementById('publicFooter').style.display = 'none';
+          document.getElementById('adminArea').style.display = 'block';
+          APP.admin.restaurarProgressoAdmin();
+          APP.admin.renderizar();
+          return;
+        }
+
         const email = prompt("E-mail do Administrador:");
         if (email === null) return;
         const senha = prompt("Senha:");
@@ -1095,22 +1105,10 @@
   // RESTAURA OS DADOS AO CARREGAR A PÁGINA
   APP.publico.restaurarProgresso();
 
-  // VERIFICA SE O ADMIN JÁ ESTAVA LOGADO NA MESMA SESSÃO
+  // MONITORA O ESTADO DE LOGIN SEM ENTRAR DIRETO NO PAINEL
   onAuthStateChanged(auth, (user) => {
     isAdmin = !!user;
-
-    if (isAdmin) {
-      document.getElementById('publicArea').style.display = 'none';
-      document.getElementById('publicFooter').style.display = 'none';
-      document.getElementById('adminArea').style.display = 'block';
-
-      APP.admin.restaurarProgressoAdmin();
-      APP.admin.renderizar();
-    } else {
-      document.getElementById('publicArea').style.display = 'block';
-      document.getElementById('publicFooter').style.display = 'block';
-      document.getElementById('adminArea').style.display = 'none';
-    }
+    // Não faz nada visual aqui. O admin só entra se clicar no link.
   });
 
 </script>
