@@ -595,21 +595,40 @@ import { getDatabase, ref, onValue, set, update, push, get } from "https://www.g
       }
     },
 
-    admin: {
-login: async function() {
-  const email = prompt("Digite seu e-mail de administrador:");
-  if (email === null) return;
+admin: {
+  migrarFinanceiro: async function() {
+    if (!auth.currentUser) {
+      return alert("Faça login como administrador primeiro.");
+    }
 
-  const senha = prompt("Digite sua senha:");
-  if (senha === null) return;
+    try {
+      const destino = await get(dbAdminRef);
 
-  try {
-    await signInWithEmailAndPassword(auth, email.trim(), senha);
-  } catch (error) {
-    console.error("Erro no login:", error);
-    alert("Não foi possível entrar. Confira seu e-mail e senha.");
-  }
-},
+      if (destino.exists()) {
+        return alert("Já existem dados na área privada. Nenhuma alteração foi feita.");
+      }
+
+      const pagamentos = {};
+
+      Object.entries(estado.participantes || {}).forEach(([id, p]) => {
+        pagamentos[id] = {
+          pago: Number(p.pago) || 0,
+          status: p.status || 'pendente'
+        };
+      });
+
+      await set(dbAdminRef, {
+        pagamentos: pagamentos,
+        caixa: estado.caixa || {},
+        custoJogos: Number(estado.custoJogos) || 0
+      });
+
+      alert("Cópia financeira realizada com sucesso!");
+    } catch (error) {
+      console.error("Erro na cópia financeira:", error);
+      alert("Não foi possível copiar os dados. Consulte o console.");
+    }
+  },
       
 logout: async function() {
   try {
