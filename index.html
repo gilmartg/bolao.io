@@ -609,6 +609,7 @@
         isAdmin = false;
         sessionStorage.removeItem('bolao_admin_logado');
         sessionStorage.removeItem('bolao_admin_progresso');
+        sessionStorage.removeItem('bolao_progresso'); // <--- A LINHA MÁGICA QUE FALTAVA
         window.location.reload();
       },
       
