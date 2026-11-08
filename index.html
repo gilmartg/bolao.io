@@ -336,6 +336,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getDatabase, ref, onValue, set, update, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
   const CONFIG = {
     firebase: {
@@ -359,6 +360,7 @@
 
   const app = initializeApp(CONFIG.firebase);
   const db = getDatabase(app);
+  const auth = getAuth(app);
   const dbRef = ref(db, 'bolao'); 
 
   onValue(dbRef, (snapshot) => {
@@ -592,26 +594,32 @@
     },
 
     admin: {
-      login: async function() {
-        const senha = prompt("Digite a senha:");
-        if (senha === null) return;
-        if (await APP.utils.hashSenha(senha) === CONFIG.senhaAdminHash) {
-          isAdmin = true;
-          sessionStorage.setItem('bolao_admin_logado', 'true');
-          document.getElementById('publicArea').style.display = 'none';
-          document.getElementById('publicFooter').style.display = 'none';
-          document.getElementById('adminArea').style.display = 'block';
-          this.renderizar();
-        } else { alert("Senha incorreta!"); }
-      },
+login: async function() {
+  const email = prompt("Digite seu e-mail de administrador:");
+  if (email === null) return;
+
+  const senha = prompt("Digite sua senha:");
+  if (senha === null) return;
+
+  try {
+    await signInWithEmailAndPassword(auth, email.trim(), senha);
+  } catch (error) {
+    console.error("Erro no login:", error);
+    alert("Não foi possível entrar. Confira seu e-mail e senha.");
+  }
+},
       
-      logout: function() {
-        isAdmin = false;
-        sessionStorage.removeItem('bolao_admin_logado');
-        sessionStorage.removeItem('bolao_admin_progresso');
-        sessionStorage.removeItem('bolao_progresso'); // <--- A LINHA MÁGICA QUE FALTAVA
-        window.location.reload();
-      },
+logout: async function() {
+  try {
+    await signOut(auth);
+    isAdmin = false;
+    sessionStorage.removeItem('bolao_admin_progresso');
+    window.location.reload();
+  } catch (error) {
+    alert("Erro ao sair da área administrativa.");
+    console.error(error);
+  }
+},
       
       mudarTab: function(id, btn) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
