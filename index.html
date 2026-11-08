@@ -13,6 +13,9 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
   
+  /* TRAVA O PULL TO REFRESH NO CELULAR */
+  html, body { overscroll-behavior-y: contain; }
+
   /* ================= TELA PÚBLICA ================= */
   body { background: var(--bg-public); color: #fff; padding: 16px; line-height: 1.5; padding-bottom: 80px; }
   
@@ -172,12 +175,10 @@
       <p style="font-size:0.9rem; color:#333; font-weight:bold; margin-bottom:10px;">Ou copie o código abaixo:</p>
       <div class="pix-code" onclick="APP.utils.copiarPix()">Clique para copiar o código PIX</div>
       
-      <!-- NOVO BOTÃO DE WHATSAPP AQUI -->
       <p style="font-size:0.9rem; color:#666; margin-top:15px; margin-bottom:10px;">Após pagar, envie o comprovante no grupo:</p>
-      <a href="https://chat.whatsapp.com/GGkJKg4cr9w37ltOiF7UbK" target="_blank" style="display:flex; justify-content:center; align-items:center; gap:8px; background:#25D366; color:#fff; text-decoration:none; padding:14px; border-radius:8px; font-weight:bold; font-size:1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+      <a href="https://chat.whatsapp.com/SEU_LINK_AQUI" target="_blank" style="display:flex; justify-content:center; align-items:center; gap:8px; background:#25D366; color:#fff; text-decoration:none; padding:14px; border-radius:8px; font-weight:bold; font-size:1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
         📲 Enviar Comprovante no Grupo
       </a>
-      <!-- FIM DO BOTÃO -->
       
     </div>
   </div>
@@ -416,11 +417,75 @@
     },
 
     publico: {
+      salvarProgresso: function() {
+        try {
+          const progresso = {
+            nome: document.getElementById('pubNome').value.trim(),
+            jogos: [],
+            estagio: 'areaInicial',
+            concluido: false
+          };
+          
+          if (document.getElementById('areaJogos').style.display === 'block') progresso.estagio = 'areaJogos';
+          if (document.getElementById('areaRevisao').style.display === 'block') progresso.estagio = 'areaRevisao';
+          if (document.getElementById('pixArea').style.display === 'block') { progresso.estagio = 'pixArea'; progresso.concluido = true; }
+
+          if (progresso.estagio === 'areaJogos') {
+            for(let i=1; i<=3; i++) {
+              const inputs = document.querySelectorAll(`.num-input[data-jogo="${i}"]`);
+              let nums = [];
+              inputs.forEach(inp => nums.push(inp.value));
+              progresso.jogos.push(nums);
+            }
+          } else if (progresso.estagio === 'areaRevisao' || progresso.estagio === 'pixArea') {
+            if (jogosTemporarios[1]) {
+              progresso.jogos = [jogosTemporarios[1], jogosTemporarios[2], jogosTemporarios[3]];
+            }
+          }
+          
+          sessionStorage.setItem('bolao_progresso', JSON.stringify(progresso));
+        } catch(e) { console.error("Erro ao salvar progresso local", e); }
+      },
+
+      restaurarProgresso: function() {
+        try {
+          const salvo = sessionStorage.getItem('bolao_progresso');
+          if (!salvo) return;
+          const p = JSON.parse(salvo);
+          
+          if (p.nome) document.getElementById('pubNome').value = p.nome;
+
+          if (p.jogos && p.jogos.length === 3) {
+            for(let i=1; i<=3; i++) {
+              const inputs = document.querySelectorAll(`.num-input[data-jogo="${i}"]`);
+              p.jogos[i-1].forEach((val, idx) => { if (inputs[idx]) inputs[idx].value = val; });
+            }
+          }
+
+          if (p.estagio === 'areaJogos') {
+            document.getElementById('areaInicial').style.display = 'none';
+            document.getElementById('areaJogos').style.display = 'block';
+          } else if (p.estagio === 'areaRevisao') {
+            document.getElementById('areaInicial').style.display = 'none';
+            document.getElementById('areaJogos').style.display = 'block';
+            APP.publico.confirmarJogos(true);
+          } else if (p.estagio === 'pixArea' && p.concluido) {
+            document.getElementById('areaInicial').style.display = 'none';
+            document.getElementById('areaJogos').style.display = 'none';
+            document.getElementById('areaRevisao').style.display = 'none';
+            document.getElementById('pixArea').style.display = 'block';
+            document.getElementById('mensagemSucesso').style.display = 'block';
+            document.getElementById('mensagemSucesso').innerHTML = `✅ Jogos de <b>${APP.utils.esc(p.nome.split(' ')[0])}</b> registrados!`;
+          }
+        } catch(e) { console.error(e); }
+      },
+
       abrirJogos: function() {
         const nome = document.getElementById('pubNome').value.trim();
         if(!nome) return alert("Por favor, digite seu nome primeiro.");
         document.getElementById('areaInicial').style.display = 'none';
         document.getElementById('areaJogos').style.display = 'block';
+        this.salvarProgresso();
       },
 
       gerarAleatorio: function(numJogo) {
@@ -451,9 +516,10 @@
         
         inputs[5].focus();
         inputs[5].blur();
+        this.salvarProgresso();
       },
 
-      confirmarJogos: function() {
+      confirmarJogos: function(isRestore) {
         jogosTemporarios = {};
         for(let i=1; i<=3; i++) {
           const inputs = document.querySelectorAll(`.num-input[data-jogo="${i}"]`);
@@ -464,19 +530,28 @@
             if(!inp.value) temErro = true;
             else nums.push(inp.value);
           });
-          if (temErro || nums.length !== 6) return alert(`Preencha todos os 6 números do Jogo ${i}.`);
-          if (new Set(nums).size !== nums.length) return alert(`O Jogo ${i} tem números repetidos.`);
+          if (temErro || nums.length !== 6) {
+            if(!isRestore) alert(`Preencha todos os 6 números do Jogo ${i}.`);
+            return;
+          }
+          if (new Set(nums).size !== nums.length) {
+            if(!isRestore) alert(`O Jogo ${i} tem números repetidos.`);
+            return;
+          }
           jogosTemporarios[i] = nums;
         }
         document.getElementById('areaJogos').style.display = 'none';
         document.getElementById('areaRevisao').style.display = 'block';
         for(let i=1; i<=3; i++) document.getElementById(`bolinhas-${i}`).innerHTML = jogosTemporarios[i].map(n => `<div class="bolinha">${APP.utils.esc(n)}</div>`).join('');
+        
+        if(!isRestore) this.salvarProgresso();
       },
 
       editarJogo: function(numJogo) {
         document.getElementById('areaRevisao').style.display = 'none';
         document.getElementById('areaJogos').style.display = 'block';
         document.querySelector(`.num-input[data-jogo="${numJogo}"]`).focus();
+        this.salvarProgresso();
       },
 
       gerarPix: async function() {
@@ -504,6 +579,8 @@
           document.getElementById('mensagemSucesso').style.display = 'block';
           document.getElementById('mensagemSucesso').innerHTML = `✅ Jogos de <b>${APP.utils.esc(primeiroNome)}</b> registrados!`;
           document.getElementById('pixArea').scrollIntoView({ behavior: 'smooth' });
+          
+          this.salvarProgresso();
 
         } catch (error) {
           console.error("ERRO FIREBASE:", error);
@@ -881,6 +958,15 @@
       if (dup) { input.classList.add('erro'); setTimeout(() => { input.value = ''; input.classList.remove('erro'); }, 600); }
     }
   }
+
+  document.getElementById('pubNome').addEventListener('input', () => APP.publico.salvarProgresso());
+  document.querySelectorAll('.num-input').forEach(inp => {
+    inp.addEventListener('input', () => APP.publico.salvarProgresso());
+    inp.addEventListener('blur', () => APP.publico.salvarProgresso());
+  });
+
+  APP.publico.restaurarProgresso();
+
 </script>
 </body>
 </html>
