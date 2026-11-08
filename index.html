@@ -304,10 +304,9 @@
       </div>
     </div>
     
-    <!-- NOVO BLOCO DE MIGRAÇÃO ADICIONADO AQUI -->
     <div class="card" style="border-color: #f59e0b;">
       <h2>🔐 Área Segura</h2>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Sincroniza os dados financeiros públicos (pagamentos e caixa) para o nó protegido `bolaoAdmin`.</p>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Sincroniza os dados financeiros públicos para o nó protegido `bolaoAdmin`.</p>
       <button class="sec" onclick="APP.admin.migrarFinanceiro()" style="background:#f59e0b; color:#fff;">Atualizar Área Segura</button>
     </div>
 
@@ -342,7 +341,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getDatabase, ref, onValue, set, update, push, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
   const CONFIG = {
     firebase: {
@@ -363,10 +362,17 @@
   let isAdmin = false;
   let jogosTemporarios = {};
   let ultimoResultadoConferencia = "";
+  let adminTimeoutId = null; // Variável para o cronômetro
+  const TEMPO_INATIVIDADE = 5 * 60 * 1000; // 5 minutos
 
   const app = initializeApp(CONFIG.firebase);
   const db = getDatabase(app);
   const auth = getAuth(app);
+
+  setPersistence(auth, browserSessionPersistence).catch((error) => {
+    console.error("Erro ao configurar persistência de sessão:", error);
+  });
+
   const dbRef = ref(db, 'bolao'); 
   const dbPublicoRef = ref(db, 'bolao/participantes');
   const dbAdminRef = ref(db, 'bolaoAdmin');
@@ -602,14 +608,28 @@
     },
 
     admin: {
+      iniciarTimerInatividade: function() {
+        clearTimeout(adminTimeoutId);
+        adminTimeoutId = setTimeout(() => {
+          alert("Sessão expirada por inatividade (5 minutos). O painel será fechado.");
+          this.logout();
+        }, TEMPO_INATIVIDADE);
+      },
+
+      resetTimerInatividade: function() {
+        if (isAdmin) {
+          this.iniciarTimerInatividade();
+        }
+      },
+
       login: async function() {
         if (auth.currentUser) {
-          // Já está logado no Firebase, entra direto
           document.getElementById('publicArea').style.display = 'none';
           document.getElementById('publicFooter').style.display = 'none';
           document.getElementById('adminArea').style.display = 'block';
-          APP.admin.restaurarProgressoAdmin();
-          APP.admin.renderizar();
+          this.restaurarProgressoAdmin();
+          this.renderizar();
+          this.iniciarTimerInatividade(); // Inicia o timer ao entrar
           return;
         }
 
@@ -620,6 +640,8 @@
         
         try {
           await signInWithEmailAndPassword(auth, email, senha);
+          // O onAuthStateChanged não faz nada visual, mas o timer é iniciado aqui
+          this.iniciarTimerInatividade();
         } catch (error) {
           alert("Erro de Autenticação: " + error.message);
         }
@@ -658,6 +680,7 @@
       },
         
       logout: async function() {
+        clearTimeout(adminTimeoutId); // Limpa o timer ao sair
         try {
           await signOut(auth);
           isAdmin = false;
@@ -1092,7 +1115,7 @@
     inp.addEventListener('blur', () => APP.publico.salvarProgresso());
   });
 
-  // SALVAR PROGRESSO DO ADMIN
+  // SALVAR PROGRESSO DO ADMIN E RESETAR O TIMER DE INATIVIDADE
   document.getElementById('pNome').addEventListener('input', () => APP.admin.salvarProgressoAdmin());
   document.getElementById('pStatus').addEventListener('change', () => APP.admin.salvarProgressoAdmin());
   document.querySelectorAll('.num-input-admin').forEach(inp => {
@@ -1108,7 +1131,17 @@
   // MONITORA O ESTADO DE LOGIN SEM ENTRAR DIRETO NO PAINEL
   onAuthStateChanged(auth, (user) => {
     isAdmin = !!user;
-    // Não faz nada visual aqui. O admin só entra se clicar no link.
+    if (isAdmin) {
+      APP.admin.iniciarTimerInatividade(); // Inicia o timer caso já esteja logado na sessão
+    }
+  });
+
+  // DETECTA ATIVIDADE NO PAINEL ADMIN PARA RESETAR O TIMER
+  const adminArea = document.getElementById('adminArea');
+  ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'].forEach(evento => {
+    adminArea.addEventListener(evento, () => {
+      if (isAdmin) APP.admin.resetTimerInatividade();
+    }, { passive: true });
   });
 
 </script>
