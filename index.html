@@ -13,7 +13,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
   
-  /* TRAVA O PULL TO REFRESH NO CELULAR */
+  /* TRAVA O PULL TO REFRESH NO CELULAR (Vale para a tela toda) */
   html, body { overscroll-behavior-y: contain; }
 
   /* ================= TELA PÚBLICA ================= */
@@ -597,24 +597,88 @@
         if (senha === null) return;
         if (await APP.utils.hashSenha(senha) === CONFIG.senhaAdminHash) {
           isAdmin = true;
+          sessionStorage.setItem('bolao_admin_logado', 'true'); // Salva login
           document.getElementById('publicArea').style.display = 'none';
           document.getElementById('publicFooter').style.display = 'none';
           document.getElementById('adminArea').style.display = 'block';
           this.renderizar();
         } else { alert("Senha incorreta!"); }
       },
+      
       logout: function() {
         isAdmin = false;
+        sessionStorage.removeItem('bolao_admin_logado'); // Limpa login
+        sessionStorage.removeItem('bolao_admin_progresso'); // Limpa dados do admin
         window.location.reload();
       },
+      
       mudarTab: function(id, btn) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
         document.getElementById('tab-' + id).classList.add('active');
         if (btn) btn.classList.add('active');
+        this.salvarProgressoAdmin(); // Salva a aba atual
         this.renderizar();
       },
       
+      salvarProgressoAdmin: function() {
+        try {
+          const p = { tab: 'painel' };
+          const activeTab = document.querySelector('.tab.active');
+          if (activeTab) p.tab = activeTab.id.replace('tab-', '');
+          
+          p.pNome = document.getElementById('pNome').value;
+          p.pStatus = document.getElementById('pStatus').value;
+          
+          p.manualNums = [];
+          document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => p.manualNums.push(inp.value));
+          
+          p.sorteioNums = [];
+          document.querySelectorAll('.num-input-admin[data-sorteio]').forEach(inp => p.sorteioNums.push(inp.value));
+          
+          p.premio = document.getElementById('premio').value;
+          p.custo = document.getElementById('inputCusto').value;
+
+          sessionStorage.setItem('bolao_admin_progresso', JSON.stringify(p));
+        } catch(e) { console.error("Erro ao salvar progresso do admin", e); }
+      },
+
+      restaurarProgressoAdmin: function() {
+        try {
+          const salvo = sessionStorage.getItem('bolao_admin_progresso');
+          if (!salvo) return;
+          const p = JSON.parse(salvo);
+
+          if (p.tab) {
+            const btn = Array.from(document.querySelectorAll('.tabbar button')).find(b => b.innerText.toLowerCase().includes(p.tab.substring(0,4).toLowerCase()));
+            this.mudarTab(p.tab, btn);
+          }
+
+          if (p.pNome) document.getElementById('pNome').value = p.pNome;
+          if (p.pStatus) document.getElementById('pStatus').value = p.pStatus;
+
+          if (p.manualNums && p.manualNums.length > 0) {
+            document.querySelectorAll('.num-input-admin[data-manual]').forEach((inp, idx) => { inp.value = p.manualNums[idx] || ''; });
+          }
+
+          if (p.sorteioNums && p.sorteioNums.length > 0) {
+            document.querySelectorAll('.num-input-admin[data-sorteio]').forEach((inp, idx) => { inp.value = p.sorteioNums[idx] || ''; });
+            // Se já tinha números do sorteio, confere de novo para restaurar o resultado na tela
+            if(p.sorteioNums.every(n => n.length === 2)) this.conferir(); 
+          }
+
+          if (p.premio) { 
+            document.getElementById('premio').value = p.premio; 
+            this.ratear(); 
+          }
+          
+          if (p.custo) {
+            document.getElementById('inputCusto').value = p.custo;
+          }
+
+        } catch(e) { console.error("Erro ao restaurar progresso admin", e); }
+      },
+
       addParticipante: async function() {
         const nome = document.getElementById('pNome').value.trim();
         const status = document.getElementById('pStatus').value;
@@ -653,6 +717,7 @@
           document.getElementById('pNome').value = '';
           document.getElementById('pStatus').value = 'pendente';
           document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
+          this.salvarProgressoAdmin(); // Limpa da memória
           alert("Participante cadastrado!");
         } catch(e) { alert("Erro ao salvar."); }
       },
@@ -711,6 +776,7 @@
         
         try { 
           await update(ref(db, 'bolao'), { custoJogos: c }); 
+          this.salvarProgressoAdmin();
           alert("Custo salvo!"); 
         } catch(e) { alert("Erro ao salvar custo."); }
       },
@@ -723,6 +789,7 @@
         document.getElementById('infoConferencia').innerHTML = '';
         document.getElementById('btnCopiarResultado').style.display = 'none';
         ultimoResultadoConferencia = "";
+        this.salvarProgressoAdmin();
       },
 
       conferir: function() {
@@ -794,6 +861,7 @@
         
         ultimoResultadoConferencia = textoWpp;
         btnCopiar.style.display = 'block';
+        this.salvarProgressoAdmin(); // Salva o estado atual da conferência
       },
 
       copiarResultado: function() {
@@ -824,6 +892,7 @@
           html += `<div class="flexline"><span>${APP.utils.esc(p.nome)}</span><b class="pos">${APP.utils.brl(vCota)}</b></div>`; 
         });
         out.innerHTML = html;
+        this.salvarProgressoAdmin(); // Salva o prêmio digitado
       },
 
       exportarExcel: function() {
@@ -959,13 +1028,35 @@
     }
   }
 
+  // SALVAR PROGRESSO DA TELA PÚBLICA
   document.getElementById('pubNome').addEventListener('input', () => APP.publico.salvarProgresso());
   document.querySelectorAll('.num-input').forEach(inp => {
     inp.addEventListener('input', () => APP.publico.salvarProgresso());
     inp.addEventListener('blur', () => APP.publico.salvarProgresso());
   });
 
+  // SALVAR PROGRESSO DO ADMIN (em todos os inputs relevantes)
+  document.getElementById('pNome').addEventListener('input', () => APP.admin.salvarProgressoAdmin());
+  document.getElementById('pStatus').addEventListener('change', () => APP.admin.salvarProgressoAdmin());
+  document.querySelectorAll('.num-input-admin').forEach(inp => {
+    inp.addEventListener('input', () => APP.admin.salvarProgressoAdmin());
+    inp.addEventListener('blur', () => APP.admin.salvarProgressoAdmin());
+  });
+  document.getElementById('premio').addEventListener('input', () => APP.admin.salvarProgressoAdmin());
+  document.getElementById('inputCusto').addEventListener('input', () => APP.admin.salvarProgressoAdmin());
+
+  // RESTAURA OS DADOS AO CARREGAR A PÁGINA
   APP.publico.restaurarProgresso();
+
+  // VERIFICA SE O ADMIN JÁ ESTAVA LOGADO NA MESMA SESSÃO
+  if (sessionStorage.getItem('bolao_admin_logado') === 'true') {
+    isAdmin = true;
+    document.getElementById('publicArea').style.display = 'none';
+    document.getElementById('publicFooter').style.display = 'none';
+    document.getElementById('adminArea').style.display = 'block';
+    APP.admin.restaurarProgressoAdmin();
+    APP.admin.renderizar();
+  }
 
 </script>
 </body>
