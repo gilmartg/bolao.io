@@ -374,7 +374,6 @@
   });
 
   const dbRef = ref(db, 'bolao'); 
-  const dbPublicoRef = ref(db, 'bolao/participantes');
   const dbAdminRef = ref(db, 'bolaoAdmin');
 
   onValue(dbRef, (snapshot) => {
@@ -622,14 +621,18 @@
         }
       },
 
+      abrirPainelAdmin: function() {
+        document.getElementById('publicArea').style.display = 'none';
+        document.getElementById('publicFooter').style.display = 'none';
+        document.getElementById('adminArea').style.display = 'block';
+        this.restaurarProgressoAdmin();
+        this.renderizar();
+        this.iniciarTimerInatividade();
+      },
+
       login: async function() {
         if (auth.currentUser) {
-          document.getElementById('publicArea').style.display = 'none';
-          document.getElementById('publicFooter').style.display = 'none';
-          document.getElementById('adminArea').style.display = 'block';
-          this.restaurarProgressoAdmin();
-          this.renderizar();
-          this.iniciarTimerInatividade();
+          this.abrirPainelAdmin();
           return;
         }
 
@@ -640,17 +643,7 @@
         
         try {
           await signInWithEmailAndPassword(auth, email, senha);
-          
-          // === CORREÇÃO APLICADA AQUI ===
-          // Exibe o painel imediatamente após autenticar com sucesso
-          document.getElementById('publicArea').style.display = 'none';
-          document.getElementById('publicFooter').style.display = 'none';
-          document.getElementById('adminArea').style.display = 'block';
-          this.restaurarProgressoAdmin();
-          this.renderizar();
-          this.iniciarTimerInatividade();
-          // ==============================
-          
+          // O onAuthStateChanged chamará abrirPainelAdmin automaticamente
         } catch (error) {
           alert("Erro de Autenticação: " + error.message);
         }
@@ -1137,7 +1130,11 @@
   onAuthStateChanged(auth, (user) => {
     isAdmin = !!user;
     if (isAdmin) {
-      APP.admin.iniciarTimerInatividade();
+      APP.admin.abrirPainelAdmin();
+    } else {
+      document.getElementById('publicArea').style.display = 'block';
+      document.getElementById('publicFooter').style.display = 'block';
+      document.getElementById('adminArea').style.display = 'none';
     }
   });
 
