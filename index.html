@@ -13,7 +13,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
   
-  /* TRAVA O PULL TO REFRESH NO CELULAR (Vale para a tela toda) */
+  /* TRAVA O PULL TO REFRESH NO CELULAR */
   html, body { overscroll-behavior-y: contain; }
 
   /* ================= TELA PÚBLICA ================= */
@@ -597,7 +597,7 @@
         if (senha === null) return;
         if (await APP.utils.hashSenha(senha) === CONFIG.senhaAdminHash) {
           isAdmin = true;
-          sessionStorage.setItem('bolao_admin_logado', 'true'); // Salva login
+          sessionStorage.setItem('bolao_admin_logado', 'true');
           document.getElementById('publicArea').style.display = 'none';
           document.getElementById('publicFooter').style.display = 'none';
           document.getElementById('adminArea').style.display = 'block';
@@ -607,8 +607,8 @@
       
       logout: function() {
         isAdmin = false;
-        sessionStorage.removeItem('bolao_admin_logado'); // Limpa login
-        sessionStorage.removeItem('bolao_admin_progresso'); // Limpa dados do admin
+        sessionStorage.removeItem('bolao_admin_logado');
+        sessionStorage.removeItem('bolao_admin_progresso');
         window.location.reload();
       },
       
@@ -617,7 +617,7 @@
         document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
         document.getElementById('tab-' + id).classList.add('active');
         if (btn) btn.classList.add('active');
-        this.salvarProgressoAdmin(); // Salva a aba atual
+        this.salvarProgressoAdmin();
         this.renderizar();
       },
       
@@ -650,8 +650,8 @@
           const p = JSON.parse(salvo);
 
           if (p.tab) {
-            const btn = Array.from(document.querySelectorAll('.tabbar button')).find(b => b.innerText.toLowerCase().includes(p.tab.substring(0,4).toLowerCase()));
-            this.mudarTab(p.tab, btn);
+            const btn = document.querySelector(`.tabbar button[onclick*="'${p.tab}'"]`);
+            if (btn) btn.click();
           }
 
           if (p.pNome) document.getElementById('pNome').value = p.pNome;
@@ -663,7 +663,6 @@
 
           if (p.sorteioNums && p.sorteioNums.length > 0) {
             document.querySelectorAll('.num-input-admin[data-sorteio]').forEach((inp, idx) => { inp.value = p.sorteioNums[idx] || ''; });
-            // Se já tinha números do sorteio, confere de novo para restaurar o resultado na tela
             if(p.sorteioNums.every(n => n.length === 2)) this.conferir(); 
           }
 
@@ -717,7 +716,7 @@
           document.getElementById('pNome').value = '';
           document.getElementById('pStatus').value = 'pendente';
           document.querySelectorAll('.num-input-admin[data-manual]').forEach(inp => inp.value = '');
-          this.salvarProgressoAdmin(); // Limpa da memória
+          this.salvarProgressoAdmin();
           alert("Participante cadastrado!");
         } catch(e) { alert("Erro ao salvar."); }
       },
@@ -861,7 +860,7 @@
         
         ultimoResultadoConferencia = textoWpp;
         btnCopiar.style.display = 'block';
-        this.salvarProgressoAdmin(); // Salva o estado atual da conferência
+        this.salvarProgressoAdmin();
       },
 
       copiarResultado: function() {
@@ -892,7 +891,7 @@
           html += `<div class="flexline"><span>${APP.utils.esc(p.nome)}</span><b class="pos">${APP.utils.brl(vCota)}</b></div>`; 
         });
         out.innerHTML = html;
-        this.salvarProgressoAdmin(); // Salva o prêmio digitado
+        this.salvarProgressoAdmin();
       },
 
       exportarExcel: function() {
@@ -1035,7 +1034,7 @@
     inp.addEventListener('blur', () => APP.publico.salvarProgresso());
   });
 
-  // SALVAR PROGRESSO DO ADMIN (em todos os inputs relevantes)
+  // SALVAR PROGRESSO DO ADMIN
   document.getElementById('pNome').addEventListener('input', () => APP.admin.salvarProgressoAdmin());
   document.getElementById('pStatus').addEventListener('change', () => APP.admin.salvarProgressoAdmin());
   document.querySelectorAll('.num-input-admin').forEach(inp => {
