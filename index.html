@@ -307,8 +307,8 @@
     <!-- NOVO BLOCO DE MIGRAÇÃO ADICIONADO AQUI -->
     <div class="card" style="border-color: #f59e0b;">
       <h2>🔐 Área Segura</h2>
-      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Copia os dados financeiros atuais para o nó protegido `bolaoAdmin`.</p>
-      <button class="sec" onclick="APP.admin.migrarFinanceiro()" style="background:#f59e0b; color:#fff;">Executar Migração de Segurança</button>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:10px;">Sincroniza os dados financeiros públicos (pagamentos e caixa) para o nó protegido `bolaoAdmin`.</p>
+      <button class="sec" onclick="APP.admin.migrarFinanceiro()" style="background:#f59e0b; color:#fff;">Atualizar Área Segura</button>
     </div>
 
     <div class="card">
@@ -620,13 +620,11 @@
           return alert("Faça login como administrador primeiro.");
         }
 
+        if (!confirm("Isso vai atualizar os dados da Área Segura com os pagamentos e o caixa atuais. Deseja continuar?")) {
+          return;
+        }
+
         try {
-          const destino = await get(dbAdminRef);
-
-          if (destino.exists()) {
-            return alert("Já existem dados na área privada. Nenhuma alteração foi feita.");
-          }
-
           const pagamentos = {};
 
           Object.entries(estado.participantes || {}).forEach(([id, p]) => {
@@ -642,7 +640,7 @@
             custoJogos: Number(estado.custoJogos) || 0
           });
 
-          alert("Cópia financeira realizada com sucesso!");
+          alert("Área Segura atualizada com sucesso!");
         } catch (error) {
           console.error("Erro na cópia financeira:", error);
           alert("Não foi possível copiar os dados. Consulte o console.");
@@ -654,7 +652,7 @@
           await signOut(auth);
           isAdmin = false;
           sessionStorage.removeItem('bolao_admin_progresso');
-          sessionStorage.removeItem('bolao_progresso'); // <--- A LINHA MÁGICA QUE LIMPA A TELA PÚBLICA
+          sessionStorage.removeItem('bolao_progresso');
           window.location.reload();
         } catch (error) {
           alert("Erro ao sair da área administrativa.");
