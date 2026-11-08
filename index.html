@@ -1057,14 +1057,22 @@ logout: async function() {
   APP.publico.restaurarProgresso();
 
   // VERIFICA SE O ADMIN JÁ ESTAVA LOGADO NA MESMA SESSÃO
-  if (sessionStorage.getItem('bolao_admin_logado') === 'true') {
-    isAdmin = true;
+onAuthStateChanged(auth, (user) => {
+  isAdmin = !!user;
+
+  if (isAdmin) {
     document.getElementById('publicArea').style.display = 'none';
     document.getElementById('publicFooter').style.display = 'none';
     document.getElementById('adminArea').style.display = 'block';
+
     APP.admin.restaurarProgressoAdmin();
     APP.admin.renderizar();
+  } else {
+    document.getElementById('publicArea').style.display = 'block';
+    document.getElementById('publicFooter').style.display = 'block';
+    document.getElementById('adminArea').style.display = 'none';
   }
+});
 
 </script>
 </body>
